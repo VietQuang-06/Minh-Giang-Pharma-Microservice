@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập Khách Hàng — Nhà Thuốc Minh Giang</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .auth-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 960px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin: 20px;
+        }
+
+        .auth-banner {
+            flex: 1;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            padding: 40px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-banner::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .auth-banner h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .auth-banner p {
+            font-size: 16px;
+            color: #d1fae5;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .auth-features {
+            list-style: none;
+        }
+
+        .auth-features li {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .auth-features i {
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .auth-form-container {
+            width: 440px;
+            padding: 48px 40px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 32px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .auth-tab.active {
+            color: #059669;
+        }
+
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #059669;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            position: relative;
+        }
+
+        .input-field i.icon-left {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .input-field input {
+            width: 100%;
+            height: 48px;
+            padding: 0 44px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .input-field input:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+        }
+
+        .auth-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .forgot-link {
+            color: #059669;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .remember-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #475569;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 48px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 24px;
+        }
+
+        .submit-btn:hover {
+            background: #047857;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+        }
+
+        .social-login {
+            text-align: center;
+        }
+
+        .social-login p {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .social-login p::before,
+        .social-login p::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .social-login p::before {
+            left: 0;
+        }
+
+        .social-login p::after {
+            right: 0;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            height: 48px;
+            background: #fff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .social-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .social-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 24px;
+        }
+
+        .back-home a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .back-home a:hover {
+            color: #059669;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .auth-wrapper {
+                flex-direction: column;
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .auth-banner {
+                padding: 30px 24px;
+                flex: none;
+            }
+
+            .auth-form-container {
+                width: 100%;
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-wrapper">
+        <div class="auth-banner">
+            <div>
+                <h2>Chào mừng trở lại</h2>
+                <p>Đăng nhập để xem lịch sử mua thuốc, nhận tư vấn từ dược sĩ chuyên môn và tích luỹ ưu đãi Thành viên.
+                </p>
+                <ul class="auth-features">
+                    <li><i class="fa-solid fa-shield-check"></i> Tra cứu tư liệu & Đơn thuốc uy tín</li>
+                    <li><i class="fa-solid fa-truck-fast"></i> Giao siêu tốc toàn quốc</li>
+                    <li><i class="fa-solid fa-medal"></i> Tích điểm nhận Voucher lớn</li>
+                </ul>
+            </div>
+            <img src="../assets/images/logo_Minh_Giang_Pharmacy.png" alt="Logo"
+                style="width: 80px; position: absolute; bottom: 30px; right: 40px; opacity: 0.2; filter: grayscale(1) invert(1);">
+        </div>
+
+        <div class="auth-form-container">
+            <div class="auth-tabs">
+                <a href="login.html" class="auth-tab active">Đăng Nhập</a>
+                <a href="register.html" class="auth-tab">Đăng Ký</a>
+            </div>
+
+            <div class="auth-alert" id="loginError" style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#ef4444; padding:12px 14px; border-radius:8px; font-size:13px; font-weight:500; margin-bottom:20px; align-items:center; gap:8px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="loginErrorMsg"></span>
+            </div>
+
+            <form id="clientLoginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>SĐT hoặc Email</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope icon-left"></i>
+                        <input type="text" id="username" placeholder="Nhập email hoặc số điện thoại..." required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Mật khẩu</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock icon-left"></i>
+                        <input type="password" id="password" placeholder="Nhập mật khẩu..." required>
+                    </div>
+                </div>
+
+                <div class="auth-options">
+                    <label class="remember-checkbox">
+                        <input type="checkbox"> Ghi nhớ
+                    </label>
+                    <a href="#" class="forgot-link" onclick="openForgotPassword(event)">Quên mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Đăng nhập ngay</button>
+
+                <div class="social-login">
+                    <p>Hoặc đăng nhập bằng</p>
+                    <div style="display: flex; gap: 12px; margin-top: 12px;">
+                        <button type="button" class="social-btn" onclick="loginWithZalo(event)" style="flex: 1; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-comment" style="color:#0068ff; font-size: 18px;"></i>
+                            Zalo
+                        </button>
+                        <button type="button" class="social-btn" onclick="loginWithGoogle(event)" style="flex: 1; justify-content: center; gap: 8px;">
+                            <i class="fa-brands fa-google" style="color:#ea4335; font-size: 18px;"></i>
+                            Google
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="forgotPanel" style="display:none; margin-top:18px; border-top:1px solid #e2e8f0; padding-top:18px;">
+                <div class="input-group">
+                    <label>Email hoặc SĐT đã đăng ký</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope icon-left"></i>
+                        <input type="text" id="resetTarget" placeholder="Nhập email hoặc số điện thoại...">
+                    </div>
+                </div>
+                <div class="input-group" id="resetOtpGroup" style="display:none;">
+                    <label>Mã OTP</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-key icon-left"></i>
+                        <input type="text" id="resetOtp" placeholder="Nhập mã OTP 6 số" inputmode="numeric" maxlength="6">
+                    </div>
+                </div>
+                <div class="input-group" id="resetPasswordGroup" style="display:none;">
+                    <label>Mật khẩu mới</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock icon-left"></i>
+                        <input type="password" id="resetPassword" placeholder="Ít nhất 8 ký tự, có chữ hoa và số">
+                    </div>
+                </div>
+                <div class="input-group" id="resetConfirmGroup" style="display:none;">
+                    <label>Xác nhận mật khẩu mới</label>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock icon-left"></i>
+                        <input type="password" id="resetConfirmPassword" placeholder="Nhập lại mật khẩu mới">
+                    </div>
+                </div>
+                <button type="button" class="submit-btn" id="resetBtn" onclick="handlePasswordReset()">Gửi mã OTP</button>
+                <button type="button" onclick="closeForgotPassword()" style="margin-top:10px; border:0; background:transparent; color:#64748b; font-weight:700; cursor:pointer;">Quay lại đăng nhập</button>
+            </div>
+
+            <div class="back-home">
+                <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Quay lại trang chủ</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/client-api.js"></script>
+    <script>
+        const GATEWAY = ((window.MGClientApi && window.MGClientApi.gatewayOrigin) || window.MG_API_GATEWAY_ORIGIN || 'http://localhost:8000').replace(/\/+$/, '');
+        const API_BASE = GATEWAY + '/api/identity';
+        let resetOtpSent = false;
+
+        function isJwtExpired(token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+                return !payload.exp || payload.exp * 1000 <= Date.now() + 30000;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        // Nếu đã đăng nhập rồi thì chuyển thẳng về trang chủ
+        (function checkAuth() {
+            const auth = localStorage.getItem('MG_CLIENT_AUTH');
+            if (auth) {
+                try {
+                    const parsed = JSON.parse(auth);
+                    if (parsed.accessToken && !isJwtExpired(parsed.accessToken)) {
+                        window.location.href = 'index.html';
+                    } else {
+                        localStorage.removeItem('MG_CLIENT_AUTH');
+                    }
+                } catch (e) { /* ignore */ }
+            }
+        })();
+
+        function showError(msg) {
+            const box = document.getElementById('loginError');
+            document.getElementById('loginErrorMsg').textContent = msg;
+            box.style.background = '#fef2f2';
+            box.style.borderColor = '#fecaca';
+            box.style.color = '#ef4444';
+            box.style.display = 'flex';
+        }
+
+        function hideError() {
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function openForgotPassword(e) {
+            e.preventDefault();
+            hideError();
+            document.getElementById('forgotPanel').style.display = 'block';
+            document.getElementById('resetTarget').focus();
+        }
+
+        function closeForgotPassword() {
+            resetOtpSent = false;
+            document.getElementById('forgotPanel').style.display = 'none';
+            document.getElementById('resetOtpGroup').style.display = 'none';
+            document.getElementById('resetPasswordGroup').style.display = 'none';
+            document.getElementById('resetConfirmGroup').style.display = 'none';
+            document.getElementById('resetBtn').textContent = 'Gửi mã OTP';
+        }
+
+        async function handlePasswordReset() {
+            hideError();
+            const target = document.getElementById('resetTarget').value.trim();
+            const btn = document.getElementById('resetBtn');
+            if (!target) {
+                showError('Vui lòng nhập email hoặc số điện thoại.');
+                return;
+            }
+
+            btn.disabled = true;
+            try {
+                if (!resetOtpSent) {
+                    btn.textContent = 'Đang gửi OTP...';
+                    const res = await fetch(API_BASE + '/auth/send-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            target,
+                            purpose: 'reset_password',
+                            account_type: 'customer'
+                        }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        showError(data.message || 'Không gửi được OTP.');
+                        btn.disabled = false;
+                        btn.textContent = 'Gửi mã OTP';
+                        return;
+                    }
+                    resetOtpSent = true;
+                    document.getElementById('resetOtpGroup').style.display = 'block';
+                    document.getElementById('resetPasswordGroup').style.display = 'block';
+                    document.getElementById('resetConfirmGroup').style.display = 'block';
+                    document.getElementById('resetOtp').focus();
+                    btn.disabled = false;
+                    btn.textContent = 'Đặt lại mật khẩu';
+                    return;
+                }
+
+                const otp = document.getElementById('resetOtp').value.trim();
+                const newPassword = document.getElementById('resetPassword').value;
+                const confirmPassword = document.getElementById('resetConfirmPassword').value;
+                if (!/^\d{6}$/.test(otp)) {
+                    showError('Vui lòng nhập mã OTP gồm 6 số.');
+                    btn.disabled = false;
+                    return;
+                }
+                if (newPassword.length < 8 || !/\d/.test(newPassword) || !/[A-Z]/.test(newPassword)) {
+                    showError('Mật khẩu mới phải có ít nhất 8 ký tự, có chữ in hoa và chữ số.');
+                    btn.disabled = false;
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    showError('Mật khẩu mới và xác nhận mật khẩu không khớp.');
+                    btn.disabled = false;
+                    return;
+                }
+
+                btn.textContent = 'Đang đổi mật khẩu...';
+                const res = await fetch(API_BASE + '/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        target,
+                        purpose: 'reset_password',
+                        account_type: 'customer',
+                        otp_code: otp,
+                        new_password: newPassword,
+                        confirm_password: confirmPassword
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    showError(data.message || 'Không đặt lại được mật khẩu.');
+                    btn.disabled = false;
+                    btn.textContent = 'Đặt lại mật khẩu';
+                    return;
+                }
+
+                closeForgotPassword();
+                showError('Mật khẩu đã được đổi. Bạn có thể đăng nhập bằng mật khẩu mới.');
+                document.getElementById('loginError').style.background = '#f0fdf4';
+                document.getElementById('loginError').style.borderColor = '#bbf7d0';
+                document.getElementById('loginError').style.color = '#166534';
+            } catch (err) {
+                showError('Không thể kết nối máy chủ. Vui lòng thử lại sau.');
+                btn.disabled = false;
+                btn.textContent = resetOtpSent ? 'Đặt lại mật khẩu' : 'Gửi mã OTP';
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideError();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('submitBtn');
+
+            if (!username || !password) {
+                showError('Vui lòng nhập đầy đủ thông tin đăng nhập.');
+                return;
+            }
+
+            // Loading state
+            btn.disabled = true;
+            btn.textContent = 'Đang đăng nhập...';
+
+            try {
+                const res = await fetch(API_BASE + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email_or_phone: username, password }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    showError(data.message || 'Đăng nhập thất bại.');
+                    btn.disabled = false;
+                    btn.textContent = 'Đăng nhập ngay';
+                    return;
+                }
+
+                // Chỉ cho phép tài khoản khách hàng đăng nhập ở trang client
+                if (data.data.user && !data.data.customer) {
+                    showError('Tài khoản nhân viên vui lòng đăng nhập tại trang Quản trị.');
+                    btn.disabled = false;
+                    btn.textContent = 'Đăng nhập ngay';
+                    return;
+                }
+
+                // Lưu phiên đăng nhập
+                localStorage.setItem('MG_CLIENT_AUTH', JSON.stringify({
+                    accessToken:  data.data.accessToken,
+                    refreshToken: data.data.refreshToken,
+                    customer:     data.data.customer,
+                    loggedInAt:   Date.now(),
+                }));
+
+                // Đồng bộ giỏ hàng từ local storage lên server
+                try {
+                    const localCart = JSON.parse(localStorage.getItem('MG_CLIENT_CART') || '[]');
+                    if (localCart.length > 0) {
+                        const failedItems = [];
+                        for (const item of localCart) {
+                            try {
+                                const response = await fetch(GATEWAY + '/api/order/cart/items', {
+                                    method: 'POST',
+                                    headers: { 
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer ' + data.data.accessToken
+                                    },
+                                    body: JSON.stringify({
+                                        product_id: item.product_id,
+                                        product_name: item.product_name,
+                                        product_sku: item.product_sku,
+                                        thumbnail: item.thumbnail,
+                                        quantity: item.quantity,
+                                        unit_name: item.unit_name,
+                                        unit_price: item.unit_price
+                                    })
+                                });
+                                const resData = await response.json();
+                                if (!response.ok || !resData.success) {
+                                    failedItems.push(item);
+                                }
+                            } catch (e) {
+                                failedItems.push(item);
+                            }
+                        }
+                        if (failedItems.length > 0) {
+                            localStorage.setItem('MG_CLIENT_CART', JSON.stringify(failedItems));
+                        } else {
+                            localStorage.removeItem('MG_CLIENT_CART');
+                        }
+                    }
+                } catch (syncErr) {
+                    console.error('Lỗi đồng bộ giỏ hàng:', syncErr);
+                }
+
+                // Chuyển về trang chủ
+                window.location.href = 'index.html';
+
+            } catch (err) {
+                showError('Không thể kết nối máy chủ. Vui lòng thử lại sau.');
+                btn.disabled = false;
+                btn.textContent = 'Đăng nhập ngay';
+            }
+        }
+
+        async function loginWithZalo(e) {
+            const btn = e.currentTarget;
+            const oldText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối...';
+
+            const width = 600;
+            const height = 650;
+            const left = (window.screen.width - width) / 2;
+            const top = (window.screen.height - height) / 2;
+            const popupUrl = API_BASE + '/auth/zalo/redirect';
+            const popup = window.open(popupUrl, 'zalo-oauth', `width=${width},height=${height},left=${left},top=${top}`);
+
+            if (!popup) {
+                alert('Vui lòng cho phép trình duyệt mở popup để đăng nhập bằng Zalo.');
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+                return;
+            }
+
+            const messageHandler = async (event) => {
+                if (event.origin !== GATEWAY && event.origin !== window.location.origin) {
+                    return;
+                }
+                const data = event.data;
+                if (data && data.success && data.data) {
+                    window.removeEventListener('message', messageHandler);
+                    clearInterval(timer);
+
+                    localStorage.setItem('MG_CLIENT_AUTH', JSON.stringify({
+                        accessToken:  data.data.accessToken,
+                        refreshToken: data.data.refreshToken,
+                        customer:     data.data.customer,
+                        loggedInAt:   Date.now()
+                    }));
+
+                    try {
+                        const localCart = JSON.parse(localStorage.getItem('MG_CLIENT_CART') || '[]');
+                        if (localCart.length > 0) {
+                            const failedItems = [];
+                            for (const item of localCart) {
+                                try {
+                                    const response = await fetch(GATEWAY + '/api/order/cart/items', {
+                                        method: 'POST',
+                                        headers: { 
+                                            'Content-Type': 'application/json',
+                                            'Authorization': 'Bearer ' + data.data.accessToken
+                                        },
+                                        body: JSON.stringify({
+                                            product_id: item.product_id,
+                                            product_name: item.product_name,
+                                            product_sku: item.product_sku,
+                                            thumbnail: item.thumbnail,
+                                            quantity: item.quantity,
+                                            unit_name: item.unit_name,
+                                            unit_price: item.unit_price
+                                        })
+                                    });
+                                    const resData = await response.json();
+                                    if (!response.ok || !resData.success) {
+                                        failedItems.push(item);
+                                    }
+                                } catch (e) {
+                                    failedItems.push(item);
+                                }
+                            }
+                            if (failedItems.length > 0) {
+                                localStorage.setItem('MG_CLIENT_CART', JSON.stringify(failedItems));
+                            } else {
+                                localStorage.removeItem('MG_CLIENT_CART');
+                            }
+                        }
+                    } catch (syncErr) {
+                        console.error('Lỗi đồng bộ giỏ hàng:', syncErr);
+                    }
+
+                    window.location.href = 'index.html';
+                }
+            };
+
+            window.addEventListener('message', messageHandler);
+
+            const timer = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(timer);
+                    window.removeEventListener('message', messageHandler);
+                    btn.disabled = false;
+                    btn.innerHTML = oldText;
+                }
+            }, 1000);
+        }
+
+        async function loginWithGoogle(e) {
+            const btn = e.currentTarget;
+            const oldText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối...';
+
+            const width = 600;
+            const height = 650;
+            const left = (window.screen.width - width) / 2;
+            const top = (window.screen.height - height) / 2;
+            const popupUrl = API_BASE + '/auth/google/redirect';
+            const popup = window.open(popupUrl, 'google-oauth', `width=${width},height=${height},left=${left},top=${top}`);
+
+            if (!popup) {
+                alert('Vui lòng cho phép trình duyệt mở popup để đăng nhập bằng Google.');
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+                return;
+            }
+
+            const messageHandler = async (event) => {
+                if (event.origin !== GATEWAY && event.origin !== window.location.origin) {
+                    return;
+                }
+                const data = event.data;
+                if (data && data.success && data.data) {
+                    window.removeEventListener('message', messageHandler);
+                    clearInterval(timer);
+
+                    localStorage.setItem('MG_CLIENT_AUTH', JSON.stringify({
+                        accessToken:  data.data.accessToken,
+                        refreshToken: data.data.refreshToken,
+                        customer:     data.data.customer,
+                        loggedInAt:   Date.now()
+                    }));
+
+                    try {
+                        const localCart = JSON.parse(localStorage.getItem('MG_CLIENT_CART') || '[]');
+                        if (localCart.length > 0) {
+                            const failedItems = [];
+                            for (const item of localCart) {
+                                try {
+                                    const response = await fetch(GATEWAY + '/api/order/cart/items', {
+                                        method: 'POST',
+                                        headers: { 
+                                            'Content-Type': 'application/json',
+                                            'Authorization': 'Bearer ' + data.data.accessToken
+                                        },
+                                        body: JSON.stringify({
+                                            product_id: item.product_id,
+                                            product_name: item.product_name,
+                                            product_sku: item.product_sku,
+                                            thumbnail: item.thumbnail,
+                                            quantity: item.quantity,
+                                            unit_name: item.unit_name,
+                                            unit_price: item.unit_price
+                                        })
+                                    });
+                                    const resData = await response.json();
+                                    if (!response.ok || !resData.success) {
+                                        failedItems.push(item);
+                                    }
+                                } catch (e) {
+                                    failedItems.push(item);
+                                }
+                            }
+                            if (failedItems.length > 0) {
+                                localStorage.setItem('MG_CLIENT_CART', JSON.stringify(failedItems));
+                            } else {
+                                localStorage.removeItem('MG_CLIENT_CART');
+                            }
+                        }
+                    } catch (syncErr) {
+                        console.error('Lỗi đồng bộ giỏ hàng:', syncErr);
+                    }
+
+                    window.location.href = 'index.html';
+                }
+            };
+
+            window.addEventListener('message', messageHandler);
+
+            const timer = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(timer);
+                    window.removeEventListener('message', messageHandler);
+                    btn.disabled = false;
+                    btn.innerHTML = oldText;
+                }
+            }, 1000);
+        }
+
+
+    </script>
+</body>
+
+</html>

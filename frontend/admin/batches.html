@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập Kho & Lô Hàng — Nhà Thuốc Minh Giang</title>
+    <link rel="stylesheet" href="css/admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .po-helper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .po-line-warning {
+            color: #b45309;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .batch-empty {
+            padding: 44px 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .batch-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .batch-status.draft {
+            border-color: #fde68a;
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .po-summary strong {
+            color: #0f172a;
+        }
+
+        .dynamic-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .dynamic-table th,
+        .dynamic-table td {
+            min-width: 130px;
+        }
+
+        .dynamic-table th:first-child,
+        .dynamic-table td:first-child {
+            min-width: 260px;
+        }
+
+        .dynamic-table th:nth-child(7),
+        .dynamic-table td:nth-child(7) {
+            min-width: 220px;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="admin-sidebar"></aside>
+    <header class="admin-header"></header>
+
+    <main class="admin-main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Nhập Kho & Lô Hàng</h1>
+                <p class="page-subtitle">Tạo phiếu nhập, quản lý số lô, hạn dùng, vị trí lưu trữ và lịch sử nhập kho.</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn-secondary" onclick="exportBatchesCsv()">
+                    <i class="fa-solid fa-file-export"></i> Xuất CSV
+                </button>
+                <button class="btn-secondary" onclick="loadBatches()">
+                    <i class="fa-solid fa-rotate"></i> Làm mới
+                </button>
+                <button class="btn-primary" onclick="openPoModal()">
+                    <i class="fa-solid fa-plus"></i> Tạo phiếu mới
+                </button>
+            </div>
+        </div>
+
+        <div class="tabs-header" style="margin-bottom:20px;">
+            <button class="tab-btn active" onclick="switchMainTab(event, 'tab-nhap')">
+                <i class="fa-solid fa-arrow-right-to-bracket" style="margin-right:8px;color:#10b981;"></i>Lịch sử nhập
+            </button>
+            <button class="tab-btn" onclick="switchMainTab(event, 'tab-xuat')">
+                <i class="fa-solid fa-arrow-right-from-bracket" style="margin-right:8px;color:#f59e0b;"></i>Lịch sử xuất
+            </button>
+        </div>
+
+        <div id="tab-nhap" class="main-tab-content" style="display:block;">
+            <div class="filter-section" style="margin-bottom:16px;">
+                <div class="filter-group search">
+                    <label class="filter-label">Tìm phiếu nhập / nhà cung cấp</label>
+                    <input id="batchSearch" type="text" class="filter-control" placeholder="Mã phiếu, tên NCC, người giao...">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Trạng thái</label>
+                    <select id="batchStatusFilter" class="filter-control">
+                        <option value="">Tất cả</option>
+                        <option value="completed">Hoàn tất</option>
+                        <option value="draft">Nháp</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="inventory-table-container">
+                <table class="inventory-table" style="border-collapse:collapse;margin-bottom:0;">
+                    <thead>
+                        <tr>
+                            <th width="13%">Mã phiếu</th>
+                            <th width="28%">Nhà cung cấp</th>
+                            <th width="14%">Ngày nhập</th>
+                            <th width="12%">Số dòng</th>
+                            <th width="14%">Tổng tiền</th>
+                            <th width="11%">Trạng thái</th>
+                            <th width="8%" style="text-align:right;">Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batchesTableBody">
+                        <tr><td colspan="7" class="batch-empty">Đang tải phiếu nhập...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-xuat" class="main-tab-content" style="display:none;">
+            <div class="inventory-table-container">
+                <div class="batch-empty">
+                    Lịch sử xuất kho sẽ được lấy từ đơn POS/Online và luồng huỷ, trả NCC. Phần này thuộc bước liên thông sau khi nhập kho/lô đã ổn định.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="wide-modal-overlay" id="poModal">
+        <div class="wide-modal-container">
+            <div class="wide-modal-header">
+                <div>
+                    <h2 class="slide-title"><i class="fa-solid fa-truck-ramp-box" style="color:#10b981;margin-right:8px;"></i>Tạo phiếu nhập kho</h2>
+                    <p style="font-size:13px;color:#64748b;margin-top:4px;">Mỗi dòng là một lô thuốc. Khi hoàn tất, hệ thống ghi tồn kho và stock movement inbound.</p>
+                </div>
+                <button class="slide-close" onclick="closePoModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="wide-modal-body">
+                <div class="po-top-section">
+                    <div class="form-row" style="grid-template-columns:2fr 1fr 1fr;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Nhà cung cấp <span style="color:#ef4444">*</span></label>
+                            <select id="poSupplier" class="form-select"></select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Người giao hàng</label>
+                            <input id="poDeliveryPerson" type="text" class="form-input" placeholder="Tên / SĐT người giao">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Ngày nhập kho <span style="color:#ef4444">*</span></label>
+                            <input id="poReceivedDate" type="date" class="form-input">
+                        </div>
+                    </div>
+                    <div class="po-helper">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Thuốc kho lạnh/tủ khóa kiểm soát phải chọn đúng vị trí đã khai báo ở trang Vị Trí Lưu Trữ.
+                    </div>
+                </div>
+
+                <div class="po-middle-section">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;">
+                        <h3 style="font-size:15px;font-weight:700;color:#1f2937;">Danh sách lô nhập kho</h3>
+                        <button class="btn-secondary" style="height:32px;padding:0 12px;font-size:12px;" onclick="addPoRow()">
+                            <i class="fa-solid fa-plus"></i> Thêm dòng
+                        </button>
+                    </div>
+                    <div id="poLineWarning" class="po-line-warning"></div>
+                    <div class="dynamic-table-wrapper">
+                        <table class="dynamic-table">
+                            <thead>
+                                <tr>
+                                    <th>Thuốc / sản phẩm</th>
+                                    <th>Số lô</th>
+                                    <th>NSX</th>
+                                    <th>HSD</th>
+                                    <th>Số lượng</th>
+                                    <th>Giá nhập</th>
+                                    <th>Vị trí lưu trữ</th>
+                                    <th style="text-align:center;">Xoá</th>
+                                </tr>
+                            </thead>
+                            <tbody id="poItemsBody"></tbody>
+                        </table>
+                        <button class="btn-add-row" onclick="addPoRow()"><i class="fa-solid fa-plus"></i> Thêm dòng mới</button>
+                    </div>
+                </div>
+
+                <div class="po-bottom-section">
+                    <div class="po-notes">
+                        <label class="form-label">Ghi chú phiếu nhập</label>
+                        <textarea id="poNotes" class="form-input" style="height:80px;resize:none;padding-top:10px;" placeholder="Số hoá đơn, điều kiện giao hàng, ghi chú kiểm nhận..."></textarea>
+                    </div>
+                    <div class="po-summary">
+                        <div class="summary-row">
+                            <span>Tổng số dòng:</span>
+                            <strong id="poLineCount">0</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tổng số lượng:</span>
+                            <strong id="poQuantityTotal">0</strong>
+                        </div>
+                        <div class="summary-row total">
+                            <span>TỔNG TIỀN HÀNG:</span>
+                            <span id="poAmountTotal">0₫</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wide-modal-footer">
+                <button class="btn-secondary" onclick="closePoModal()">Huỷ bỏ</button>
+                <button class="btn-secondary" onclick="submitPo('draft')">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu nháp
+                </button>
+                <button class="btn-primary" onclick="submitPo('completed')" style="width:220px;justify-content:center;font-size:14px;">
+                    <i class="fa-solid fa-check"></i> Hoàn tất nhập kho
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin-catalog-api.js"></script>
+    <script src="js/admin-components.js"></script>
+    <script>
+        var batchState = {
+            batches: [],
+            suppliers: [],
+            products: [],
+            locations: [],
+            details: {},
+            poRows: []
+        };
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[char]));
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(Number(value || 0));
+        }
+
+        function formatDate(value) {
+            if (!value) return '-';
+            return new Intl.DateTimeFormat('vi-VN').format(new Date(value));
+        }
+
+        function csvCell(value) {
+            var text = String(value ?? '');
+            return `"${text.replace(/"/g, '""')}"`;
+        }
+
+        function todayDate() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        function oneYearLater() {
+            var date = new Date();
+            date.setFullYear(date.getFullYear() + 1);
+            return date.toISOString().slice(0, 10);
+        }
+
+
+
+        function switchMainTab(event, tabId) {
+            document.querySelectorAll('.main-tab-content').forEach((el) => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach((btn) => btn.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            event.currentTarget.classList.add('active');
+        }
+
+        async function loadReferenceData() {
+            var [suppliers, products, locations] = await Promise.all([
+                window.MGAdminCatalogApi.get('/suppliers', { limit: 100 }),
+                window.MGAdminCatalogApi.get('/products', { status: 'active', limit: 100, sort: 'newest' }),
+                window.MGAdminCatalogApi.get('/locations', { limit: 100 })
+            ]);
+            batchState.suppliers = suppliers.data || [];
+            batchState.products = products.data || [];
+            batchState.locations = locations.data || [];
+        }
+
+        async function loadBatches() {
+            var q = document.getElementById('batchSearch')?.value.trim() || '';
+            var status = document.getElementById('batchStatusFilter')?.value || '';
+            try {
+                var result = await window.MGAdminCatalogApi.get('/batches', { q, status });
+                batchState.batches = result.data || [];
+                renderBatches();
+            } catch (error) {
+                showToast(error.message || 'Không tải được phiếu nhập', 'error');
+            }
+        }
+
+        function statusBadge(status) {
+            if (status === 'draft') return '<span class="batch-status draft"><i class="fa-solid fa-pen"></i>Nháp</span>';
+            return '<span class="batch-status"><i class="fa-solid fa-check"></i>Hoàn tất</span>';
+        }
+
+        function renderBatches() {
+            var body = document.getElementById('batchesTableBody');
+            if (!batchState.batches.length) {
+                body.innerHTML = '<tr><td colspan="7" class="batch-empty">Chưa có phiếu nhập phù hợp</td></tr>';
+                return;
+            }
+            body.innerHTML = batchState.batches.map((batch) => `
+                <tr style="cursor:pointer;" onclick="toggleBatchDetail(${Number(batch.id)}, this)">
+                    <td><span class="table-sku" style="font-size:14px;font-weight:800;color:#1e293b;">${escapeHtml(batch.batch_code)}</span></td>
+                    <td>
+                        <div class="inv-name">${escapeHtml(batch.supplier_name || 'Chưa rõ NCC')}</div>
+                        <div style="font-size:12px;color:#64748b;">${Number(batch.total_quantity || 0)} đơn vị nhập</div>
+                    </td>
+                    <td>${formatDate(batch.received_date)}</td>
+                    <td>${Number(batch.item_count || 0)} dòng lô</td>
+                    <td><span class="inv-price" style="font-size:14px;color:#0f172a;">${formatCurrency(batch.total_amount)}</span></td>
+                    <td>${statusBadge(batch.status)}</td>
+                    <td style="text-align:right;"><button class="btn-icon" title="Chi tiết"><i class="fa-solid fa-chevron-down expand-icon"></i></button></td>
+                </tr>
+                <tr class="expandable-row-content" id="batch-detail-${Number(batch.id)}">
+                    <td colspan="7" style="padding:0;">
+                        <div class="expanded-content-wrapper" style="background:#f8fafc;padding:16px;border-bottom:1px solid var(--admin-border);">
+                            <div class="batch-empty" style="padding:20px;">Đang tải chi tiết lô...</div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function exportBatchesCsv() {
+            if (!batchState.batches.length) {
+                showToast('Không có phiếu nhập để xuất theo bộ lọc hiện tại', 'error');
+                return;
+            }
+            var headers = ['Mã phiếu', 'Nhà cung cấp', 'Ngày nhập', 'Số dòng lô', 'Tổng số lượng', 'Tổng tiền', 'Trạng thái'];
+            var rows = batchState.batches.map((batch) => [
+                batch.batch_code,
+                batch.supplier_name || '',
+                formatDate(batch.received_date),
+                Number(batch.item_count || 0),
+                Number(batch.total_quantity || 0),
+                Number(batch.total_amount || 0),
+                batch.status === 'completed' ? 'Hoàn tất' : 'Nháp'
+            ]);
+            var csv = [headers, ...rows].map((row) => row.map(csvCell).join(',')).join('\n');
+            var blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = `phieu-nhap-kho-${todayDate()}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+            showToast('Đã xuất CSV phiếu nhập kho');
+        }
+
+        async function toggleBatchDetail(id, rowElement) {
+            var contentRow = document.getElementById(`batch-detail-${id}`);
+            var isOpening = !contentRow.classList.contains('open');
+            document.querySelectorAll('.expandable-row-content.open').forEach((el) => {
+                el.classList.remove('open');
+                var icon = el.previousElementSibling?.querySelector('.expand-icon');
+                if (icon) {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+            if (!isOpening) return;
+            contentRow.classList.add('open');
+            var icon = rowElement.querySelector('.expand-icon');
+            if (icon) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+            if (!batchState.details[id]) {
+                try {
+                    var result = await window.MGAdminCatalogApi.get(`/batches/${encodeURIComponent(id)}`);
+                    batchState.details[id] = result.data;
+                } catch (error) {
+                    contentRow.querySelector('.expanded-content-wrapper').innerHTML = `<div class="batch-empty">${escapeHtml(error.message || 'Không tải được chi tiết')}</div>`;
+                    return;
+                }
+            }
+            renderBatchDetail(id);
+        }
+
+        function renderBatchDetail(id) {
+            var batch = batchState.details[id];
+            var rows = (batch.items || []).map((item) => `
+                <tr>
+                    <td style="padding:10px 16px;font-size:13px;font-weight:700;color:#1e293b;">${escapeHtml(item.product_name || `#${item.product_id}`)}</td>
+                    <td style="padding:10px 16px;font-size:12px;color:#475569;font-family:monospace;font-weight:700;">${escapeHtml(item.lot_number)}</td>
+                    <td style="padding:10px 16px;font-size:13px;color:#374151;">${formatDate(item.manufacture_date)}</td>
+                    <td style="padding:10px 16px;font-size:13px;color:#1e293b;font-weight:700;">${formatDate(item.expiry_date)}</td>
+                    <td style="padding:10px 16px;font-size:13px;text-align:right;font-weight:700;">${Number(item.quantity_received || 0)}</td>
+                    <td style="padding:10px 16px;font-size:13px;text-align:right;font-weight:700;">${Number(item.quantity_remaining || 0)}</td>
+                    <td style="padding:10px 16px;font-size:13px;">${escapeHtml(item.location_label || 'Chưa gán vị trí')}</td>
+                    <td style="padding:10px 16px;font-size:13px;text-align:right;">${formatCurrency(item.cost_price)}</td>
+                </tr>
+            `).join('');
+            document.getElementById(`batch-detail-${id}`).querySelector('.expanded-content-wrapper').innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <h4 style="font-size:13px;font-weight:800;color:#1e293b;">Chi tiết ${batch.items?.length || 0} dòng lô trong phiếu ${escapeHtml(batch.batch_code)}</h4>
+                    <span style="font-size:12px;color:#64748b;">Người giao: ${escapeHtml(batch.delivery_person || '-')}</span>
+                </div>
+                <table class="inventory-table" style="margin:0;box-shadow:none;border:1px solid #e2e8f0;background:#fff;">
+                    <thead style="background:#f1f5f9;">
+                        <tr>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;">Thuốc / sản phẩm</th>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;">Số lô</th>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;">NSX</th>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;">HSD</th>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;text-align:right;">SL nhập</th>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;text-align:right;">Tồn còn</th>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;">Vị trí</th>
+                            <th style="padding:10px 16px;font-size:12px;color:#475569;text-align:right;">Giá nhập</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows || '<tr><td colspan="8" class="batch-empty">Phiếu chưa có dòng lô</td></tr>'}</tbody>
+                </table>`;
+        }
+
+        function productOptions(selectedId = '') {
+            return `<option value="">Chọn thuốc...</option>` + batchState.products.map((product) => `
+                <option value="${Number(product.id)}" ${Number(selectedId) === Number(product.id) ? 'selected' : ''}>
+                    ${escapeHtml(product.name)}${product.strength ? ` - ${escapeHtml(product.strength)}` : ''} (${escapeHtml(product.base_unit || 'đơn vị')})
+                </option>`).join('');
+        }
+
+        function locationOptions(selectedId = '') {
+            return `<option value="">Chọn vị trí...</option>` + batchState.locations.map((location) => `
+                <option value="${Number(location.id)}" ${Number(selectedId) === Number(location.id) ? 'selected' : ''}>
+                    ${escapeHtml(location.label)}
+                </option>`).join('');
+        }
+
+        function renderSupplierOptions() {
+            document.getElementById('poSupplier').innerHTML = `<option value="">Chọn nhà cung cấp...</option>` + batchState.suppliers.map((supplier) => `
+                <option value="${Number(supplier.id)}">${escapeHtml(supplier.name)}</option>`).join('');
+        }
+
+        function addPoRow(row = {}) {
+            batchState.poRows.push({
+                product_id: row.product_id || '',
+                lot_number: row.lot_number || '',
+                manufacture_date: row.manufacture_date || '',
+                expiry_date: row.expiry_date || oneYearLater(),
+                quantity_received: row.quantity_received || 1,
+                cost_price: row.cost_price || 0,
+                location_id: row.location_id || ''
+            });
+            renderPoRows();
+        }
+
+        function removePoRow(index) {
+            batchState.poRows.splice(index, 1);
+            if (!batchState.poRows.length) addPoRow();
+            renderPoRows();
+        }
+
+        function updatePoRow(index, key, value) {
+            batchState.poRows[index][key] = value;
+            renderPoTotals();
+        }
+
+        function renderPoRows() {
+            document.getElementById('poItemsBody').innerHTML = batchState.poRows.map((row, index) => `
+                <tr>
+                    <td><select class="dyn-input dyn-select" onchange="updatePoRow(${index}, 'product_id', this.value)">${productOptions(row.product_id)}</select></td>
+                    <td><input class="dyn-input" placeholder="LOT-..." value="${escapeHtml(row.lot_number)}" onchange="updatePoRow(${index}, 'lot_number', this.value)"></td>
+                    <td><input type="date" class="dyn-input" value="${escapeHtml(row.manufacture_date)}" onchange="updatePoRow(${index}, 'manufacture_date', this.value)"></td>
+                    <td><input type="date" class="dyn-input" value="${escapeHtml(row.expiry_date)}" onchange="updatePoRow(${index}, 'expiry_date', this.value)"></td>
+                    <td><input type="number" min="1" class="dyn-input" value="${Number(row.quantity_received || 1)}" style="text-align:right;" onchange="updatePoRow(${index}, 'quantity_received', this.value)"></td>
+                    <td><input type="number" min="0" class="dyn-input" value="${Number(row.cost_price || 0)}" style="text-align:right;" onchange="updatePoRow(${index}, 'cost_price', this.value)"></td>
+                    <td><select class="dyn-input dyn-select" onchange="updatePoRow(${index}, 'location_id', this.value)">${locationOptions(row.location_id)}</select></td>
+                    <td style="text-align:center;"><button class="dyn-del-btn" onclick="removePoRow(${index})"><i class="fa-solid fa-trash-can"></i></button></td>
+                </tr>`).join('');
+            renderPoTotals();
+        }
+
+        function renderPoTotals() {
+            var lineCount = batchState.poRows.length;
+            var quantityTotal = batchState.poRows.reduce((sum, row) => sum + Number(row.quantity_received || 0), 0);
+            var amountTotal = batchState.poRows.reduce((sum, row) => sum + Number(row.quantity_received || 0) * Number(row.cost_price || 0), 0);
+            document.getElementById('poLineCount').textContent = lineCount;
+            document.getElementById('poQuantityTotal').textContent = quantityTotal;
+            document.getElementById('poAmountTotal').textContent = formatCurrency(amountTotal);
+        }
+
+        function validatePoPayload(status) {
+            var supplierId = Number(document.getElementById('poSupplier').value);
+            var receivedDate = document.getElementById('poReceivedDate').value;
+            if (!supplierId) return 'Vui lòng chọn nhà cung cấp';
+            if (!receivedDate) return 'Vui lòng chọn ngày nhập kho';
+            if (!batchState.poRows.length) return 'Phiếu nhập phải có ít nhất một dòng lô';
+            for (let index = 0; index < batchState.poRows.length; index += 1) {
+                var row = batchState.poRows[index];
+                var line = index + 1;
+                if (!Number(row.product_id)) return `Dòng ${line}: chưa chọn thuốc`;
+                if (!String(row.lot_number || '').trim()) return `Dòng ${line}: chưa nhập số lô`;
+                if (!row.expiry_date) return `Dòng ${line}: chưa nhập hạn sử dụng`;
+                if (new Date(`${row.expiry_date}T00:00:00`) < new Date(`${todayDate()}T00:00:00`)) return `Dòng ${line}: không được nhập lô đã hết hạn`;
+                if (row.manufacture_date && new Date(`${row.manufacture_date}T00:00:00`) > new Date(`${row.expiry_date}T00:00:00`)) return `Dòng ${line}: ngày sản xuất không được sau hạn sử dụng`;
+                if (Number(row.quantity_received) <= 0) return `Dòng ${line}: số lượng phải lớn hơn 0`;
+                if (Number(row.cost_price) < 0) return `Dòng ${line}: giá nhập không hợp lệ`;
+                if (status === 'completed' && !Number(row.location_id)) return `Dòng ${line}: hoàn tất nhập kho phải chọn vị trí lưu trữ`;
+            }
+            return '';
+        }
+
+        function buildPoPayload(status) {
+            return {
+                supplier_id: Number(document.getElementById('poSupplier').value),
+                delivery_person: document.getElementById('poDeliveryPerson').value.trim() || null,
+                received_date: document.getElementById('poReceivedDate').value,
+                notes: document.getElementById('poNotes').value.trim() || null,
+                paid_amount: 0,
+                status,
+                items: batchState.poRows.map((row) => ({
+                    product_id: Number(row.product_id),
+                    lot_number: String(row.lot_number || '').trim(),
+                    manufacture_date: row.manufacture_date || null,
+                    expiry_date: row.expiry_date,
+                    quantity_received: Number(row.quantity_received),
+                    cost_price: Number(row.cost_price),
+                    location_id: row.location_id ? Number(row.location_id) : null
+                }))
+            };
+        }
+
+        async function openPoModal() {
+            try {
+                if (!batchState.suppliers.length || !batchState.products.length || !batchState.locations.length) {
+                    await loadReferenceData();
+                }
+                renderSupplierOptions();
+                document.getElementById('poReceivedDate').value = todayDate();
+                document.getElementById('poDeliveryPerson').value = '';
+                document.getElementById('poNotes').value = '';
+                batchState.poRows = [];
+                addPoRow();
+                document.getElementById('poLineWarning').style.display = 'none';
+                document.getElementById('poModal').classList.add('open');
+                document.body.style.overflow = 'hidden';
+            } catch (error) {
+                showToast(error.message || 'Không tải được dữ liệu tạo phiếu nhập', 'error');
+            }
+        }
+
+        function closePoModal() {
+            document.getElementById('poModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        async function submitPo(status) {
+            var warning = document.getElementById('poLineWarning');
+            var validationError = validatePoPayload(status);
+            if (validationError) {
+                warning.textContent = validationError;
+                warning.style.display = 'block';
+                return;
+            }
+            warning.style.display = 'none';
+            var buttons = document.querySelectorAll('.wide-modal-footer button');
+            buttons.forEach((button) => { button.disabled = true; });
+            try {
+                var result = await window.MGAdminCatalogApi.post('/batches', buildPoPayload(status));
+                showToast(status === 'completed'
+                    ? `Đã hoàn tất nhập kho ${result.data?.batch_code || ''}`
+                    : `Đã lưu nháp phiếu nhập ${result.data?.batch_code || ''}`);
+                closePoModal();
+                await loadBatches();
+            } catch (error) {
+                warning.textContent = error.message || 'Không lưu được phiếu nhập';
+                warning.style.display = 'block';
+                showToast(error.message || 'Không lưu được phiếu nhập', 'error');
+            } finally {
+                buttons.forEach((button) => { button.disabled = false; });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderAdminLayout('batches');
+            document.getElementById('batchSearch').addEventListener('input', () => {
+                clearTimeout(window.__batchSearchTimer);
+                window.__batchSearchTimer = setTimeout(loadBatches, 250);
+            });
+            document.getElementById('batchStatusFilter').addEventListener('change', loadBatches);
+            try {
+                await loadReferenceData();
+            } catch (error) {
+                showToast(error.message || 'Không tải được dữ liệu tham chiếu', 'error');
+            }
+            await loadBatches();
+
+            // Tự động mở modal tạo phiếu nhập nếu URL có action=new
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'new') {
+                // Xoá parameter khỏi URL để tránh tự động mở lại khi reload trang
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+                openPoModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

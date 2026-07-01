@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cấu Hình Giao Diện Web — Nhà Thuốc Minh Giang</title>
+    <link rel="stylesheet" href="css/admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #059669, #0f766e);
+            --blue-gradient: linear-gradient(135deg, #1d4ed8, #2563eb);
+            --orange-gradient: linear-gradient(135deg, #ea580c, #f97316);
+            --purple-gradient: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+        }
+
+        .section-card {
+            background: #fff;
+            border: 1px solid var(--admin-border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .section-card:hover {
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
+        }
+
+        .section-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--admin-border);
+            background: #fff;
+        }
+
+        .section-card-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-card-body {
+            padding: 24px;
+        }
+
+        /* Double Column with Sidebar Layout for Client Banners */
+        .layout-manager-grid {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .layout-sidebar {
+            background: #fff;
+            border: 1px solid var(--admin-border);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .layout-page-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .layout-page-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .layout-page-btn.active {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .layout-content-panel {
+            display: none;
+        }
+
+        .layout-content-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Banner styling */
+        .banner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .banner-item {
+            background: #fff;
+            border: 1px solid var(--admin-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .banner-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .banner-preview {
+            height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #f1f5f9;
+            overflow: hidden;
+        }
+
+        .banner-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .banner-preview .banner-order {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            backdrop-filter: blur(4px);
+        }
+
+        .banner-preview .banner-position-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #059669;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .banner-meta {
+            padding: 16px;
+        }
+
+        .banner-meta h4 {
+            font-size: 14px;
+            font-weight: 650;
+            color: #0f172a;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .banner-meta p {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .banner-actions .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--admin-border);
+            background: #fff;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .banner-actions .btn-icon:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        .banner-actions .btn-icon.btn-delete:hover {
+            background: #fef2f2;
+            color: #ef4444;
+            border-color: #fca5a5;
+        }
+
+        /* Tile Grid for general settings */
+        .settings-tile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .settings-tile {
+            background: #fff;
+            border: 1px solid var(--admin-border);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .settings-tile:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+            border-color: #cbd5e1;
+        }
+
+        .settings-tile-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            color: #fff;
+        }
+
+        .settings-tile-info {
+            flex: 1;
+        }
+
+        .settings-tile-info h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .settings-tile-info p {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .settings-tile-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #059669;
+            background: #ecfdf5;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .settings-tile-badge.badge-neutral {
+            color: #475569;
+            background: #f1f5f9;
+        }
+
+        /* Forms & Details */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #1e293b;
+            outline: none;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .form-group .form-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-row label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+            display: block;
+        }
+
+        .toggle-row .toggle-desc {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .toggle-switch {
+            width: 46px;
+            height: 26px;
+            background: #cbd5e1;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.on {
+            background: #10b981;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: var(--transition);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .toggle-switch.on::after {
+            transform: translateX(20px);
+        }
+
+        /* Shippers List inside Popup */
+        .staff-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .staff-table th {
+            padding: 12px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--admin-border);
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .staff-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        .staff-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Time slots inside Popup */
+        .time-slot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .time-slot {
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .time-slot.active {
+            border-color: #059669;
+            background: #ecfdf5;
+        }
+
+        .time-slot h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 3px;
+        }
+
+        .time-slot p {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .time-slot.active h4 {
+            color: #047857;
+        }
+
+        .time-slot.active p {
+            color: #059669;
+        }
+
+        /* Loading progress overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+
+
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .image-uploader-card {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8fafc;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .image-uploader-card:hover {
+            border-color: #059669;
+            background: #f0fdf4;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="admin-sidebar"></aside>
+    <header class="admin-header"></header>
+
+    <main class="admin-main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Cấu Hình Giao Diện Web</h1>
+                <p class="page-subtitle">Quản lý Banners theo trang, Thông Tin Hệ Thống và Cài Đặt Hệ Thống</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn-secondary" onclick="revertChanges()"><i class="fa-solid fa-rotate-left"></i> Hoàn tác</button>
+                <button class="btn-primary" onclick="saveAllSettings()"><i class="fa-solid fa-floppy-disk"></i> Lưu tất cả</button>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="page-tabs">
+            <button class="page-tab-btn active" onclick="switchPageTab('tab-client-layouts')"><i class="fa-solid fa-laptop-code"></i> Giao Diện Client</button>
+            <button class="page-tab-btn" onclick="switchPageTab('tab-storeinfo')"><i class="fa-solid fa-store"></i> Thông Tin Nhà Thuốc</button>
+            <button class="page-tab-btn" onclick="switchPageTab('tab-system-settings')"><i class="fa-solid fa-gears"></i> Cài Đặt Hệ Thống</button>
+        </div>
+
+        <!-- ===== TAB 1: CLIENT LAYOUTS ===== -->
+        <div id="tab-client-layouts" class="page-tab-content active">
+            <div class="layout-manager-grid">
+                <!-- Sidebar selector for pages -->
+                <div class="layout-sidebar">
+                    <button class="layout-page-btn active" onclick="switchLayoutPage('page-home', this)"><i class="fa-solid fa-house"></i> Trang Chủ</button>
+                    <button class="layout-page-btn" onclick="switchLayoutPage('page-category', this)"><i class="fa-solid fa-list-check"></i> Trang Danh Mục</button>
+                    <button class="layout-page-btn" onclick="switchLayoutPage('page-product', this)"><i class="fa-solid fa-prescription-bottle-medical"></i> Chi Tiết Sản Phẩm</button>
+                    <button class="layout-page-btn" onclick="switchLayoutPage('page-auth', this)"><i class="fa-solid fa-user-shield"></i> Trang Đăng Nhập / Đăng Ký</button>
+                </div>
+
+                <!-- Page content panels -->
+                <div class="layout-panels">
+                    <!-- Home Page -->
+                    <div id="page-home" class="layout-content-panel active">
+                        <!-- Header Banner -->
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-heading text-blue"></i> Banner Trên Cùng Header ("Tháng Của Nàng")</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div class="form-group">
+                                    <label>Hình ảnh banner</label>
+                                    <div class="image-uploader-card" onclick="triggerLayoutImageUpload('layout_home_top_banner_img', 'preview-top-banner')">
+                                        <input type="file" id="file-layout_home_top_banner_img" style="display:none;" accept="image/*" onchange="handleLayoutImageChange(this, 'layout_home_top_banner_img', 'preview-top-banner')">
+                                        <img id="preview-top-banner" src="" style="width:100%; max-height:120px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;">
+                                        <div style="font-size:12px; color:#64748b; margin-top:8px; text-align:center;"><i class="fa-solid fa-upload"></i> Nhấp để thay đổi ảnh banner</div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Đường dẫn liên kết khi nhấp</label>
+                                    <input type="text" id="input-layout_home_top_banner_link" placeholder="VD: /category.html?id=5" onchange="loadedConfigs['layout_home_top_banner_link'] = this.value">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Slider -->
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-panorama text-blue"></i> Banner Hero Slider (Đầu Trang Chủ)</h2>
+                                <button class="btn-primary" style="height:34px;font-size:13px;padding:0 14px;" onclick="openBannerModal('hero')"><i class="fa-solid fa-plus"></i> Thêm Slide</button>
+                            </div>
+                            <div class="section-card-body">
+                                <div class="banner-grid" id="grid-banners-hero">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Side Banners -->
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-table-columns text-orange"></i> Banner Quảng Cáo Phụ (Bên Cạnh Slider)</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div class="banner-grid" id="grid-banners-sidebar">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Popup Ads -->
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-window-restore text-purple"></i> Popup Quảng Cáo (Tự động bật)</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div class="banner-grid" id="grid-banners-popup">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Homepage Section Visibility -->
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-toggle-on text-orange"></i> Quản Lý Hiển Thị Các Phần Trang Chủ</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                                    <div class="toggle-row">
+                                        <div><label>Flash Sale</label><div class="toggle-desc">Bật/tắt phần sản phẩm Flash Sale</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_flash_sale" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Deal Siêu Khủng</label><div class="toggle-desc">Bật/tắt phần sản phẩm Deal Siêu Khủng</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_deal" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Sản Phẩm Bán Chạy</label><div class="toggle-desc">Bật/tắt phần sản phẩm Bán Chạy</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_best_seller" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Giảm Giá Đến 38%</label><div class="toggle-desc">Bật/tắt phần sản phẩm Giảm Giá</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_discount" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Sản Phẩm Độc Quyền</label><div class="toggle-desc">Bật/tắt phần sản phẩm Độc Quyền</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_exclusive" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Nhập Khẩu 100%</label><div class="toggle-desc">Bật/tắt phần sản phẩm Nhập Khẩu</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_imported" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Top Thương Hiệu</label><div class="toggle-desc">Bật/tắt phần Thương hiệu nổi bật</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_brands" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Danh Mục Sản Phẩm</label><div class="toggle-desc">Bật/tắt phần Danh mục sản phẩm</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_categories" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Tìm Kiếm Hàng Đầu</label><div class="toggle-desc">Bật/tắt phần từ khóa Tìm kiếm hàng đầu</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_top_searches" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <div><label>Sản Phẩm Đang Thu Hút</label><div class="toggle-desc">Bật/tắt phần sản phẩm Đang thu hút</div></div>
+                                        <div class="toggle-switch" id="cfg-layout_home_show_trending" onclick="this.classList.toggle('on')"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Headers -->
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-image text-purple"></i> Ảnh Khung Tiêu Đề Các Phần</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                                    <div>
+                                        <label style="font-size:12px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Khung Tiêu Đề Flash Sale</label>
+                                        <div class="image-uploader-card" onclick="triggerLayoutImageUpload('layout_home_header_flash_sale', 'preview-header-flash')">
+                                            <input type="file" id="file-layout_home_header_flash_sale" style="display:none;" accept="image/*" onchange="handleLayoutImageChange(this, 'layout_home_header_flash_sale', 'preview-header-flash')">
+                                            <img id="preview-header-flash" src="" style="width:100%; max-height:60px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;">
+                                        </div>
+                                        <div style="margin-top:8px;">
+                                            <label style="font-size:11px; color:#64748b; font-weight:500;">Tag sản phẩm hiển thị:</label>
+                                            <select id="cfg-layout_home_tag_flash_sale" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; height: 30px; margin-top: 4px; width: 100%;">
+                                                <option value="flash-sale">Flash Sale (flash-sale)</option>
+                                                <option value="deal">Deal Siêu Khủng (deal)</option>
+                                                <option value="best-seller">Sản Phẩm Bán Chạy (best-seller)</option>
+                                                <option value="discount">Giảm Giá (discount)</option>
+                                                <option value="exclusive">Sản Phẩm Độc Quyền (exclusive)</option>
+                                                <option value="imported">Nhập Khẩu 100% (imported)</option>
+                                                <option value="trending">Đang Thu Hút (trending)</option>
+                                                <option value="">--- Hiển thị tất cả ---</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Khung Tiêu Đề Deal Siêu Khủng</label>
+                                        <div class="image-uploader-card" onclick="triggerLayoutImageUpload('layout_home_header_deal', 'preview-header-deal')">
+                                            <input type="file" id="file-layout_home_header_deal" style="display:none;" accept="image/*" onchange="handleLayoutImageChange(this, 'layout_home_header_deal', 'preview-header-deal')">
+                                            <img id="preview-header-deal" src="" style="width:100%; max-height:60px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;">
+                                        </div>
+                                        <div style="margin-top:8px;">
+                                            <label style="font-size:11px; color:#64748b; font-weight:500;">Tag sản phẩm hiển thị:</label>
+                                            <select id="cfg-layout_home_tag_deal" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; height: 30px; margin-top: 4px; width: 100%;">
+                                                <option value="flash-sale">Flash Sale (flash-sale)</option>
+                                                <option value="deal">Deal Siêu Khủng (deal)</option>
+                                                <option value="best-seller">Sản Phẩm Bán Chạy (best-seller)</option>
+                                                <option value="discount">Giảm Giá (discount)</option>
+                                                <option value="exclusive">Sản Phẩm Độc Quyền (exclusive)</option>
+                                                <option value="imported">Nhập Khẩu 100% (imported)</option>
+                                                <option value="trending">Đang Thu Hút (trending)</option>
+                                                <option value="">--- Hiển thị tất cả ---</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Khung Tiêu Đề Sản Phẩm Bán Chạy</label>
+                                        <div class="image-uploader-card" onclick="triggerLayoutImageUpload('layout_home_header_best_seller', 'preview-header-best')">
+                                            <input type="file" id="file-layout_home_header_best_seller" style="display:none;" accept="image/*" onchange="handleLayoutImageChange(this, 'layout_home_header_best_seller', 'preview-header-best')">
+                                            <img id="preview-header-best" src="" style="width:100%; max-height:60px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;">
+                                        </div>
+                                        <div style="margin-top:8px;">
+                                            <label style="font-size:11px; color:#64748b; font-weight:500;">Tag sản phẩm hiển thị:</label>
+                                            <select id="cfg-layout_home_tag_best_seller" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; height: 30px; margin-top: 4px; width: 100%;">
+                                                <option value="flash-sale">Flash Sale (flash-sale)</option>
+                                                <option value="deal">Deal Siêu Khủng (deal)</option>
+                                                <option value="best-seller">Sản Phẩm Bán Chạy (best-seller)</option>
+                                                <option value="discount">Giảm Giá (discount)</option>
+                                                <option value="exclusive">Sản Phẩm Độc Quyền (exclusive)</option>
+                                                <option value="imported">Nhập Khẩu 100% (imported)</option>
+                                                <option value="trending">Đang Thu Hút (trending)</option>
+                                                <option value="">--- Hiển thị tất cả ---</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Khung Tiêu Đề Giảm Giá 38%</label>
+                                        <div class="image-uploader-card" onclick="triggerLayoutImageUpload('layout_home_header_discount', 'preview-header-discount')">
+                                            <input type="file" id="file-layout_home_header_discount" style="display:none;" accept="image/*" onchange="handleLayoutImageChange(this, 'layout_home_header_discount', 'preview-header-discount')">
+                                            <img id="preview-header-discount" src="" style="width:100%; max-height:60px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;">
+                                        </div>
+                                        <div style="margin-top:8px;">
+                                            <label style="font-size:11px; color:#64748b; font-weight:500;">Tag sản phẩm hiển thị:</label>
+                                            <select id="cfg-layout_home_tag_discount" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; height: 30px; margin-top: 4px; width: 100%;">
+                                                <option value="flash-sale">Flash Sale (flash-sale)</option>
+                                                <option value="deal">Deal Siêu Khủng (deal)</option>
+                                                <option value="best-seller">Sản Phẩm Bán Chạy (best-seller)</option>
+                                                <option value="discount">Giảm Giá (discount)</option>
+                                                <option value="exclusive">Sản Phẩm Độc Quyền (exclusive)</option>
+                                                <option value="imported">Nhập Khẩu 100% (imported)</option>
+                                                <option value="trending">Đang Thu Hút (trending)</option>
+                                                <option value="">--- Hiển thị tất cả ---</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Khung Tiêu Đề Sản Phẩm Độc Quyền</label>
+                                        <div class="image-uploader-card" onclick="triggerLayoutImageUpload('layout_home_header_exclusive', 'preview-header-exclusive')">
+                                            <input type="file" id="file-layout_home_header_exclusive" style="display:none;" accept="image/*" onchange="handleLayoutImageChange(this, 'layout_home_header_exclusive', 'preview-header-exclusive')">
+                                            <img id="preview-header-exclusive" src="" style="width:100%; max-height:60px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;">
+                                        </div>
+                                        <div style="margin-top:8px;">
+                                            <label style="font-size:11px; color:#64748b; font-weight:500;">Tag sản phẩm hiển thị:</label>
+                                            <select id="cfg-layout_home_tag_exclusive" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; height: 30px; margin-top: 4px; width: 100%;">
+                                                <option value="flash-sale">Flash Sale (flash-sale)</option>
+                                                <option value="deal">Deal Siêu Khủng (deal)</option>
+                                                <option value="best-seller">Sản Phẩm Bán Chạy (best-seller)</option>
+                                                <option value="discount">Giảm Giá (discount)</option>
+                                                <option value="exclusive">Sản Phẩm Độc Quyền (exclusive)</option>
+                                                <option value="imported">Nhập Khẩu 100% (imported)</option>
+                                                <option value="trending">Đang Thu Hút (trending)</option>
+                                                <option value="">--- Hiển thị tất cả ---</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12px; font-weight:600; color:#334155; display:block; margin-bottom:6px;">Khung Tiêu Đề Nhập Khẩu 100%</label>
+                                        <div class="image-uploader-card" onclick="triggerLayoutImageUpload('layout_home_header_imported', 'preview-header-imported')">
+                                            <input type="file" id="file-layout_home_header_imported" style="display:none;" accept="image/*" onchange="handleLayoutImageChange(this, 'layout_home_header_imported', 'preview-header-imported')">
+                                            <img id="preview-header-imported" src="" style="width:100%; max-height:60px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;">
+                                        </div>
+                                        <div style="margin-top:8px;">
+                                            <label style="font-size:11px; color:#64748b; font-weight:500;">Tag sản phẩm hiển thị:</label>
+                                            <select id="cfg-layout_home_tag_imported" style="padding: 4px 8px; border-radius: 6px; font-size: 12px; height: 30px; margin-top: 4px; width: 100%;">
+                                                <option value="flash-sale">Flash Sale (flash-sale)</option>
+                                                <option value="deal">Deal Siêu Khủng (deal)</option>
+                                                <option value="best-seller">Sản Phẩm Bán Chạy (best-seller)</option>
+                                                <option value="discount">Giảm Giá (discount)</option>
+                                                <option value="exclusive">Sản Phẩm Độc Quyền (exclusive)</option>
+                                                <option value="imported">Nhập Khẩu 100% (imported)</option>
+                                                <option value="trending">Đang Thu Hút (trending)</option>
+                                                <option value="">--- Hiển thị tất cả ---</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Brands Grid Configuration -->
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-border-all text-blue"></i> Quản Lý Bố Cục Top Thương Hiệu (9 Khung Ảnh + 1 Banner Dưới)</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Thay đổi hình ảnh và link liên kết của 9 ô thương hiệu & banner rộng phía dưới (giữ nguyên cấu trúc lưới).</p>
+                                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;" id="grid-brands-config">
+                                    <!-- Rendered dynamically by JS -->
+                                </div>
+                                <div style="margin-top:20px; border-top:1px solid #f1f5f9; padding-top:20px;" id="bottom-brand-config">
+                                    <!-- Rendered dynamically by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Page -->
+                    <div id="page-category" class="layout-content-panel">
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-triangle-exclamation text-red"></i> Popup Cảnh Báo Trang Danh Mục</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div class="toggle-row" style="margin-bottom:20px;">
+                                    <div>
+                                        <label>Bật Popup Cảnh Báo</label>
+                                        <div class="toggle-desc">Hiện popup cảnh báo yêu cầu xác nhận khi khách hàng vào trang danh mục.</div>
+                                    </div>
+                                    <div class="toggle-switch" id="cfg-layout_category_show_warning" onclick="this.classList.toggle('on')"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nội dung cảnh báo <span style="color:#ef4444;">*</span></label>
+                                    <textarea id="cfg-layout_category_warning_text" style="min-height:80px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-sliders text-orange"></i> Thiết Lập Hiển Thị Trang Danh Mục</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div class="toggle-row">
+                                    <div><label>Bộ Lọc Nâng Cao (Sidebar)</label><div class="toggle-desc">Hiện/ẩn cột bộ lọc bên trái (khung giá, thương hiệu, xuất xứ).</div></div>
+                                    <div class="toggle-switch" id="cfg-layout_category_show_sidebar" onclick="this.classList.toggle('on')"></div>
+                                </div>
+                                <div class="toggle-row">
+                                    <div><label>Tìm Kiếm Hàng Đầu (Dưới cùng)</label><div class="toggle-desc">Hiện/ẩn phần từ khóa tìm kiếm phổ biến.</div></div>
+                                    <div class="toggle-switch" id="cfg-layout_category_show_top_searches" onclick="this.classList.toggle('on')"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Page -->
+                    <div id="page-product" class="layout-content-panel">
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-image text-orange"></i> Banner Khuyến Mãi Chi Tiết Sản Phẩm</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Quảng cáo hiển thị dưới phần thông tin sản phẩm chi tiết.</p>
+                                <div class="banner-grid" id="grid-banners-product">
+                                    <!-- Dynamic or Placeholder -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-shapes text-purple"></i> Thiết Lập Hiển Thị Trang Chi Tiết Sản Phẩm</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <div class="toggle-row">
+                                    <div><label>Sản Phẩm Tương Tự (Bên Cạnh Hộp Mua Hàng)</label><div class="toggle-desc">Hiện/ẩn cột sản phẩm tương tự ở bên phải trang.</div></div>
+                                    <div class="toggle-switch" id="cfg-layout_product_show_similar" onclick="this.classList.toggle('on')"></div>
+                                </div>
+                                <div class="toggle-row">
+                                    <div><label>Sản Phẩm Phổ Biến (Bên Cạnh Tab Đánh Giá)</label><div class="toggle-desc">Hiện/ẩn cột sản phẩm phổ biến ở giữa trang.</div></div>
+                                    <div class="toggle-switch" id="cfg-layout_product_show_popular" onclick="this.classList.toggle('on')"></div>
+                                </div>
+                                <div class="toggle-row">
+                                    <div><label>Sản Phẩm Đang Thu Hút (Carousel Dưới)</label><div class="toggle-desc">Hiện/ẩn danh sách sản phẩm hot dạng trượt bên dưới.</div></div>
+                                    <div class="toggle-switch" id="cfg-layout_product_show_trending" onclick="this.classList.toggle('on')"></div>
+                                </div>
+                                <div class="toggle-row">
+                                    <div><label>Tìm Kiếm Hàng Đầu (Dưới cùng)</label><div class="toggle-desc">Hiện/ẩn khối tag từ khóa tìm kiếm phổ biến.</div></div>
+                                    <div class="toggle-switch" id="cfg-layout_product_show_top_searches" onclick="this.classList.toggle('on')"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auth Page -->
+                    <div id="page-auth" class="layout-content-panel">
+                        <div class="section-card">
+                            <div class="section-card-header">
+                                <h2><i class="fa-solid fa-images text-purple"></i> Banner Minh Họa Trang Đăng Nhập</h2>
+                            </div>
+                            <div class="section-card-body">
+                                <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Ảnh nền và ảnh banner bên trái form đăng nhập trên client.</p>
+                                <div class="banner-grid" id="grid-banners-auth">
+                                    <!-- Dynamic or Placeholder -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB 2: STORE INFO ===== -->
+        <div id="tab-storeinfo" class="page-tab-content">
+            <div class="two-col">
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h2><i class="fa-solid fa-store text-orange"></i> Thông Tin Nhà Thuốc (Hiển thị Header/Footer)</h2>
+                    </div>
+                    <div class="section-card-body">
+                        <div class="form-group">
+                            <label>Tên nhà thuốc <span style="color:#ef4444;">*</span></label>
+                            <input type="text" id="cfg-store_name" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Địa chỉ chính <span style="color:#ef4444;">*</span></label>
+                            <textarea id="cfg-store_address" style="min-height:70px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Số Giấy phép kinh doanh (GPKD)</label>
+                            <input type="text" id="cfg-store_license" value="">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+                                <input type="tel" id="cfg-store_phone" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Hotline / Zalo hỗ trợ</label>
+                                <input type="tel" id="cfg-store_hotline" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email liên hệ</label>
+                            <input type="email" id="cfg-store_email" value="">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Giờ mở cửa</label>
+                                <input type="time" id="cfg-store_open_hour" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Giờ đóng cửa</label>
+                                <input type="time" id="cfg-store_close_hour" value="">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Ngày hoạt động trong tuần</label>
+                            <select id="cfg-store_operating_days">
+                                <option value="Thứ Hai đến Chủ Nhật (7 ngày)">Thứ Hai đến Chủ Nhật (7 ngày)</option>
+                                <option value="Thứ Hai đến Thứ Bảy (6 ngày)">Thứ Hai đến Thứ Bảy (6 ngày)</option>
+                                <option value="Thứ Hai đến Thứ Sáu (5 ngày)">Thứ Hai đến Thứ Sáu (5 ngày)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Maps -->
+                    <div class="section-card" style="margin-bottom:20px;">
+                        <div class="section-card-header">
+                            <h2><i class="fa-solid fa-map-location-dot text-blue"></i> Vĩ độ & Kinh độ Bản đồ (Google Maps)</h2>
+                        </div>
+                        <div class="section-card-body">
+                            <div class="form-row">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Vĩ độ (Lat)</label>
+                                    <input type="text" id="cfg-store_map_lat" value="">
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label>Kinh độ (Lng)</label>
+                                    <input type="text" id="cfg-store_map_lng" value="">
+                                </div>
+                            </div>
+                            <div class="form-hint" style="margin-top: 10px;">Dùng để định vị chính xác vị trí nhà thuốc trên website.</div>
+                        </div>
+                    </div>
+
+                    <!-- Social links -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2><i class="fa-solid fa-share-nodes text-purple"></i> Mạng Xã Hội</h2>
+                        </div>
+                        <div class="section-card-body">
+                            <div class="form-group">
+                                <label><i class="fa-brands fa-facebook" style="color:#1877f2;margin-right:6px;"></i>Facebook Page URL</label>
+                                <input type="url" id="cfg-store_social_facebook" value="">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-brands fa-tiktok" style="margin-right:6px;"></i>TikTok Profile URL</label>
+                                <input type="url" id="cfg-store_social_tiktok" value="" placeholder="https://tiktok.com/@...">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-brands fa-youtube" style="color:#ff0000;margin-right:6px;"></i>YouTube Channel URL</label>
+                                <input type="url" id="cfg-store_social_youtube" value="" placeholder="https://youtube.com/...">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label><i class="fa-solid fa-comments" style="color:#0068ff;margin-right:6px;"></i>Zalo OA Link / SĐT Zalo</label>
+                                <input type="url" id="cfg-store_social_zalo" value="" placeholder="https://zalo.me/...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB 3: SYSTEM SETTINGS ===== -->
+        <div id="tab-system-settings" class="page-tab-content">
+            <div class="settings-tile-grid">
+                <!-- Tile 1: Feature Toggles -->
+                <div class="settings-tile" onclick="openSettingsModal('modal-toggles')">
+                    <div class="settings-tile-icon" style="background: var(--primary-gradient);"><i class="fa-solid fa-toggle-on"></i></div>
+                    <div class="settings-tile-info">
+                        <h3>Bật / Tắt Tính Năng</h3>
+                        <p>Bật/tắt hiển thị giá, cho phép đặt hàng, đánh giá sản phẩm, hệ thống tích điểm.</p>
+                        <span class="settings-tile-badge" id="badge-toggles">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Tile 2: Delivery & COD settings -->
+                <div class="settings-tile" onclick="openSettingsModal('modal-delivery-scope')">
+                    <div class="settings-tile-icon" style="background: var(--blue-gradient);"><i class="fa-solid fa-truck-fast"></i></div>
+                    <div class="settings-tile-info">
+                        <h3>Giao Hàng & COD</h3>
+                        <p>Cài đặt bán kính giao hàng, phí vận chuyển và giới hạn thanh toán COD cho đơn hàng lớn.</p>
+                        <span class="settings-tile-badge" id="badge-delivery-scope">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Tile 3: Shipping Hours -->
+                <div class="settings-tile" onclick="openSettingsModal('modal-delivery-hours')">
+                    <div class="settings-tile-icon" style="background: var(--orange-gradient);"><i class="fa-regular fa-clock"></i></div>
+                    <div class="settings-tile-info">
+                        <h3>Khung Giờ Giao Hàng</h3>
+                        <p>Lựa chọn các khoảng thời gian hỗ trợ giao thuốc nội bộ trong ngày.</p>
+                        <span class="settings-tile-badge" id="badge-delivery-hours">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Tile 4: Delivery Staff -->
+                <div class="settings-tile" onclick="openSettingsModal('modal-delivery-staff')">
+                    <div class="settings-tile-icon" style="background: var(--purple-gradient);"><i class="fa-solid fa-users"></i></div>
+                    <div class="settings-tile-info">
+                        <h3>Người Giao Hàng Nội Bộ</h3>
+                        <p>Thành viên gia đình hoặc dược sĩ giao hàng trực tiếp từ nhà thuốc.</p>
+                        <span class="settings-tile-badge" id="badge-delivery-staff">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Tile 5: Payment Gateways -->
+                <div class="settings-tile" onclick="openSettingsModal('modal-payment-gateways')">
+                    <div class="settings-tile-icon" style="background: linear-gradient(135deg, #10b981, #047857);"><i class="fa-solid fa-credit-card"></i></div>
+                    <div class="settings-tile-info">
+                        <h3>Cổng Thanh Toán</h3>
+                        <p>Bật/tắt thanh toán tiền mặt (COD), VNPay, ví MoMo hoặc ví ZaloPay.</p>
+                        <span class="settings-tile-badge" id="badge-payment-gateways">Đang tải...</span>
+                    </div>
+                </div>
+
+                <!-- Tile 6: Notification Recipients -->
+                <div class="settings-tile" onclick="openSettingsModal('modal-notifications')">
+                    <div class="settings-tile-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fa-solid fa-bell"></i></div>
+                    <div class="settings-tile-info">
+                        <h3>Địa Chỉ Nhận Thông Báo</h3>
+                        <p>Số điện thoại, Zalo và Email của admin nhận tin báo khi có đơn hàng mới.</p>
+                        <span class="settings-tile-badge" id="badge-notifications">Đang tải...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p style="font-weight: 700; font-size: 15px;" id="loadingText">Đang lưu thay đổi...</p>
+    </div>
+
+
+
+    <!-- MODAL: BANNER EDITOR -->
+    <div class="standard-modal-overlay" id="bannerModal">
+        <div class="standard-modal-container" style="max-width:560px;">
+            <div class="standard-modal-header">
+                <div>
+                    <h2 class="slide-title" id="bannerModalTitle">Chỉnh sửa Banner</h2>
+                    <p style="font-size:13px;color:#6b7280;margin-top:4px;">Tải ảnh và điền thông tin chi tiết.</p>
+                </div>
+                <button class="slide-close" onclick="closeBannerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="padding:24px;">
+                <input type="hidden" id="banner-id">
+                <input type="hidden" id="banner-position">
+                <div class="form-group">
+                    <label>Hình ảnh banner</label>
+                    <div style="border:2px dashed #cbd5e1;border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:#f8fafc;position:relative;" onclick="triggerBannerImageUpload()">
+                        <input type="file" id="banner-image-file" style="display:none;" accept="image/*" onchange="previewBannerImage(this)">
+                        <div id="banner-upload-placeholder">
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size:28px;color:#94a3b8;display:block;margin-bottom:8px;"></i>
+                            <div style="font-size:13px;font-weight:600;color:#475569;">Chọn ảnh để tải lên</div>
+                            <div style="font-size:11px;color:#9ca3af;margin-top:4px;">JPG, PNG, WebP – Hạn chế dung lượng</div>
+                        </div>
+                        <img id="banner-image-preview" style="max-height:140px; width:100%; object-fit:contain; display:none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tiêu đề / Tên (Alt text) <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="banner-title" placeholder="VD: Khai trương Nhà thuốc...">
+                </div>
+                <div class="form-group">
+                    <label>Đường dẫn khi click</label>
+                    <input type="text" id="banner-link" placeholder="VD: /category.html?id=12">
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:0;"><label>Hiển thị từ ngày</label><input type="date" id="banner-start-date"></div>
+                    <div class="form-group" style="margin-bottom:0;"><label>Hiển thị đến ngày</label><input type="date" id="banner-end-date"></div>
+                </div>
+            </div>
+            <div class="standard-modal-footer" style="background:#fff;">
+                <button class="btn-secondary" onclick="closeBannerModal()">Hủy</button>
+                <button class="btn-primary" onclick="submitBannerForm()" style="width:160px;justify-content:center;"><i class="fa-solid fa-floppy-disk"></i> Lưu Banner</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS FOR SYSTEM SETTINGS TILES -->
+    <!-- Modal 1: Feature Toggles -->
+    <div class="standard-modal-overlay" id="modal-toggles">
+        <div class="standard-modal-container" style="max-width:520px;">
+            <div class="standard-modal-header">
+                <div><h2>Cài Đặt Tính Năng Website</h2></div>
+                <button class="slide-close" onclick="closeSettingsModal('modal-toggles')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="padding:24px;">
+                <div class="toggle-row">
+                    <div><label>Hiển thị Giá Bán</label><div class="toggle-desc">Hiện giá thuốc trên website. Tắt sẽ hiển thị "Liên hệ".</div></div>
+                    <div class="toggle-switch" id="cfg-settings_show_prices" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Cho phép Đặt Hàng Online</label><div class="toggle-desc">Tắt tính năng mua hàng khi website đang bảo trì / nghỉ lễ.</div></div>
+                    <div class="toggle-switch" id="cfg-settings_allow_orders" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Hiển thị Số Lượng Tồn Kho</label><div class="toggle-desc">Hiển thị số lượng còn trong kho cho khách hàng xem.</div></div>
+                    <div class="toggle-switch" id="cfg-settings_show_stock" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Cho phép Khách Đánh Giá</label><div class="toggle-desc">Khách đã mua hàng được viết đánh giá, review sản phẩm.</div></div>
+                    <div class="toggle-switch" id="cfg-settings_allow_reviews" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Chương Trình Tích Điểm</label><div class="toggle-desc">Kích hoạt chế độ tích điểm thành viên và nâng hạng thẻ.</div></div>
+                    <div class="toggle-switch" id="cfg-settings_loyalty_enabled" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Phím Zalo Chat nổi</label><div class="toggle-desc">Nút hỗ trợ Chat Zalo OA xuất hiện ở góc dưới bên phải.</div></div>
+                    <div class="toggle-switch" id="cfg-settings_zalo_chat" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Thông Báo Đơn Mới cho Zalo</label><div class="toggle-desc">Gửi thông báo Zalo ZNS khi khách hàng đặt đơn online mới.</div></div>
+                    <div class="toggle-switch" id="cfg-settings_zalo_notifications" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label style="color:#ef4444;">Chế Độ Bảo Trì</label><div class="toggle-desc">Khóa toàn bộ website, chỉ hiển thị màn hình thông báo bảo trì.</div></div>
+                    <div class="toggle-switch" id="cfg-settings_maintenance_mode" onclick="this.classList.toggle('on')"></div>
+                </div>
+            </div>
+            <div class="standard-modal-footer">
+                <button class="btn-primary" onclick="closeSettingsModal('modal-toggles')" style="width:100px;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Delivery & COD Scope -->
+    <div class="standard-modal-overlay" id="modal-delivery-scope">
+        <div class="standard-modal-container" style="max-width:520px;">
+            <div class="standard-modal-header">
+                <div><h2>Cơ Chế Giao Hàng & COD</h2></div>
+                <button class="slide-close" onclick="closeSettingsModal('modal-delivery-scope')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="padding:24px;">
+                <div class="form-group">
+                    <label>Bán kính giao hàng tối đa (km)</label>
+                    <input type="number" id="cfg-delivery_max_radius" value="8" min="1">
+                    <div class="form-hint">Khoảng cách tối đa từ nhà thuốc hỗ trợ ship nội bộ.</div>
+                </div>
+                <div class="form-group">
+                    <label>Phí giao hàng nội bộ (₫)</label>
+                    <input type="number" id="cfg-delivery_fee" value="15000" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Miễn phí giao hàng cho đơn từ (₫)</label>
+                    <input type="number" id="cfg-delivery_free_threshold" value="300000" min="0">
+                </div>
+                <hr style="border:0; border-top:1px solid #f1f5f9; margin: 20px 0;">
+                <div class="toggle-row">
+                    <div><label>Cho phép thanh toán COD</label><div class="toggle-desc">Khách trả tiền mặt cho shipper khi nhận thuốc.</div></div>
+                    <div class="toggle-switch" id="cfg-delivery_cod_enabled" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Yêu cầu đặt cọc đơn lớn</label><div class="toggle-desc">Yêu cầu chuyển khoản đặt cọc 30% cho đơn hàng giá trị cao.</div></div>
+                    <div class="toggle-switch" id="cfg-delivery_cod_deposit" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="form-group" style="margin-top:14px; margin-bottom:0;">
+                    <label>Giá trị đơn tối đa được thanh toán COD (₫)</label>
+                    <input type="number" id="cfg-delivery_cod_max" value="5000000">
+                    <div class="form-hint">Đơn vượt quá số tiền này bắt buộc chuyển khoản online trước.</div>
+                </div>
+            </div>
+            <div class="standard-modal-footer">
+                <button class="btn-primary" onclick="closeSettingsModal('modal-delivery-scope')" style="width:100px;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Time Slots -->
+    <div class="standard-modal-overlay" id="modal-delivery-hours">
+        <div class="standard-modal-container" style="max-width:520px;">
+            <div class="standard-modal-header">
+                <div><h2>Khung Giờ Giao Hàng</h2><p style="font-size:12px;color:#64748b;margin-top:4px;">Chọn khung giờ nhà thuốc hỗ trợ đi ship hàng.</p></div>
+                <button class="slide-close" onclick="closeSettingsModal('modal-delivery-hours')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="padding:24px;">
+                <div class="time-slot-grid" id="grid-time-slots">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+            <div class="standard-modal-footer">
+                <button class="btn-primary" onclick="closeSettingsModal('modal-delivery-hours')" style="width:100px;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Delivery Staff -->
+    <div class="standard-modal-overlay" id="modal-delivery-staff">
+        <div class="standard-modal-container" style="max-width:620px;">
+            <div class="standard-modal-header">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; padding-right:16px;">
+                    <h2>Người Giao Hàng Nội Bộ</h2>
+                    <button class="btn-primary" style="height:30px; font-size:12px; padding: 0 10px;" onclick="openAddStaffRow()"><i class="fa-solid fa-plus"></i> Thêm Người</button>
+                </div>
+                <button class="slide-close" onclick="closeSettingsModal('modal-delivery-staff')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="padding:24px; overflow-x:auto;">
+                <table class="staff-table">
+                    <thead>
+                        <tr>
+                            <th>Họ Tên</th>
+                            <th>Quan hệ</th>
+                            <th>SĐT / Zalo</th>
+                            <th>Phương tiện</th>
+                            <th>Trạng thái</th>
+                            <th style="width:70px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-staff-rows">
+                        <!-- Dynamic list -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="standard-modal-footer">
+                <button class="btn-primary" onclick="closeSettingsModal('modal-delivery-staff')" style="width:100px;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5: Payment Gateways -->
+    <div class="standard-modal-overlay" id="modal-payment-gateways">
+        <div class="standard-modal-container" style="max-width:520px;">
+            <div class="standard-modal-header">
+                <div><h2>Cổng Thanh Toán</h2></div>
+                <button class="slide-close" onclick="closeSettingsModal('modal-payment-gateways')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="padding:24px;">
+                <div class="toggle-row">
+                    <div><label>Tiền mặt khi nhận hàng (COD)</label></div>
+                    <div class="toggle-switch" id="cfg-settings_payment_cod" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Cổng VNPay (Thẻ ATM / QR)</label></div>
+                    <div class="toggle-switch" id="cfg-settings_payment_vnpay" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Ví điện tử MoMo</label></div>
+                    <div class="toggle-switch" id="cfg-settings_payment_momo" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <div><label>Ví điện tử ZaloPay</label></div>
+                    <div class="toggle-switch" id="cfg-settings_payment_zalopay" onclick="this.classList.toggle('on')"></div>
+                </div>
+            </div>
+            <div class="standard-modal-footer">
+                <button class="btn-primary" onclick="closeSettingsModal('modal-payment-gateways')" style="width:100px;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 6: Notifications -->
+    <div class="standard-modal-overlay" id="modal-notifications">
+        <div class="standard-modal-container" style="max-width:520px;">
+            <div class="standard-modal-header">
+                <div><h2>Địa Chỉ Nhận Thông Báo</h2></div>
+                <button class="slide-close" onclick="closeSettingsModal('modal-notifications')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="padding:24px;">
+                <div class="form-group">
+                    <label>Số điện thoại nhận SMS / Zalo khi có đơn mới</label>
+                    <input type="tel" id="cfg-settings_notify_phone" value="">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Email nhận báo cáo đơn hàng</label>
+                    <input type="email" id="cfg-settings_notify_email" value="">
+                </div>
+            </div>
+            <div class="standard-modal-footer">
+                <button class="btn-primary" onclick="closeSettingsModal('modal-notifications')" style="width:100px;">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & API INTEGRATION -->
+    <script src="js/admin-components.js"></script>
+    <script>
+        // API Base configuration
+        var resolvedApiBase = localStorage.getItem('MG_API_BASE') || (
+            (window.location.origin.includes('localhost:5500') ||
+             window.location.origin.includes('localhost:5501') ||
+             window.location.origin.includes('127.0.0.1:5500') ||
+             window.location.origin.includes('127.0.0.1:5501'))
+            ? 'http://localhost:8000/api'
+            : window.location.origin.replace(/\/+$/, '') + '/api'
+        );
+        var CMS_API = resolvedApiBase + '/cms';
+
+        function resolveImageUrl(url) {
+            if (!url) return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="10" fill="%2394a3b8">No Image</text></svg>';
+            if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+                return url;
+            }
+            var gateway = resolvedApiBase.replace(/\/api$/, '');
+            if (url.startsWith('/uploads/')) {
+                return gateway + url;
+            }
+            return url;
+        }
+
+        // Global State
+        var loadedConfigs = {}; 
+        var currentBanners = [];
+        var deletedBannerIds = [];
+        var configKeysFromDB = new Set();
+
+        // Time slot definitions
+        var DEFAULT_TIME_SLOTS = [
+            { id: 'early', label: 'Sáng sớm', slot: '07:00 – 10:00', enabled: true },
+            { id: 'noon', label: 'Buổi trưa', slot: '10:00 – 14:00', enabled: true },
+            { id: 'afternoon', label: 'Chiều sớm', slot: '14:00 – 17:00', enabled: true },
+            { id: 'evening', label: 'Chiều tối', slot: '17:00 – 20:00', enabled: true },
+            { id: 'night', label: 'Tối muộn', slot: '20:00 – 22:00', enabled: false },
+            { id: 'express', label: 'Giao ngay', slot: 'Express (30–60 phút)', enabled: false }
+        ];
+
+        // Delivery staff default
+        var DEFAULT_STAFF = [
+            { id: 1, name: 'Trần Minh Giang', relation: 'Chủ nhà thuốc', phone: '0912 345 678', vehicle: 'Xe máy', status: 'available' },
+            { id: 2, name: 'Lê Thị Hoa', relation: 'Vợ', phone: '0988 765 432', vehicle: 'Xe máy', status: 'available' },
+            { id: 3, name: 'Trần Anh Nguyên', relation: 'Con trai', phone: '0977 111 222', vehicle: 'Xe máy', status: 'busy' }
+        ];
+
+        // Fallback store config options
+        var DEFAULT_CONFIGS = {
+            store_name: 'Nhà Thuốc Minh Giang',
+            store_address: '123 Nguyễn Thị Minh Khai, Phường Đa Kao, Quận 1, TP. Hồ Chí Minh',
+            store_license: '4101234567890',
+            store_phone: '(028) 3822 9999',
+            store_hotline: '0912 345 678',
+            store_email: 'minggiang.pharmacy@gmail.com',
+            store_open_hour: '07:00',
+            store_close_hour: '22:00',
+            store_operating_days: 'Thứ Hai đến Chủ Nhật (7 ngày)',
+            store_map_lat: '10.7769',
+            store_map_lng: '106.7009',
+            store_social_facebook: 'https://facebook.com/NhaThuocMinhGiang',
+            store_social_tiktok: '',
+            store_social_youtube: '',
+            store_social_zalo: '',
+
+            delivery_max_radius: 8,
+            delivery_fee: 15000,
+            delivery_free_threshold: 300000,
+            delivery_cod_enabled: true,
+            delivery_cod_deposit: false,
+            delivery_cod_max: 5000000,
+            delivery_time_slots: DEFAULT_TIME_SLOTS,
+            delivery_staff: DEFAULT_STAFF,
+
+            settings_show_prices: true,
+            settings_allow_orders: true,
+            settings_show_stock: true,
+            settings_allow_reviews: true,
+            settings_loyalty_enabled: true,
+            settings_zalo_chat: true,
+            settings_zalo_notifications: true,
+            settings_maintenance_mode: false,
+
+            settings_payment_cod: true,
+            settings_payment_vnpay: true,
+            settings_payment_momo: true,
+            settings_payment_zalopay: true,
+
+            settings_notify_phone: '0912 345 678',
+            settings_notify_email: 'minggiang.pharmacy@gmail.com',
+
+            // New Layout Configs
+            layout_home_top_banner_img: '../assets/images/banner_header.png',
+            layout_home_top_banner_link: '#',
+
+            layout_home_header_flash_sale: '../assets/images/banner_flash_sale.png',
+            layout_home_header_deal: '../assets/images/banner_deal_sieu_khung.png',
+            layout_home_header_best_seller: '../assets/images/banner_san_pham_ban_chay.png',
+            layout_home_header_discount: '../assets/images/banner_giam_gia.png',
+            layout_home_header_exclusive: '../assets/images/banner_san_pham_doc_quyen.png',
+            layout_home_header_imported: '../assets/images/banner_nhap_khau_100.png',
+
+            layout_home_tag_flash_sale: 'flash-sale',
+            layout_home_tag_deal: 'deal',
+            layout_home_tag_best_seller: 'best-seller',
+            layout_home_tag_discount: 'discount',
+            layout_home_tag_exclusive: 'exclusive',
+            layout_home_tag_imported: 'imported',
+
+            layout_home_show_flash_sale: true,
+            layout_home_show_deal: true,
+            layout_home_show_best_seller: true,
+            layout_home_show_discount: true,
+            layout_home_show_exclusive: true,
+            layout_home_show_imported: true,
+            layout_home_show_brands: true,
+            layout_home_show_categories: true,
+            layout_home_show_top_searches: true,
+            layout_home_show_trending: true,
+
+            layout_home_brands: [
+                { id: '1', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_1.png', link_url: '#' },
+                { id: '2', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_2.png', link_url: '#' },
+                { id: '3', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_3.png', link_url: '#' },
+                { id: '4', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_4.png', link_url: '#' },
+                { id: '5', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_5.png', link_url: '#' },
+                { id: '6', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_6.png', link_url: '#' },
+                { id: '7', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_7.png', link_url: '#' },
+                { id: '8', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_8.png', link_url: '#' },
+                { id: '9', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_9.png', link_url: '#' },
+                { id: 'bottom', image_url: '../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_10.png', link_url: '#' }
+            ],
+
+            layout_category_show_sidebar: true,
+            layout_category_show_top_searches: true,
+            layout_category_show_warning: true,
+            layout_category_warning_text: 'Sản phẩm này chỉ bán khi có chỉ định của bác sĩ, mọi thông tin trên Website, App chỉ mang tính chất tham khảo, Vui lòng xác nhận bạn là dược sĩ, bác sĩ hoặc nhân viên y tế có nhu cầu tìm hiểu về sản phẩm này.',
+
+            layout_product_show_similar: true,
+            layout_product_show_popular: true,
+            layout_product_show_trending: true,
+            layout_product_show_top_searches: true
+        };
+
+        // Initialize Layout page on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderAdminLayout('storefront');
+            await loadAllData();
+        });
+
+        // Auth Fetch Helper
+        async function fetchAdmin(url, options = {}) {
+            var auth = JSON.parse(localStorage.getItem('MG_ADMIN_AUTH') || '{}');
+            var token = auth.accessToken;
+            options.headers = options.headers || {};
+            if (token) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+            if (!(options.body instanceof FormData)) {
+                options.headers['Content-Type'] = 'application/json';
+            }
+            var response = await fetch(url, options);
+            if (response.status === 401) {
+                localStorage.removeItem('MG_ADMIN_AUTH');
+                window.location.href = 'login.html';
+                return;
+            }
+            if (!response.ok) {
+                var err = await response.json().catch(() => ({}));
+                throw new Error(err.message || `HTTP error ${response.status}`);
+            }
+            return response.json();
+        }
+
+        async function seedDefaultBanners() {
+            var defaults = [
+                { title: 'Slide 1', image_url: '../assets/images/banner_slide_1.png', link_url: '#', position: 'hero', sort_order: 0, is_active: 1 },
+                { title: 'Slide 2', image_url: '../assets/images/banner_slide_2.png', link_url: '#', position: 'hero', sort_order: 1, is_active: 1 },
+                { title: 'Slide 3', image_url: '../assets/images/banner_slide_3.png', link_url: '#', position: 'hero', sort_order: 2, is_active: 1 },
+                { title: 'Slide 4', image_url: '../assets/images/banner_slide_4.png', link_url: '#', position: 'hero', sort_order: 3, is_active: 1 },
+                { title: 'Slide 5', image_url: '../assets/images/banner_slide_5.png', link_url: '#', position: 'hero', sort_order: 4, is_active: 1 },
+                { title: 'Slide 6', image_url: '../assets/images/banner_slide_6.png', link_url: '#', position: 'hero', sort_order: 5, is_active: 1 },
+                { title: 'Sidebar Banner 1', image_url: '../assets/images/banner_1.png', link_url: '#', position: 'sidebar', sort_order: 0, is_active: 1 },
+                { title: 'Sidebar Banner 2', image_url: '../assets/images/banner_san_pham_ban_chay_so_1_han_quoc.png', link_url: '#', position: 'sidebar', sort_order: 1, is_active: 1 },
+                { title: 'Popup Quảng Cáo Mặc Định', image_url: '../assets/images/banner_1.png', link_url: '#', position: 'popup', sort_order: 0, is_active: 1 }
+            ];
+
+            for (const item of defaults) {
+                try {
+                    await fetchAdmin(`${CMS_API}/banners`, {
+                        method: 'POST',
+                        body: JSON.stringify(item)
+                    });
+                } catch(e) {
+                    console.error('Failed to seed default banner:', item.title, e);
+                }
+            }
+        }
+
+        // Fetch configs and banners
+        async function loadAllData() {
+            showLoading('Đang tải cấu hình...');
+            try {
+                // 1. Fetch configs
+                var configsRes = await fetchAdmin(`${CMS_API}/store-config`);
+                configKeysFromDB.clear();
+                if (configsRes.success && Array.isArray(configsRes.data)) {
+                    configsRes.data.forEach(item => {
+                        var parsedVal = item.config_value;
+                        if (item.value_type === 'integer') parsedVal = parseInt(parsedVal, 10);
+                        else if (item.value_type === 'decimal') parsedVal = parseFloat(parsedVal);
+                        else if (item.value_type === 'boolean') parsedVal = (parsedVal === 'true' || parsedVal === '1');
+                        else if (item.value_type === 'json') {
+                            try { parsedVal = JSON.parse(parsedVal); } catch(e) {}
+                        }
+                        loadedConfigs[item.config_key] = parsedVal;
+                        configKeysFromDB.add(item.config_key);
+                    });
+                }
+
+                // 2. Fetch banners
+                var bannersRes = await fetchAdmin(`${CMS_API}/banners/admin`);
+                if (bannersRes.success && Array.isArray(bannersRes.data)) {
+                    if (bannersRes.data.length === 0) {
+                        showLoading('Đang cài đặt các banner mặc định...');
+                        await seedDefaultBanners();
+                        var refetched = await fetchAdmin(`${CMS_API}/banners/admin`);
+                        if (refetched.success && Array.isArray(refetched.data)) {
+                            currentBanners = refetched.data;
+                        }
+                    } else {
+                        currentBanners = bannersRes.data;
+                    }
+                }
+
+                populateConfigs();
+                renderBanners();
+                updateSettingsBadges();
+            } catch (err) {
+                showToast(err.message || 'Lỗi khi tải dữ liệu từ máy chủ.', 'error');
+                console.error(err);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Populate forms from loaded configs or fallbacks
+        function populateConfigs() {
+            Object.keys(DEFAULT_CONFIGS).forEach(key => {
+                var element = document.getElementById(`cfg-${key}`);
+                if (!element) return;
+
+                var dbValue = loadedConfigs[key] !== undefined ? loadedConfigs[key] : DEFAULT_CONFIGS[key];
+
+                if (element.classList.contains('toggle-switch')) {
+                    element.classList.toggle('on', dbValue === true);
+                } else if (element.tagName === 'SELECT') {
+                    element.value = dbValue;
+                } else {
+                    element.value = dbValue;
+                }
+            });
+
+            // Populate time slots
+            var timeSlots = loadedConfigs['delivery_time_slots'] || DEFAULT_CONFIGS['delivery_time_slots'];
+            renderTimeSlots(timeSlots);
+
+            // Populate staff table
+            var staffList = loadedConfigs['delivery_staff'] || DEFAULT_CONFIGS['delivery_staff'];
+            renderStaffTable(staffList);
+
+            // Populate layout top banner & link
+            var topBannerImg = loadedConfigs['layout_home_top_banner_img'] || DEFAULT_CONFIGS['layout_home_top_banner_img'];
+            document.getElementById('preview-top-banner').src = resolveImageUrl(topBannerImg);
+            
+            var topBannerLink = loadedConfigs['layout_home_top_banner_link'] || DEFAULT_CONFIGS['layout_home_top_banner_link'];
+            document.getElementById('input-layout_home_top_banner_link').value = topBannerLink;
+
+            // Populate layout headers
+            var headerKeys = [
+                { key: 'layout_home_header_flash_sale', id: 'preview-header-flash' },
+                { key: 'layout_home_header_deal', id: 'preview-header-deal' },
+                { key: 'layout_home_header_best_seller', id: 'preview-header-best' },
+                { key: 'layout_home_header_discount', id: 'preview-header-discount' },
+                { key: 'layout_home_header_exclusive', id: 'preview-header-exclusive' },
+                { key: 'layout_home_header_imported', id: 'preview-header-imported' }
+            ];
+            headerKeys.forEach(item => {
+                var imgUrl = loadedConfigs[item.key] || DEFAULT_CONFIGS[item.key];
+                document.getElementById(item.id).src = resolveImageUrl(imgUrl);
+            });
+
+            // Populate brands grid
+            var brands = loadedConfigs['layout_home_brands'] || DEFAULT_CONFIGS['layout_home_brands'];
+            renderBrandsConfigGrid(brands);
+        }
+
+        // Render Banners according to positions
+        function renderBanners() {
+            var positions = ['hero', 'sidebar', 'popup'];
+            positions.forEach(pos => {
+                var container = document.getElementById(`grid-banners-${pos}`);
+                if (!container) return;
+
+                var filtered = currentBanners.filter(b => b.position === pos && b.is_active !== 0);
+                
+                var html = filtered.map((b, idx) => {
+                    var isHero = pos === 'hero';
+                    var actionsHtml = isHero ? `
+                        <button class="btn-icon" title="Sửa" onclick="openBannerModal('${pos}', ${b.id})"><i class="fa-solid fa-pencil"></i></button>
+                        <button class="btn-icon" title="Lên" onclick="moveBannerOrder(${b.id}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+                        <button class="btn-icon" title="Xuống" onclick="moveBannerOrder(${b.id}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="btn-icon btn-delete" title="Ẩn" onclick="hideBanner(${b.id})"><i class="fa-solid fa-eye-slash"></i></button>
+                    ` : `
+                        <button class="btn-icon" title="Sửa" onclick="openBannerModal('${pos}', ${b.id})"><i class="fa-solid fa-pencil"></i></button>
+                    `;
+
+                    return `
+                        <div class="banner-item" data-id="${b.id}">
+                            <div class="banner-preview">
+                                <img src="${resolveImageUrl(b.image_url)}" alt="${b.title || 'Slide'}" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;100&quot; height=&quot;100&quot; viewBox=&quot;0 0 100 100&quot;><rect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;%23f1f5f9&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; font-family=&quot;sans-serif&quot; font-size=&quot;10&quot; fill=&quot;%2394a3b8&quot;>No Image</text></svg>';">
+                                <span class="banner-order">${idx + 1}</span>
+                                <span class="banner-position-badge">${pos}</span>
+                            </div>
+                            <div class="banner-meta">
+                                <h4>${b.title}</h4>
+                                <p>Link: ${b.link_url || '#'}</p>
+                                <div class="banner-actions">
+                                    ${actionsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add card placeholder for creation only for hero
+                if (pos === 'hero') {
+                    html += `
+                        <div class="banner-item" style="border-style:dashed;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;" onclick="openBannerModal('${pos}')">
+                            <i class="fa-solid fa-plus-circle" style="font-size:32px;color:#cbd5e1;margin-bottom:8px;"></i>
+                            <span style="font-size:13px;color:#94a3b8;font-weight:600;">Thêm Banner Mới</span>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            });
+        }
+
+        // Render time slots checks
+        function renderTimeSlots(slots) {
+            var container = document.getElementById('grid-time-slots');
+            if (!container) return;
+
+            container.innerHTML = slots.map((s, idx) => `
+                <div class="time-slot ${s.enabled ? 'active' : ''}" onclick="toggleTimeSlot(${idx}, this)">
+                    <h4>${s.label}</h4>
+                    <p>${s.slot}</p>
+                </div>
+            `).join('');
+        }
+
+        function toggleTimeSlot(idx, el) {
+            var slots = loadedConfigs['delivery_time_slots'] || DEFAULT_CONFIGS['delivery_time_slots'];
+            slots[idx].enabled = !slots[idx].enabled;
+            el.classList.toggle('active', slots[idx].enabled);
+            loadedConfigs['delivery_time_slots'] = slots;
+            updateSettingsBadges();
+        }
+
+        // Render Shippers
+        function renderStaffTable(staff) {
+            var container = document.getElementById('table-staff-rows');
+            if (!container) return;
+
+            container.innerHTML = staff.map((s, idx) => `
+                <tr data-idx="${idx}">
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.relation}</td>
+                    <td>${s.phone}</td>
+                    <td>${s.vehicle}</td>
+                    <td>
+                        <span class="status-badge ${s.status === 'available' ? 'active' : ''}" style="font-size:11px; cursor:pointer;" onclick="toggleStaffStatus(${idx})">
+                            ${s.status === 'available' ? 'Sẵn sàng' : 'Bận'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-icon btn-delete" style="width:28px; height:28px;" onclick="removeStaffRow(${idx})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleStaffStatus(idx) {
+            var staff = loadedConfigs['delivery_staff'] || DEFAULT_CONFIGS['delivery_staff'];
+            staff[idx].status = staff[idx].status === 'available' ? 'busy' : 'available';
+            loadedConfigs['delivery_staff'] = staff;
+            renderStaffTable(staff);
+            updateSettingsBadges();
+        }
+
+        function removeStaffRow(idx) {
+            var staff = loadedConfigs['delivery_staff'] || DEFAULT_CONFIGS['delivery_staff'];
+            staff.splice(idx, 1);
+            loadedConfigs['delivery_staff'] = staff;
+            renderStaffTable(staff);
+            updateSettingsBadges();
+        }
+
+        function openAddStaffRow() {
+            var name = prompt('Nhập họ tên người giao:');
+            if (!name) return;
+            var relation = prompt('Nhập quan hệ / chức vụ:');
+            var phone = prompt('Nhập số điện thoại:');
+            var vehicle = prompt('Nhập phương tiện di chuyển (VD: Xe máy):', 'Xe máy');
+            
+            var staff = loadedConfigs['delivery_staff'] || DEFAULT_CONFIGS['delivery_staff'];
+            staff.push({
+                id: Date.now(),
+                name,
+                relation: relation || 'Cộng tác viên',
+                phone: phone || '',
+                vehicle: vehicle || 'Xe máy',
+                status: 'available'
+            });
+            loadedConfigs['delivery_staff'] = staff;
+            renderStaffTable(staff);
+            updateSettingsBadges();
+        }
+
+        // Update settings tiles badges dynamically
+        function updateSettingsBadges() {
+            // Toggles
+            var toggleKeys = ['settings_show_prices', 'settings_allow_orders', 'settings_show_stock', 'settings_allow_reviews', 'settings_loyalty_enabled', 'settings_zalo_chat', 'settings_zalo_notifications', 'settings_maintenance_mode'];
+            var enabledToggles = 0;
+            toggleKeys.forEach(k => {
+                var switchEl = document.getElementById(`cfg-${k}`);
+                var isEnabled = switchEl ? switchEl.classList.contains('on') : (loadedConfigs[k] !== undefined ? loadedConfigs[k] : DEFAULT_CONFIGS[k]);
+                if (isEnabled) enabledToggles++;
+            });
+            document.getElementById('badge-toggles').textContent = `${enabledToggles}/8 Bật`;
+
+            // Scope
+            var rEl = document.getElementById('cfg-delivery_max_radius');
+            var radius = rEl ? rEl.value : (loadedConfigs['delivery_max_radius'] || DEFAULT_CONFIGS['delivery_max_radius']);
+            var codEl = document.getElementById('cfg-delivery_cod_enabled');
+            var codOn = codEl ? codEl.classList.contains('on') : (loadedConfigs['delivery_cod_enabled'] !== undefined ? loadedConfigs['delivery_cod_enabled'] : DEFAULT_CONFIGS['delivery_cod_enabled']);
+            document.getElementById('badge-delivery-scope').textContent = `Bán kính: ${radius}km, COD: ${codOn ? 'Bật' : 'Tắt'}`;
+
+            // Time Slots
+            var slots = loadedConfigs['delivery_time_slots'] || DEFAULT_CONFIGS['delivery_time_slots'];
+            var activeSlots = slots.filter(s => s.enabled).length;
+            document.getElementById('badge-delivery-hours').textContent = `${activeSlots}/${slots.length} Khung giờ`;
+
+            // Staff
+            var staff = loadedConfigs['delivery_staff'] || DEFAULT_CONFIGS['delivery_staff'];
+            var activeStaff = staff.filter(s => s.status === 'available').length;
+            document.getElementById('badge-delivery-staff').textContent = `${activeStaff}/${staff.length} Shipper sẵn sàng`;
+
+            // Payments
+            var payKeys = ['settings_payment_cod', 'settings_payment_vnpay', 'settings_payment_momo', 'settings_payment_zalopay'];
+            var enabledPay = 0;
+            payKeys.forEach(k => {
+                var switchEl = document.getElementById(`cfg-${k}`);
+                var isEnabled = switchEl ? switchEl.classList.contains('on') : (loadedConfigs[k] !== undefined ? loadedConfigs[k] : DEFAULT_CONFIGS[k]);
+                if (isEnabled) enabledPay++;
+            });
+            document.getElementById('badge-payment-gateways').textContent = `${enabledPay} Cổng khả dụng`;
+
+            // Notifications
+            var mailEl = document.getElementById('cfg-settings_notify_email');
+            var email = mailEl ? mailEl.value : (loadedConfigs['settings_notify_email'] || DEFAULT_CONFIGS['settings_notify_email']);
+            document.getElementById('badge-notifications').textContent = email ? email.substring(0, 16) + '...' : 'Chưa cài';
+        }
+
+        // Banner actions
+        function moveBannerOrder(bannerId, direction) {
+            var index = currentBanners.findIndex(b => b.id === bannerId);
+            if (index === -1) return;
+
+            var targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= currentBanners.length) return;
+
+            // Swap orders
+            var temp = currentBanners[index];
+            currentBanners[index] = currentBanners[targetIndex];
+            currentBanners[targetIndex] = temp;
+
+            // Update sort order values
+            currentBanners.forEach((b, idx) => b.sort_order = idx);
+            renderBanners();
+        }
+
+        function hideBanner(bannerId) {
+            var banner = currentBanners.find(b => b.id === bannerId);
+            if (!banner) return;
+            banner.is_active = 0;
+            deletedBannerIds.push(bannerId);
+            renderBanners();
+        }
+
+        // Banner form modal actions
+        function openBannerModal(pos, id = null) {
+            document.getElementById('bannerModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            
+            document.getElementById('banner-id').value = id || '';
+            document.getElementById('banner-position').value = pos;
+            document.getElementById('banner-title').value = '';
+            document.getElementById('banner-link').value = '';
+            document.getElementById('banner-start-date').value = '';
+            document.getElementById('banner-end-date').value = '';
+            document.getElementById('banner-image-file').value = '';
+
+            var placeholder = document.getElementById('banner-upload-placeholder');
+            var preview = document.getElementById('banner-image-preview');
+            placeholder.style.display = 'block';
+            preview.style.display = 'none';
+            preview.src = '';
+
+            if (id) {
+                var banner = currentBanners.find(b => b.id === id);
+                if (banner) {
+                    document.getElementById('bannerModalTitle').textContent = 'Chỉnh sửa Banner';
+                    document.getElementById('banner-title').value = banner.title;
+                    document.getElementById('banner-link').value = banner.link_url || '';
+                    if (banner.start_date) document.getElementById('banner-start-date').value = banner.start_date.split('T')[0];
+                    if (banner.end_date) document.getElementById('banner-end-date').value = banner.end_date.split('T')[0];
+                    
+                    placeholder.style.display = 'none';
+                    preview.style.display = 'block';
+                    preview.src = resolveImageUrl(banner.image_url);
+                }
+            } else {
+                document.getElementById('bannerModalTitle').textContent = 'Thêm Banner Mới';
+            }
+        }
+
+        function closeBannerModal() {
+            document.getElementById('bannerModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function triggerBannerImageUpload() {
+            document.getElementById('banner-image-file').click();
+        }
+
+        var uploadedImageBase64 = null;
+        var uploadedImageMeta = {};
+
+        function previewBannerImage(input) {
+            var file = input.files[0];
+            if (!file) return;
+
+            uploadedImageMeta = {
+                original_name: file.name,
+                mime_type: file.type,
+                file_size: file.size
+            };
+
+            var reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImageBase64 = e.target.result;
+                document.getElementById('banner-upload-placeholder').style.display = 'none';
+                var img = document.getElementById('banner-image-preview');
+                img.style.display = 'block';
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function submitBannerForm() {
+            var id = document.getElementById('banner-id').value;
+            var pos = document.getElementById('banner-position').value;
+            var title = document.getElementById('banner-title').value;
+            var link = document.getElementById('banner-link').value;
+            var startDate = document.getElementById('banner-start-date').value;
+            var endDate = document.getElementById('banner-end-date').value;
+            var preview = document.getElementById('banner-image-preview');
+
+            if (!title) {
+                showToast('Vui lòng nhập tiêu đề banner.', 'warning');
+                return;
+            }
+
+            showLoading('Đang xử lý ảnh & lưu banner...');
+
+            try {
+                var imageUrl = preview.src;
+
+                // Handle file upload via Base64 to backend
+                if (uploadedImageBase64) {
+                    var uploadPayload = {
+                        original_name: uploadedImageMeta.original_name,
+                        mime_type: uploadedImageMeta.mime_type,
+                        file_size: uploadedImageMeta.file_size,
+                        media_type: 'image',
+                        data_base64: uploadedImageBase64
+                    };
+                    var res = await fetchAdmin(`${CMS_API}/media`, {
+                        method: 'POST',
+                        body: JSON.stringify(uploadPayload)
+                    });
+                    if (res.success && res.data.file_url) {
+                        imageUrl = res.data.file_url;
+                        uploadedImageBase64 = null; // reset
+                    }
+                }
+
+                if (!imageUrl || imageUrl.includes('placeholder.png')) {
+                    hideLoading();
+                    showToast('Vui lòng tải lên hình ảnh cho banner.', 'warning');
+                    return;
+                }
+
+                var bannerPayload = {
+                    title,
+                    image_url: imageUrl,
+                    link_url: link || null,
+                    position: pos,
+                    start_date: startDate || null,
+                    end_date: endDate || null,
+                    sort_order: currentBanners.length
+                };
+
+                if (id) {
+                    // Update locally
+                    var index = currentBanners.findIndex(b => b.id === Number(id));
+                    if (index !== -1) {
+                        currentBanners[index] = { ...currentBanners[index], ...bannerPayload };
+                        // Trigger PUT request immediately to reflect in DB
+                        await fetchAdmin(`${CMS_API}/banners/${id}`, {
+                            method: 'PUT',
+                            body: JSON.stringify(bannerPayload)
+                        });
+                    }
+                } else {
+                    // Create in backend to get auto-incremented ID
+                    var createRes = await fetchAdmin(`${CMS_API}/banners`, {
+                        method: 'POST',
+                        body: JSON.stringify(bannerPayload)
+                    });
+                    if (createRes.success && createRes.data.id) {
+                        currentBanners.push({ id: createRes.data.id, ...bannerPayload });
+                    }
+                }
+
+                renderBanners();
+                closeBannerModal();
+                showToast('Đã lưu banner thành công!');
+            } catch (err) {
+                showToast(err.message || 'Lỗi khi lưu banner.', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Revert all edits back to DB state
+        async function revertChanges() {
+            if (confirm('Bạn có chắc chắn muốn hoàn tác tất cả các thay đổi chưa lưu?')) {
+                deletedBannerIds = [];
+                await loadAllData();
+                showToast('Đã hoàn tác dữ liệu thành công!');
+            }
+        }
+
+        // Save All Configurations & Banners (Bulk Upsert)
+        async function saveAllSettings() {
+            showLoading('Đang lưu cấu hình...');
+            var errors = [];
+            try {
+                // 1. Harvest configurations
+                var configValues = {};
+                var keys = Object.keys(DEFAULT_CONFIGS);
+
+                keys.forEach(k => {
+                    var el = document.getElementById(`cfg-${k}`);
+                    if (!el) {
+                        // For fields like staff & slots, gather from memory state
+                        configValues[k] = loadedConfigs[k] !== undefined ? loadedConfigs[k] : DEFAULT_CONFIGS[k];
+                        return;
+                    }
+
+                    if (el.classList.contains('toggle-switch')) {
+                        configValues[k] = el.classList.contains('on');
+                    } else if (el.tagName === 'INPUT' && el.type === 'number') {
+                        configValues[k] = parseInt(el.value, 10);
+                    } else {
+                        configValues[k] = el.value;
+                    }
+                });
+
+                // 2. Batch configurations: Loop and POST or PUT
+                var configKeys = Object.keys(configValues);
+                for (const key of configKeys) {
+                    var value = configValues[key];
+                    var valueType = Array.isArray(value) || typeof value === 'object' ? 'json' : (typeof value === 'boolean' ? 'boolean' : (typeof value === 'number' ? 'integer' : 'string'));
+                    var stringVal = valueType === 'json' ? JSON.stringify(value) : String(value);
+
+                    var isKeyPublic = key.startsWith('store_') || key.startsWith('layout_') || key === 'settings_show_prices' || key.startsWith('settings_payment_');
+                    var payload = {
+                        config_value: stringVal,
+                        display_name: DEFAULT_CONFIGS[key].display_name || key,
+                        value_type: valueType,
+                        group_name: key.startsWith('store_') ? 'store' : (key.startsWith('delivery_') ? 'shipping' : (key.includes('payment_') ? 'payment' : 'general'))
+                    };
+
+                    try {
+                        if (configKeysFromDB.has(key)) {
+                            // PUT
+                            await fetchAdmin(`${CMS_API}/store-config/${key}`, {
+                                method: 'PUT',
+                                body: JSON.stringify({
+                                    ...payload,
+                                    is_active: 1,
+                                    is_public: isKeyPublic ? 1 : 0
+                                })
+                            });
+                        } else {
+                            // POST (Seeding new keys in empty table)
+                            var postPayload = {
+                                config_key: key,
+                                display_name: payload.display_name,
+                                config_value: stringVal,
+                                value_type: valueType,
+                                group_name: payload.group_name,
+                                is_public: isKeyPublic ? 1 : 0
+                            };
+                            var res = await fetchAdmin(`${CMS_API}/store-config`, {
+                                method: 'POST',
+                                body: JSON.stringify(postPayload)
+                            });
+                            if (res && res.success) {
+                                configKeysFromDB.add(key);
+                            }
+                        }
+                    } catch (err) {
+                        console.error(`Error saving config key ${key}:`, err);
+                        errors.push(`${key}: ${err.message}`);
+                    }
+                }
+
+                // 3. Sync deletions of banners
+                for (const delId of deletedBannerIds) {
+                    try {
+                        await fetchAdmin(`${CMS_API}/banners/${delId}`, {
+                            method: 'DELETE'
+                        });
+                    } catch (err) {
+                        console.error(`Error deleting banner ${delId}:`, err);
+                        errors.push(`Xóa banner ${delId}: ${err.message}`);
+                    }
+                }
+                deletedBannerIds = [];
+
+                // 4. Update banner positions/sorting order
+                for (const banner of currentBanners) {
+                    if (banner.id && !deletedBannerIds.includes(banner.id)) {
+                        try {
+                            await fetchAdmin(`${CMS_API}/banners/${banner.id}`, {
+                                method: 'PUT',
+                                body: JSON.stringify({
+                                    sort_order: banner.sort_order,
+                                    is_active: banner.is_active
+                                })
+                            });
+                        } catch (err) {
+                            console.error(`Error updating banner ${banner.id}:`, err);
+                            errors.push(`Cập nhật banner ${banner.id}: ${err.message}`);
+                        }
+                    }
+                }
+
+                if (errors.length > 0) {
+                    showToast(`Đã lưu cấu hình, nhưng có ${errors.length} lỗi: ${errors.slice(0, 2).join(', ')}`, 'error');
+                } else {
+                    showToast('Đã lưu mọi cấu hình thành công!');
+                }
+                await loadAllData();
+            } catch(e) {
+                showToast(e.message || 'Lỗi khi lưu cấu hình.', 'error');
+                console.error(e);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Layout Image Upload & Brand Config Helpers
+        async function uploadFileImmediately(file) {
+            var reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = async (e) => {
+                    var base64 = e.target.result;
+                    var uploadPayload = {
+                        original_name: file.name,
+                        mime_type: file.type,
+                        file_size: file.size,
+                        media_type: 'image',
+                        data_base64: base64
+                    };
+                    try {
+                        var res = await fetchAdmin(`${CMS_API}/media`, {
+                            method: 'POST',
+                            body: JSON.stringify(uploadPayload)
+                        });
+                        if (res.success && res.data.file_url) {
+                            resolve(res.data.file_url);
+                        } else {
+                            reject(new Error('Upload failed'));
+                        }
+                    } catch(err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = () => reject(new Error('File reading error'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function triggerLayoutImageUpload(configKey, previewId) {
+            document.getElementById(`file-${configKey}`).click();
+        }
+
+        async function handleLayoutImageChange(input, configKey, previewId) {
+            var file = input.files[0];
+            if (!file) return;
+            
+            showLoading('Đang tải lên hình ảnh...');
+            try {
+                var url = await uploadFileImmediately(file);
+                loadedConfigs[configKey] = url;
+                document.getElementById(previewId).src = resolveImageUrl(url);
+                showToast('Đã tải lên ảnh thành công!');
+            } catch(e) {
+                showToast('Lỗi tải ảnh lên: ' + e.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function renderBrandsConfigGrid(brands) {
+            var gridContainer = document.getElementById('grid-brands-config');
+            var bottomContainer = document.getElementById('bottom-brand-config');
+            if (!gridContainer || !bottomContainer) return;
+
+            var gridItems = brands.filter(b => b.id !== 'bottom');
+            var bottomItem = brands.find(b => b.id === 'bottom') || { id: 'bottom', image_url: '', link_url: '#' };
+
+            gridContainer.innerHTML = gridItems.map((b, idx) => `
+                <div class="brand-config-card" style="border:1px solid #e2e8f0; border-radius:12px; padding:16px; background:#fff;">
+                    <div style="font-weight:700; font-size:12px; margin-bottom:8px; color:#475569;">Ô Thương Hiệu ${b.id}</div>
+                    <div class="image-uploader-card" style="cursor:pointer; position:relative; margin-bottom:10px;" onclick="triggerBrandImageUpload('${b.id}')">
+                        <input type="file" id="file-brand-${b.id}" style="display:none;" accept="image/*" onchange="handleBrandImageChange(this, '${b.id}')">
+                        <img id="preview-brand-${b.id}" src="${resolveImageUrl(b.image_url)}" style="width:100%; height:80px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;100&quot; height=&quot;100&quot; viewBox=&quot;0 0 100 100&quot;><rect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;%23f1f5f9&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; font-family=&quot;sans-serif&quot; font-size=&quot;10&quot; fill=&quot;%2394a3b8&quot;>No Image</text></svg>';">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size:11px; margin-bottom:4px;">Link liên kết</label>
+                        <input type="text" value="${b.link_url || '#'}" style="padding:6px 10px; font-size:12px;" onchange="updateBrandLink('${b.id}', this.value)">
+                    </div>
+                </div>
+            `).join('');
+
+            bottomContainer.innerHTML = `
+                <div class="brand-config-card" style="border:1px solid #e2e8f0; border-radius:12px; padding:16px; background:#fff;">
+                    <div style="font-weight:700; font-size:12px; margin-bottom:8px; color:#475569;">Banner Rộng Phía Dưới</div>
+                    <div style="display:grid; grid-template-columns: 200px 1fr; gap:16px;">
+                        <div class="image-uploader-card" style="cursor:pointer; position:relative;" onclick="triggerBrandImageUpload('bottom')">
+                            <input type="file" id="file-brand-bottom" style="display:none;" accept="image/*" onchange="handleBrandImageChange(this, 'bottom')">
+                            <img id="preview-brand-bottom" src="${resolveImageUrl(bottomItem.image_url)}" style="width:100%; height:80px; object-fit:contain; border:1px solid #cbd5e1; border-radius:8px;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;100&quot; height=&quot;100&quot; viewBox=&quot;0 0 100 100&quot;><rect width=&quot;100&quot; height=&quot;100&quot; fill=&quot;%23f1f5f9&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; font-family=&quot;sans-serif&quot; font-size=&quot;10&quot; fill=&quot;%2394a3b8&quot;>No Image</text></svg>';">
+                        </div>
+                        <div style="display:flex; flex-direction:column; justify-content:center;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-size:11px; margin-bottom:4px;">Link liên kết</label>
+                                <input type="text" value="${bottomItem.link_url || '#'}" style="padding:8px 12px; font-size:13px;" onchange="updateBrandLink('bottom', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function triggerBrandImageUpload(brandId) {
+            document.getElementById(`file-brand-${brandId}`).click();
+        }
+
+        async function handleBrandImageChange(input, brandId) {
+            var file = input.files[0];
+            if (!file) return;
+
+            showLoading('Đang tải lên hình ảnh...');
+            try {
+                var url = await uploadFileImmediately(file);
+                var brands = loadedConfigs['layout_home_brands'] || DEFAULT_CONFIGS['layout_home_brands'];
+                var item = brands.find(b => b.id === brandId);
+                if (item) {
+                    item.image_url = url;
+                } else {
+                    brands.push({ id: brandId, image_url: url, link_url: '#' });
+                }
+                loadedConfigs['layout_home_brands'] = brands;
+                document.getElementById(`preview-brand-${brandId}`).src = resolveImageUrl(url);
+                showToast('Đã tải lên hình ảnh thương hiệu!');
+            } catch(e) {
+                showToast('Lỗi tải ảnh lên: ' + e.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateBrandLink(brandId, linkUrl) {
+            var brands = loadedConfigs['layout_home_brands'] || DEFAULT_CONFIGS['layout_home_brands'];
+            var item = brands.find(b => b.id === brandId);
+            if (item) {
+                item.link_url = linkUrl;
+            } else {
+                brands.push({ id: brandId, image_url: '', link_url: linkUrl });
+            }
+            loadedConfigs['layout_home_brands'] = brands;
+        }
+
+        // Layout Tabs & Sub-pages
+        function switchPageTab(tabId) {
+            document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.querySelectorAll('.page-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            updateSettingsBadges();
+        }
+
+        function switchLayoutPage(pageId, btn) {
+            document.querySelectorAll('.layout-page-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.layout-content-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Settings Modal functions (Tab 3 Popups)
+        function openSettingsModal(modalId) {
+            document.getElementById(modalId).classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSettingsModal(modalId) {
+            document.getElementById(modalId).classList.remove('open');
+            document.body.style.overflow = '';
+            updateSettingsBadges();
+        }
+
+        // Loader Overlay helpers
+        function showLoading(text = 'Đang lưu thay đổi...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+
+    </script>
+</body>
+
+</html>

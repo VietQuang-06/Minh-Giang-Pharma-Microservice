@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nội Dung Y Khoa (CMS) — Nhà Thuốc Minh Giang</title>
+    <link rel="stylesheet" href="css/admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== CMS SPECIFIC STYLES ===== */
+        .cms-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .cms-stat-card {
+            background: #fff;
+            border: 1px solid var(--admin-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .cms-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .cms-stat-info p {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .cms-stat-info h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .cms-stat-info small {
+            font-size: 11px;
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Category tree */
+        .category-tree {
+            border: 1px solid var(--admin-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .category-tree-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--admin-border);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .category-tree-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-tree-item:hover {
+            background: #f8fafc;
+        }
+
+        .category-tree-item.active {
+            background: #eff6ff;
+        }
+
+        .category-tree-item .cat-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .category-tree-item .cat-info {
+            flex: 1;
+        }
+
+        .category-tree-item .cat-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 1px;
+        }
+
+        .category-tree-item .cat-info p {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .category-tree-item .cat-count {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            background: #3b82f6;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* Article card list */
+        .article-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            background: #fff;
+            border: 1px solid var(--admin-border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            transition: box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .article-card:hover {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+        }
+
+        .article-thumbnail {
+            width: 90px;
+            height: 68px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #cbd5e1;
+        }
+
+        .article-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .article-body h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .article-body .article-meta {
+            font-size: 11px;
+            color: #9ca3af;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .article-body .article-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .article-body .article-excerpt {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        /* Publish status */
+        .pub-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        .pub-status.published {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .pub-status.draft {
+            background: #fefce8;
+            color: #a16207;
+        }
+
+        .pub-status.review {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        /* Two-col layout */
+        .cms-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .cms-sidebar-panel {
+            background: #fff;
+            border: 1px solid var(--admin-border);
+            border-radius: 12px;
+            overflow: hidden;
+            position: sticky;
+            top: 80px;
+        }
+
+        .cms-sidebar-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--admin-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cms-sidebar-header h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* Editor modal sections */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--admin-primary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group .form-hint {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        /* Rich text area simulation */
+        .rich-editor {
+            min-height: 280px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter';
+            color: #374151;
+            overflow: hidden;
+        }
+
+        .rich-editor-toolbar {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--admin-border);
+            background: #f8fafc;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: none;
+            cursor: pointer;
+            font-size: 13px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .toolbar-btn:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        .toolbar-sep {
+            width: 1px;
+            background: var(--admin-border);
+            margin: 4px 4px;
+        }
+
+        .rich-editor-body {
+            padding: 14px 16px;
+            min-height: 230px;
+        }
+
+        /* Tag input */
+        .tag-input-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px 10px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            min-height: 42px;
+            cursor: text;
+        }
+
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .tag-chip button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #60a5fa;
+            font-size: 10px;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .tag-input-area input {
+            border: none;
+            outline: none;
+            font-size: 13px;
+            min-width: 80px;
+            flex: 1;
+        }
+
+        /* Pagination Style */
+        .pagination .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pagination .page-controls button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #334155;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            outline: none;
+        }
+
+        .pagination .page-controls button:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: var(--admin-primary);
+        }
+
+        .pagination .page-controls button.active {
+            background: var(--admin-primary);
+            border-color: var(--admin-primary);
+            color: #fff;
+        }
+
+        .pagination .page-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        /* Live Preview Panel Styles */
+        .storefront-content-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+
+        /* Storefront Article Preview Style */
+        .storefront-content-preview p {
+            margin-bottom: 16px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #334155;
+        }
+
+        .storefront-content-preview h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+
+        .storefront-content-preview h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .storefront-content-preview ul, .storefront-content-preview ol {
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        .storefront-content-preview li {
+            margin-bottom: 6px;
+            line-height: 1.6;
+        }
+
+        .storefront-content-preview table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .storefront-content-preview th, .storefront-content-preview td {
+            border: 1px solid #cbd5e1;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .storefront-content-preview th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .storefront-content-preview blockquote {
+            border-left: 4px solid var(--admin-primary);
+            padding: 10px 16px;
+            background: #f8fafc;
+            margin: 16px 0;
+            font-style: italic;
+        }
+
+        /* Preview slider scrollbar hide */
+        #preview-article-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Editor body image handling */
+        .rich-editor-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+
+        .rich-editor-body img:hover {
+            outline: 2px solid var(--admin-primary);
+            outline-offset: 2px;
+        }
+
+        /* ===== STICKY HEADER PAGE LAYOUT ===== */
+        body {
+            overflow: hidden !important;
+        }
+
+        .admin-main {
+            height: calc(100vh - var(--header-height)) !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 24px 28px 12px 28px !important;
+            box-sizing: border-box !important;
+        }
+
+        .page-header, 
+        .cms-summary-grid, 
+        .page-tabs {
+            flex-shrink: 0 !important;
+        }
+
+        .page-tab-content {
+            flex: 1 !important;
+            overflow-y: auto !important;
+            min-height: 0 !important;
+            padding-bottom: 24px !important;
+            margin-top: 16px !important;
+        }
+
+        /* Adjust Left Sidebar in Tab 1 content */
+        .page-tab-content .cms-sidebar-panel {
+            position: sticky !important;
+            top: 0 !important;
+        }
+
+        /* ===== ICON PICKER POPULAR STYLES ===== */
+        .icon-pick-btn:hover {
+            border-color: var(--admin-accent) !important;
+            color: var(--admin-accent) !important;
+            background: #eff6ff !important;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="admin-sidebar"></aside>
+    <header class="admin-header"></header>
+
+    <main class="admin-main">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Nội Dung Y Khoa (CMS)</h1>
+                <p class="page-subtitle">Quản lý Bài viết Bệnh học, Danh mục Bệnh và Thư viện Y tế</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn-secondary">
+                    <i class="fa-solid fa-file-export"></i> Xuất danh sách
+                </button>
+                <button class="btn-primary" onclick="openArticleEditor('new')">
+                    <i class="fa-solid fa-plus"></i> Viết bài mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="cms-summary-grid">
+            <div class="cms-stat-card">
+                <div class="cms-stat-icon" style="background:#eff6ff;color:#3b82f6;"><i
+                        class="fa-solid fa-newspaper"></i></div>
+                <div class="cms-stat-info">
+                    <p>Tổng bài viết</p>
+                    <h3 id="stat-total-articles">0</h3>
+                    <small id="stat-total-articles-sub">Hệ thống live update</small>
+                </div>
+            </div>
+            <div class="cms-stat-card">
+                <div class="cms-stat-icon" style="background:#f0fdf4;color:#16a34a;"><i
+                        class="fa-solid fa-circle-check"></i></div>
+                <div class="cms-stat-info">
+                    <p>Đã xuất bản</p>
+                    <h3 id="stat-published-articles">0</h3>
+                    <small id="stat-published-articles-sub">Đang chạy</small>
+                </div>
+            </div>
+            <div class="cms-stat-card">
+                <div class="cms-stat-icon" style="background:#fefce8;color:#ca8a04;"><i
+                        class="fa-solid fa-pen-to-square"></i></div>
+                <div class="cms-stat-info">
+                    <p>Bản nháp / Chờ duyệt</p>
+                    <h3 id="stat-draft-articles">0</h3>
+                    <small id="stat-draft-articles-sub">Cần xem xét</small>
+                </div>
+            </div>
+            <div class="cms-stat-card">
+                <div class="cms-stat-icon" style="background:#fdf4ff;color:#9333ea;"><i class="fa-solid fa-eye"></i>
+                </div>
+                <div class="cms-stat-info">
+                    <p>Lượt xem</p>
+                    <h3 id="stat-total-views">0</h3>
+                    <small id="stat-total-views-sub">Tổng lượt đọc</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="page-tabs">
+            <button class="page-tab-btn active" onclick="switchPageTab('tab-articles')">
+                <i class="fa-solid fa-newspaper"></i> Bài Viết Bệnh Học
+            </button>
+            <button class="page-tab-btn" onclick="switchPageTab('tab-categories')">
+                <i class="fa-solid fa-folder-tree"></i> Danh Mục Bệnh
+            </button>
+            <button class="page-tab-btn" onclick="switchPageTab('tab-media')">
+                <i class="fa-solid fa-images"></i> Thư Viện Hình Ảnh
+            </button>
+        </div>
+
+        <!-- ===== TAB 1: ARTICLES ===== -->
+        <div id="tab-articles" class="page-tab-content active">
+            <div class="cms-layout">
+
+                <!-- Left: Category filter -->
+                <div class="cms-sidebar-panel">
+                    <div class="cms-sidebar-header">
+                        <h3><i class="fa-solid fa-filter" style="color:#6b7280;margin-right:6px;"></i>Lọc theo chuyên
+                            mục</h3>
+                    </div>
+                    <div class="category-tree" id="sidebar-category-list">
+                        <div class="category-tree-item active" data-id="all" onclick="filterByCategory(this, 'all')">
+                            <div class="cat-icon" style="background:#eff6ff;color:#3b82f6;"><i
+                                    class="fa-solid fa-layer-group"></i></div>
+                            <div class="cat-info">
+                                <h4>Tất cả bài viết</h4>
+                                <p>Tất cả chuyên mục</p>
+                            </div>
+                            <span class="cat-count" id="sidebar-all-count">0</span>
+                        </div>
+                        <!-- Dynamic disease categories go here -->
+                    </div>
+                </div>
+
+                <!-- Right: Articles list -->
+                <div>
+                    <!-- Search + filter row -->
+                    <div style="display:flex;gap:12px;margin-bottom:16px;">
+                        <div class="header-search" style="flex:1;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="article-search-input" placeholder="Tìm kiếm bài viết, từ khóa...">
+                        </div>
+                        <select id="article-status-filter"
+                            style="height:38px;border:1px solid var(--admin-border);border-radius:8px;padding:0 12px;font-size:13px;color:#374151;">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="published">Đã xuất bản</option>
+                            <option value="draft">Bản nháp</option>
+                        </select>
+                        <select id="article-sort-filter"
+                            style="height:38px;border:1px solid var(--admin-border);border-radius:8px;padding:0 12px;font-size:13px;color:#374151;">
+                            <option value="newest">Mới nhất trước</option>
+                            <option value="popular">Xem nhiều nhất</option>
+                        </select>
+                    </div>
+
+                    <!-- Article Cards -->
+                    <div id="articles-list-container">
+                        <!-- Dynamic article cards rendered here -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" style="margin-top:8px;">
+                        <span class="page-info">Hiển thị 0 – 0 trên 0 bài viết</span>
+                        <div class="page-controls">
+                            <!-- Dynamic controls here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB 2: CATEGORIES ===== -->
+        <!-- ===== TAB 2: CATEGORIES ===== -->
+        <div id="tab-categories" class="page-tab-content">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+                <!-- Category list -->
+                <div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                        <h2 style="font-size:15px;font-weight:700;color:#0f172a;">Danh mục Bệnh học</h2>
+                        <button class="btn-primary" style="height:36px;font-size:13px;padding:0 14px;"
+                            onclick="openCategoryModal()">
+                            <i class="fa-solid fa-plus"></i> Thêm danh mục
+                        </button>
+                    </div>
+                    <div class="inventory-table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Tên Danh Mục</th>
+                                    <th>Trang HTML liên kết</th>
+                                    <th style="text-align:center;">Số bài</th>
+                                    <th style="text-align:right;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categories-table-body">
+                                <!-- Dynamic category rows here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right: Add category form -->
+                <div style="background:#fff;border:1px solid var(--admin-border);border-radius:12px;padding:20px;">
+                    <h3 style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:16px;"><i
+                            class="fa-solid fa-plus-circle" style="color:#3b82f6;margin-right:6px;"></i>Thêm Danh Mục Mới</h3>
+                    <form id="category-add-form">
+                        <div class="form-group">
+                            <label>Tên danh mục <span style="color:#ef4444;">*</span></label>
+                            <input type="text" id="cat-name-input" placeholder="VD: Bệnh Da Liễu" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Trang HTML liên kết</label>
+                            <input type="text" id="cat-slug-input" placeholder="VD: benh-da-lieu">
+                            <div class="form-hint">Dùng làm slug URL (VD: benh-da-lieu)</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Loại danh mục <span style="color:#ef4444;">*</span></label>
+                            <select id="cat-type-select" required style="width: 100%;">
+                                <option value="disease" selected>Bệnh lý (Disease)</option>
+                                <option value="article">Chủ đề kiến thức chung (Article)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Danh mục cha</label>
+                            <select id="cat-parent-select" style="width: 100%;">
+                                <option value="">(Không có - Danh mục gốc)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Biểu tượng (Font Awesome class hoặc Tải ảnh lên)</label>
+                            <div style="display:flex;gap:8px;align-items:center;position:relative;">
+                                <div id="cat-icon-preview" style="width:40px;height:38px;border:1px solid var(--admin-border);border-radius:8px;display:flex;align-items:center;justify-content:center;background:#f8fafc;font-size:16px;color:#475569;overflow:hidden;flex-shrink:0;">
+                                    <i class="fa-solid fa-folder"></i>
+                                </div>
+                                <input type="text" id="cat-icon-input" placeholder="VD: fa-solid fa-hand-dots hoặc URL ảnh" style="flex:1;">
+                                
+                                <!-- Nút upload -->
+                                <button type="button" id="btn-upload-cat-icon" class="btn-secondary" style="height:38px;padding:0 12px;margin:0;" title="Tải ảnh làm icon">
+                                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                </button>
+                                <input type="file" id="cat-icon-file-input" style="display:none;" accept="image/*">
+                                
+                                <!-- Nút bảng icon -->
+                                <button type="button" id="btn-show-icon-picker" class="btn-secondary" style="height:38px;padding:0 12px;margin:0;" title="Chọn từ bảng icon">
+                                    <i class="fa-solid fa-icons"></i>
+                                </button>
+                                
+                                <!-- Popover chọn icon -->
+                                <div id="icon-picker-popover" style="display:none;position:absolute;top:100%;right:0;width:320px;background:#fff;border:1px solid var(--admin-border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:1000;padding:12px;margin-top:6px;max-height:300px;overflow-y:auto;box-sizing:border-box;">
+                                    <div style="font-weight:700;font-size:12px;color:#1e293b;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #f1f5f9;">Chọn Biểu Tượng Gợi Ý</div>
+                                    
+                                    <div style="margin-bottom:10px;">
+                                        <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">Thuốc & Y tế</div>
+                                        <div class="icon-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;" data-category="medicine"></div>
+                                    </div>
+                                    <div style="margin-bottom:10px;">
+                                        <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">Cơ thể người</div>
+                                        <div class="icon-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;" data-category="body"></div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px;">Bệnh lý & Tổng quan</div>
+                                        <div class="icon-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;" data-category="disease"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Màu sắc chủ đạo</label>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <input type="color" id="cat-color-picker" value="#3b82f6"
+                                    style="width:42px;height:38px;padding:2px;border-radius:8px;cursor:pointer;">
+                                <input type="text" id="cat-color-input" value="#3b82f6" style="flex:1;" placeholder="#hexcode">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả ngắn</label>
+                            <textarea id="cat-desc-input" placeholder="Mô tả về nhóm bệnh này..." style="min-height:70px;"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;height:40px;">
+                            <i class="fa-solid fa-folder-plus"></i> Tạo Danh Mục
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB 3: MEDIA LIBRARY ===== -->
+        <div id="tab-media" class="page-tab-content">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div class="header-search" style="max-width:320px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="media-search-input" placeholder="Tìm kiếm hình ảnh...">
+                </div>
+                <button class="btn-primary" style="height:36px;font-size:13px;padding:0 16px;" onclick="triggerMediaUpload()">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Tải ảnh lên
+                </button>
+                <input type="file" id="media-file-input" style="display:none;" accept="image/jpeg,image/png,image/webp,image/gif">
+            </div>
+            <!-- Drag & Drop Zone -->
+            <div id="media-dropzone" style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 40px; text-align:center; margin-bottom:20px; background:#f8fafc; cursor:pointer;">
+                <i class="fa-solid fa-cloud-arrow-up"
+                    style="font-size:36px;color:#94a3b8;display:block;margin-bottom:12px;"></i>
+                <div style="font-size:15px;font-weight:600;color:#475569;margin-bottom:4px;">Kéo thả hình ảnh vào đây
+                </div>
+                <div style="font-size:12px;color:#94a3b8;">Hỗ trợ: JPG, PNG, WebP, GIF (tối đa 50MB/file)</div>
+            </div>
+            <!-- Image Grid -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
+                <div id="media-grid" style="display:contents;"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===== MODAL: ARTICLE EDITOR ===== -->
+    <div class="standard-modal-overlay" id="articleEditorModal" style="align-items:stretch;">
+        <div class="standard-modal-container"
+            style="max-width:calc(100vw - 40px);width:100%;height:calc(100vh - 40px);display:flex;flex-direction:column;margin:20px auto;">
+            <div class="standard-modal-header" style="flex-shrink:0;">
+                <div>
+                    <h2 class="slide-title" id="editorTitle">Viết Bài Mới</h2>
+                    <p style="font-size:13px;color:#6b7280;margin-top:4px;">Soạn nội dung bài viết y khoa, thêm liên kết
+                        sản phẩm thuốc liên quan.</p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button class="btn-secondary" style="height:34px;font-size:12px;"
+                        onclick="saveArticle('draft')"><i class="fa-solid fa-floppy-disk"></i> Lưu nháp</button>
+                    <button class="btn-primary" style="height:34px;font-size:12px;"
+                        onclick="saveArticle('published')"><i
+                            class="fa-solid fa-upload"></i> Xuất bản</button>
+                    <button class="slide-close" onclick="closeArticleEditor()"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="standard-modal-body" style="flex:1; overflow:hidden; padding:0; background:#f1f5f9; display:flex; max-height:none;">
+                <!-- CỘT 1: Soạn thảo (editor) -->
+                <div id="editor-edit-wrapper" style="flex:1; min-width:0; overflow-y:auto; padding:24px; background:#fff; display:flex; flex-direction:column; gap:16px;">
+                    <div class="form-group" style="margin-bottom:0; flex-shrink:0;">
+                        <label>Tiêu đề bài viết <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="article-title-input" placeholder="Nhập tiêu đề bài viết..."
+                            style="font-size:18px;font-weight:600;padding:12px 14px;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0; flex-shrink:0;">
+                        <label>Đoạn mở đầu / Tóm tắt (Meta description)</label>
+                        <textarea id="article-excerpt-input" placeholder="Tóm tắt ngắn về nội dung bài viết (150-160 ký tự)..."
+                            style="min-height:65px;"></textarea>
+                    </div>
+
+                    <div class="form-group" style="flex:1; display:flex; flex-direction:column; margin-bottom:0; min-height:300px;">
+                        <label>Nội dung chính</label>
+                        <div class="rich-editor" style="flex:1; display:flex; flex-direction:column;">
+                            <div class="rich-editor-toolbar" style="flex-shrink:0;">
+                                <button class="toolbar-btn" title="Bold" onclick="execCmd('bold')"><i class="fa-solid fa-bold"></i></button>
+                                <button class="toolbar-btn" title="Italic" onclick="execCmd('italic')"><i class="fa-solid fa-italic"></i></button>
+                                <button class="toolbar-btn" title="Underline" onclick="execCmd('underline')"><i
+                                        class="fa-solid fa-underline"></i></button>
+                                <div class="toolbar-sep"></div>
+                                <button class="toolbar-btn" title="Heading 2" onclick="execCmd('formatBlock', 'h2')"><b style="font-size:11px;">H2</b></button>
+                                <button class="toolbar-btn" title="Heading 3" onclick="execCmd('formatBlock', 'h3')"><b style="font-size:11px;">H3</b></button>
+                                <div class="toolbar-sep"></div>
+                                <button class="toolbar-btn" title="Bullet list" onclick="execCmd('insertUnorderedList')"><i
+                                        class="fa-solid fa-list-ul"></i></button>
+                                <button class="toolbar-btn" title="Ordered list" onclick="execCmd('insertOrderedList')"><i
+                                        class="fa-solid fa-list-ol"></i></button>
+                                <div class="toolbar-sep"></div>
+                                <button class="toolbar-btn" title="Chèn ảnh" onclick="insertImagePrompt()"><i class="fa-solid fa-image"></i></button>
+                                <button class="toolbar-btn" title="Chèn link" onclick="insertLinkPrompt()"><i class="fa-solid fa-link"></i></button>
+                                <button class="toolbar-btn" title="Chèn bảng" onclick="insertTablePrompt()"><i class="fa-solid fa-table"></i></button>
+                                <div class="toolbar-sep"></div>
+                                <button class="toolbar-btn" title="Chèn Callout / Lưu ý" style="color:#3b82f6;" onclick="insertCallout('info')"><i
+                                        class="fa-solid fa-circle-info"></i></button>
+                                <button class="toolbar-btn" title="Chèn Cảnh báo" style="color:#ef4444;" onclick="insertCallout('warning')"><i
+                                        class="fa-solid fa-triangle-exclamation"></i></button>
+                                <div class="toolbar-sep"></div>
+                                <button class="toolbar-btn" title="Chèn Khối Mở Đầu / Lời Khuyên" style="color:#10b981;" onclick="insertIntroBox()"><i class="fa-solid fa-quote-left"></i></button>
+                                <button class="toolbar-btn" title="Chèn Hộp Mục Lục / Tóm Tắt" style="color:#005824;" onclick="insertTocBox()"><i class="fa-solid fa-table-list"></i></button>
+                            </div>
+                            <div class="rich-editor-body" id="article-content-body" contenteditable="true" style="outline:none; flex:1; overflow-y:auto; min-height:220px;"
+                                placeholder="Bắt đầu soạn nội dung bài viết...">
+                                <p style="color:#9ca3af;font-style:italic;">Nhập nội dung bài viết tại đây. Sử dụng
+                                    thanh công cụ để định dạng văn bản và thêm hình ảnh...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CỘT 2: Cài đặt bài viết (sidebar settings) -->
+                <div style="width:260px; flex-shrink:0; overflow-y:auto; padding:20px 16px; border-left:1px solid #e2e8f0; border-right:1px solid #e2e8f0; background:#fff;">
+                    <div
+                        style="background:#f8fafc;border:1px solid var(--admin-border);border-radius:10px;padding:16px;margin-bottom:14px;">
+                        <h4 style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;"><i
+                                class="fa-solid fa-sliders" style="color:#6b7280;margin-right:6px;"></i>Cài đặt bài viết
+                        </h4>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label>Danh mục <span style="color:#ef4444;">*</span></label>
+                            <select id="article-category-select">
+                                <!-- Dynamic categories list here -->
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label>Tác giả</label>
+                            <select id="article-author-select">
+                                <option value="1">DS. Nguyễn Minh Giang</option>
+                                <option value="2">BS. Trần Thị Hoa</option>
+                                <option value="3">DS. Lê Văn Hùng</option>
+                                <option value="4">BS. Phạm Quốc Hùng</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Ảnh đại diện</label>
+                            <div id="article-cover-uploader" style="border:1.5px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:#fff;overflow:hidden;"
+                                onclick="triggerCoverUpload()">
+                                <i class="fa-solid fa-image"
+                                    style="color:#94a3b8;font-size:22px;display:block;margin-bottom:6px;"></i>
+                                <span style="font-size:11px;color:#9ca3af;">Chọn từ máy tính</span>
+                            </div>
+                            <input type="file" id="article-cover-file-input" style="display:none;" accept="image/jpeg,image/png,image/webp,image/gif">
+                        </div>
+                    </div>
+
+                    <div
+                        style="background:#f8fafc;border:1px solid var(--admin-border);border-radius:10px;padding:16px;margin-bottom:14px;">
+                        <h4 style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;"><i
+                                class="fa-solid fa-pills" style="color:#16a34a;margin-right:6px;"></i>Sản phẩm liên quan
+                        </h4>
+                        <div id="article-related-products-list">
+                            <!-- Dynamic products chips go here -->
+                        </div>
+                        <div style="position:relative; margin-top:8px;">
+                            <input type="text" id="article-product-search" placeholder="Nhập tên thuốc..." style="width:100%;height:34px;border:1px solid var(--admin-border);border-radius:8px;padding:0 10px;font-size:12px;box-sizing:border-box;">
+                            <div id="article-product-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--admin-border);border-radius:8px;max-height:200px;overflow-y:auto;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background:#f8fafc;border:1px solid var(--admin-border);border-radius:10px;padding:16px;margin-bottom:14px;">
+                        <h4 style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;"><i
+                                class="fa-solid fa-newspaper" style="color:#3b82f6;margin-right:6px;"></i>Bài viết liên quan
+                        </h4>
+                        <div id="article-related-articles-list">
+                            <!-- Dynamic articles chips go here -->
+                        </div>
+                        <div style="position:relative; margin-top:8px;">
+                            <input type="text" id="article-article-search" placeholder="Nhập tiêu đề bài viết..." style="width:100%;height:34px;border:1px solid var(--admin-border);border-radius:8px;padding:0 10px;font-size:12px;box-sizing:border-box;">
+                            <div id="article-article-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--admin-border);border-radius:8px;max-height:200px;overflow-y:auto;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background:#f8fafc;border:1px solid var(--admin-border);border-radius:10px;padding:16px;">
+                        <h4 style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;"><i
+                                class="fa-solid fa-tags" style="color:#9333ea;margin-right:6px;"></i>Thẻ / Tags</h4>
+                        <div class="tag-input-area" id="article-tags-container">
+                            <input type="text" id="article-tag-input" placeholder="Thêm tag...">
+                        </div>
+                        <div style="font-size:11px;color:#9ca3af;margin-top:6px;">Nhấn Enter để thêm tag mới.</div>
+                    </div>
+                </div>
+
+                <!-- CỘT 3: Live Preview (luôn hiển thị) -->
+                <div style="flex:1; min-width:0; overflow-y:auto; background:#f8fafc; display:flex; flex-direction:column;">
+                    <div style="padding:12px 20px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; gap:8px; flex-shrink:0; background:#fff;">
+                        <i class="fa-solid fa-eye" style="color:#3b82f6;"></i>
+                        <span style="font-size:13px; font-weight:700; color:#0f172a;">Xem trước bài viết</span>
+                        <span style="font-size:11px; color:#94a3b8; margin-left:auto;">Cập nhật realtime khi soạn thảo</span>
+                    </div>
+                    <div id="editor-preview-wrapper" style="padding:28px 32px; flex:1; overflow-y:auto;">
+                        <div style="text-align:center;padding:60px 20px;color:#94a3b8;">
+                            <i class="fa-solid fa-newspaper" style="font-size:40px;display:block;margin-bottom:12px;"></i>
+                            <div style="font-size:14px;font-weight:500;">Bản xem trước bài viết sẽ hiển thị tại đây</div>
+                            <div style="font-size:12px;margin-top:4px;">Bắt đầu soạn nội dung để xem kết quả...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        function switchPageTab(tabId) {
+            document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.querySelectorAll('.page-tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function openCategoryModal() {
+            document.getElementById('cat-name-input')?.focus();
+        }
+    </script>
+
+    <script src="js/admin-components.js"></script>
+    <script src="js/cms-articles-api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminLayout('cms');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dữ Liệu Gốc — Tồn Kho — Nhà Thuốc Minh Giang</title>
+    <link rel="stylesheet" href="css/admin-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .product-image-manager {
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            background: #f8fafc;
+            padding: 14px;
+        }
+
+        .product-image-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .product-image-upload {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 8px;
+            background: #166534;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .product-image-upload input {
+            display: none;
+        }
+
+        .product-image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+            gap: 12px;
+        }
+
+        .product-image-card {
+            position: relative;
+            min-height: 164px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            padding: 8px;
+            transition: border-color .15s, box-shadow .15s, opacity .15s;
+        }
+
+        .product-image-card.dragging {
+            opacity: .55;
+            border-color: #16a34a;
+            box-shadow: 0 8px 20px rgba(22, 101, 52, .14);
+        }
+
+        .product-image-drag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, .72);
+            color: #fff;
+            cursor: grab;
+            font-size: 12px;
+        }
+
+        .product-image-card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+        }
+
+        .product-image-name {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #475569;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-image-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .product-image-actions button {
+            flex: 1;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .product-image-actions .danger {
+            color: #dc2626;
+        }
+
+        .product-image-meta {
+            display: grid;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .product-image-meta select,
+        .product-image-meta input {
+            width: 100%;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            padding: 0 8px;
+            font-size: 11px;
+            color: #374151;
+            background: #fff;
+        }
+
+        .quality-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            max-width: 100%;
+            margin-top: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .quality-chip.ready {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #bbf7d0;
+        }
+
+        .quality-chip.missing {
+            background: #fff7ed;
+            color: #c2410c;
+            border-color: #fed7aa;
+        }
+
+        .audit-panel {
+            margin-top: 20px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .audit-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+            max-height: 260px;
+            overflow: auto;
+        }
+
+        .audit-item {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .audit-item-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .audit-item-meta {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .product-image-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #166534;
+            color: #fff;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .product-image-empty {
+            padding: 18px;
+            border-radius: 8px;
+            background: #fff;
+            color: #64748b;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .stock-dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .stock-kpi-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 14px;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+        }
+
+        .stock-kpi-card.danger {
+            border-color: #fecaca;
+            background: linear-gradient(0deg, #fff 0%, #fff5f5 100%);
+        }
+
+        .stock-kpi-card.warning {
+            border-color: #fde68a;
+            background: linear-gradient(0deg, #fff 0%, #fffbeb 100%);
+        }
+
+        .stock-kpi-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .stock-kpi-card.danger .stock-kpi-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .stock-kpi-card.warning .stock-kpi-icon {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .stock-kpi-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .02em;
+        }
+
+        .stock-kpi-value {
+            margin-top: 4px;
+            font-size: 24px;
+            line-height: 1;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .stock-kpi-note {
+            margin-top: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .stock-table-wrap {
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .stock-product-cell {
+            min-width: 300px;
+        }
+
+        .stock-product-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.35;
+        }
+
+        .stock-product-meta,
+        .stock-subtext {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .stock-qty {
+            font-size: 20px;
+            font-weight: 900;
+            color: #166534;
+        }
+
+        .stock-qty.low {
+            color: #dc2626;
+        }
+
+        .stock-qty.zero {
+            color: #ef4444;
+        }
+
+        .stock-expiry-pill,
+        .stock-lot-pill,
+        .stock-risk-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .stock-expiry-pill.warning,
+        .stock-risk-pill.warning {
+            border-color: #fde68a;
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .stock-expiry-pill.danger,
+        .stock-risk-pill.danger {
+            border-color: #fecaca;
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .stock-risk-row {
+            background: #fff7ed;
+        }
+
+        .stock-empty-row {
+            background: #fafafa;
+        }
+
+        @media (max-width: 1200px) {
+            .stock-dashboard {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="admin-sidebar">
+        <!-- Inject via admin-components.js -->
+    </aside>
+
+    <!-- ============ HEADER ============ -->
+    <header class="admin-header">
+        <!-- Inject via admin-components.js -->
+    </header>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="admin-main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Dữ Liệu Thuốc Gốc</h1>
+                <p class="page-subtitle">Quản lý danh mục thuốc và sản phẩm bán lẻ</p>
+            </div>
+            <div class="page-actions">
+                <button class="btn-secondary" style="background:white;" onclick="openPrintBarcodeModal()">
+                    <i class="fa-solid fa-barcode"></i> In Mã Vạch
+                </button>
+                <button class="btn-secondary">
+                    <i class="fa-solid fa-file-export"></i> Xuất CSV
+                </button>
+                <button class="btn-primary" onclick="openAddModal()">
+                    <i class="fa-solid fa-plus"></i> Thêm Thuốc Mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Tabs -->
+        <div class="tabs-header" style="margin-bottom: 24px; border-bottom: 2px solid #e2e8f0;">
+            <button class="tab-btn active" onclick="switchMainTab('tab-stock')" style="font-size:16px;">
+                <i class="fa-solid fa-boxes-stacked" style="margin-right:8px;"></i> Tồn Kho Thực Tế (Stock)
+            </button>
+            <button class="tab-btn" onclick="switchMainTab('tab-master')" style="font-size:16px;">
+                <i class="fa-solid fa-database" style="margin-right:8px;"></i> Danh Mục Master (Master Data)
+            </button>
+        </div>
+
+        <!-- Dashboard Alerts -->
+        <div class="stock-dashboard">
+            <div class="stock-kpi-card">
+                <div class="stock-kpi-icon"><i class="fa-solid fa-capsules"></i></div>
+                <div>
+                    <div class="stock-kpi-label">Mã thuốc active</div>
+                    <div class="stock-kpi-value"><span id="totalProductCount">--</span></div>
+                    <div class="stock-kpi-note"><span id="totalUnitsCount">--</span> đơn vị đang quản lý</div>
+                </div>
+            </div>
+            <div class="stock-kpi-card danger">
+                <div class="stock-kpi-icon"><i class="fa-solid fa-box-open"></i></div>
+                <div>
+                    <div class="stock-kpi-label">Sắp hết hàng</div>
+                    <div class="stock-kpi-value"><span id="lowStockCount">--</span></div>
+                    <div class="stock-kpi-note">So với mức cảnh báo từng thuốc</div>
+                </div>
+            </div>
+            <div class="stock-kpi-card warning">
+                <div class="stock-kpi-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <div class="stock-kpi-label">Cận hạn FEFO</div>
+                    <div class="stock-kpi-value"><span id="nearExpiryCount">--</span></div>
+                    <div class="stock-kpi-note">Lô còn dưới 90 ngày</div>
+                </div>
+            </div>
+            <div class="stock-kpi-card">
+                <div class="stock-kpi-icon"><i class="fa-solid fa-vault"></i></div>
+                <div>
+                    <div class="stock-kpi-label">Giá trị tồn kho</div>
+                    <div class="stock-kpi-value"><span id="inventoryValue">--</span></div>
+                    <div class="stock-kpi-note">Tính theo giá nhập lô thực tế</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-group search">
+                <label class="filter-label">Tìm kiếm</label>
+                <input type="text" id="catalogSearchInput" class="filter-control" placeholder="Tên thuốc, SKU, hoạt chất...">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Danh mục (Category)</label>
+                <select id="catalogCategoryFilter" class="filter-control">
+                    <option value="">Tất cả danh mục</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Trạng thái (Status)</label>
+                <select id="catalogStatusFilter" class="filter-control">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="draft">Bản nháp (Draft)</option>
+                    <option value="pending_review">Chờ duyệt</option>
+                    <option value="active">Đang kinh doanh (Active)</option>
+                    <option value="inactive">Ngừng kinh doanh (Inactive)</option>
+                    <option value="rejected">Từ chối</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Cảnh báo kho</label>
+                <select id="stockRiskFilter" class="filter-control">
+                    <option value="">Tất cả tồn kho</option>
+                    <option value="risk">Cần xử lý trước</option>
+                    <option value="near_expiry">Cận hạn FEFO</option>
+                    <option value="out">Hết hàng</option>
+                    <option value="in_stock">Còn hàng</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Chất lượng dữ liệu</label>
+                <select id="catalogQualityFilter" class="filter-control">
+                    <option value="">Tất cả dữ liệu</option>
+                    <option value="missing">Thiếu dữ liệu cần bổ sung</option>
+                    <option value="ready">Đủ dữ liệu để public</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tab 1: Stock Data (Batch Tracking) -->
+        <div id="tab-stock" class="main-tab-content active">
+            <div class="inventory-table-container">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e2e8f0;background:#fff;">
+                    <div>
+                        <h3 style="font-size:16px;font-weight:900;color:#0f172a;margin:0;">Tồn kho theo lô đang bán</h3>
+                        <p style="font-size:12px;color:#64748b;margin-top:4px;">Ưu tiên hiển thị lô cận hạn, thuốc hết/sắp hết hàng và vị trí lưu trữ để xử lý nhanh.</p>
+                    </div>
+                    <span class="stock-risk-pill warning"><i class="fa-solid fa-database"></i>Dữ liệu từ batch_items</span>
+                </div>
+                <div class="stock-table-wrap">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Tồn & cảnh báo</th>
+                            <th>Lô / FEFO</th>
+                            <th>Hạn dùng</th>
+                            <th>Vị trí</th>
+                            <th>Giá trị lô</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody">
+                        <!-- Low Stock & Near Expiry -->
+                        <tr>
+                            <td>
+                                <div class="inv-name" style="font-weight:600;">Panadol Extra (Hộp 12 viên)</div>
+                                <div style="font-size:12px;color:#6b7280;">MED-0015</div>
+                            </td>
+                            <td><span class="inv-category">Thuốc giảm đau</span></td>
+                            <td>Tủ Rx-1 / Ngăn 2</td>
+                            <td><span class="table-sku" style="background:#f1f5f9; color:#475569;">LOT-2401-A</span>
+                            </td>
+                            <td><span style="font-weight:600; color:#eab308;">15/05/2026</span></td>
+                            <td><span style="font-weight:700; color:#ef4444;">5</span> hộp</td>
+                            <td><span class="status-badge"
+                                    style="background:#fefce8; color:#a16207; border: 1px solid #fef08a;">Cận hạn</span>
+                            </td>
+                        </tr>
+                        <!-- Normal Stock -->
+                        <tr>
+                            <td>
+                                <div class="inv-name" style="font-weight:600;">Panadol Extra (Hộp 12 viên)</div>
+                                <div style="font-size:12px;color:#6b7280;">MED-0015</div>
+                            </td>
+                            <td><span class="inv-category">Thuốc giảm đau</span></td>
+                            <td>Tủ Rx-1 / Ngăn 2</td>
+                            <td><span class="table-sku" style="background:#f1f5f9; color:#475569;">LOT-2405-C</span>
+                            </td>
+                            <td><span style="font-weight:600;">20/12/2027</span></td>
+                            <td><span style="font-weight:700;">40</span> hộp</td>
+                            <td><span class="status-badge active">An toàn</span></td>
+                        </tr>
+                        <!-- Normal Stock -->
+                        <tr>
+                            <td>
+                                <div class="inv-name" style="font-weight:600;">Vitamin C DHC 1000mg</div>
+                                <div style="font-size:12px;color:#6b7280;">SUP-0023</div>
+                            </td>
+                            <td><span class="inv-category">Vitamin & TPCN</span></td>
+                            <td>Tủ TPCN / Kệ 1</td>
+                            <td><span class="table-sku" style="background:#f1f5f9; color:#475569;">DHC-881</span></td>
+                            <td><span style="font-weight:600;">10/10/2028</span></td>
+                            <td><span style="font-weight:700;">28</span> gói</td>
+                            <td><span class="status-badge active">An toàn</span></td>
+                        </tr>
+                        <!-- Out of stock entirely -->
+                        <tr>
+                            <td>
+                                <div class="inv-name" style="font-weight:600; color:#9ca3af;">Efferalgan 500mg</div>
+                                <div style="font-size:12px;color:#9ca3af;">MED-0018</div>
+                            </td>
+                            <td><span class="inv-category" style="background:#f3f4f6; color:#9ca3af;">Thuốc giảm
+                                    đau</span></td>
+                            <td>Tủ Rx-1 / Ngăn 1</td>
+                            <td><span class="table-sku" style="background:#f8fafc; color:#cbd5e1;">--</span></td>
+                            <td><span style="color:#9ca3af;">--</span></td>
+                            <td><span style="font-weight:700; color:#ef4444;">0</span> hộp</td>
+                            <td><span class="status-badge inactive">Hết hàng</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+                <div class="pagination">
+                    <span id="stockPageInfo" class="page-info">Đang tải dữ liệu tồn kho...</span>
+                    <div id="stockPageControls" class="page-controls">
+                        <button class="btn-page" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="btn-page active">1</button>
+                        <button class="btn-page">2</button>
+                        <button class="btn-page">...</button>
+                        <button class="btn-page">15</button>
+                        <button class="btn-page"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Master Data (Product Catalog) -->
+        <div id="tab-master" class="main-tab-content" style="display:none;">
+            <div class="inventory-table-container">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>SKU</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Tổng Tồn (All Lô)</th>
+                            <th>Giá bán lẻ</th>
+                            <th>Trạng thái</th>
+                            <th style="text-align:right;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="masterTableBody">
+                        <tr>
+                            <td><img src="../assets/images/product1.jpg" alt="Panadol" class="inv-img"
+                                    onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'55\' font-family=\'Arial\' font-size=\'12\' text-anchor=\'middle\' fill=\'%239ca3af\'>Image</text></svg>'">
+                            </td>
+                            <td><span class="table-sku">MED-0015</span></td>
+                            <td>
+                                <div class="inv-name">Panadol Extra (Hộp 12 viên)</div>
+                                <div style="font-size:12px;color:#6b7280;">Paracetamol 500mg, Caffeine 65mg</div>
+                            </td>
+                            <td><span class="inv-category">Thuốc giảm đau</span></td>
+                            <td><span style="font-weight:700;color:#1f2937;">45</span> hộp</td>
+                            <td><span class="inv-price">65,000₫</span></td>
+                            <td><span class="status-badge active">Hoạt động</span></td>
+                            <td>
+                                <div class="action-btns" style="justify-content:flex-end;">
+                                    <button class="btn-icon" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn-icon danger" title="Xoá"><i
+                                            class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="../assets/images/product2.jpg" alt="Vitamin C" class="inv-img"
+                                    onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'55\' font-family=\'Arial\' font-size=\'12\' text-anchor=\'middle\' fill=\'%239ca3af\'>Image</text></svg>'">
+                            </td>
+                            <td><span class="table-sku">SUP-0023</span></td>
+                            <td>
+                                <div class="inv-name">Vitamin C DHC 1000mg (60 ngày)</div>
+                                <div style="font-size:12px;color:#6b7280;">Vitamin C, Gelatin</div>
+                            </td>
+                            <td><span class="inv-category">Vitamin & TPCN</span></td>
+                            <td><span style="font-weight:700;color:#1f2937;">28</span> gói</td>
+                            <td><span class="inv-price">120,000₫</span></td>
+                            <td><span class="status-badge active">Hoạt động</span></td>
+                            <td>
+                                <div class="action-btns" style="justify-content:flex-end;">
+                                    <button class="btn-icon" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn-icon danger" title="Xoá"><i
+                                            class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="../assets/images/product3.jpg" alt="Amoxicillin" class="inv-img"
+                                    onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'55\' font-family=\'Arial\' font-size=\'12\' text-anchor=\'middle\' fill=\'%239ca3af\'>Image</text></svg>'">
+                            </td>
+                            <td><span class="table-sku">MED-0042</span></td>
+                            <td>
+                                <div class="inv-name">Amoxicillin 500mg (Hộp 20 viên) <i
+                                        class="fa-solid fa-notes-medical" style="color:#ef4444;font-size:11px;"
+                                        title="Thuốc kê đơn"></i></div>
+                                <div style="font-size:12px;color:#6b7280;">Amoxicillin trihydrate</div>
+                            </td>
+                            <td><span class="inv-category">Kháng sinh</span></td>
+                            <td><span style="font-weight:700;color:#ef4444;">5</span> hộp</td>
+                            <td><span class="inv-price">35,000₫</span></td>
+                            <td><span class="status-badge active">Hoạt động</span></td>
+                            <td>
+                                <div class="action-btns" style="justify-content:flex-end;">
+                                    <button class="btn-icon" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn-icon danger" title="Xoá"><i
+                                            class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="../assets/images/product4.jpg" alt="Efferalgan" class="inv-img"
+                                    onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' fill=\'%23f3f4f6\'/><text x=\'50\' y=\'55\' font-family=\'Arial\' font-size=\'12\' text-anchor=\'middle\' fill=\'%239ca3af\'>Image</text></svg>'">
+                            </td>
+                            <td><span class="table-sku">MED-0018</span></td>
+                            <td>
+                                <div class="inv-name">Efferalgan 500mg (Hộp 16 viên)</div>
+                                <div style="font-size:12px;color:#6b7280;">Paracetamol 500mg (Sủi)</div>
+                            </td>
+                            <td><span class="inv-category">Thuốc giảm đau</span></td>
+                            <td><span style="font-weight:700;color:#9ca3af;">0</span> hộp</td>
+                            <td><span class="inv-price">42,000₫</span></td>
+                            <td><span class="status-badge inactive">Ngừng HĐ</span></td>
+                            <td>
+                                <div class="action-btns" style="justify-content:flex-end;">
+                                    <button class="btn-icon" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn-icon danger" title="Xoá"><i
+                                            class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <span id="masterPageInfo" class="page-info">Đang tải danh mục thuốc...</span>
+                    <div id="masterPageControls" class="page-controls">
+                        <button class="btn-page" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="btn-page active">1</button>
+                        <button class="btn-page">2</button>
+                        <button class="btn-page">3</button>
+                        <button class="btn-page">...</button>
+                        <button class="btn-page">32</button>
+                        <button class="btn-page"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+    </main>
+
+    <!-- ============ SLIDE-OVER MODAL (ADD/EDIT MEDICINE) ============ -->
+    <div class="slide-over-overlay" id="addMedicineModal">
+        <div class="slide-over-panel" style="width: 60%; max-width: 900px;">
+            <div class="slide-header">
+                <div>
+                    <h2 class="slide-title" id="productFormTitle">Phiếu Đăng Ký Thuốc Mới (Register New Medicine)</h2>
+                    <p id="productFormSubtitle" style="font-size:13px;color:#6b7280;margin-top:4px;">Thêm sản phẩm mới vào danh mục hệ thống.
+                        Điền cẩn thận thông tin quy đổi đơn vị.</p>
+                </div>
+                <button class="slide-close" onclick="closeAddModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('tab-general')">Thông tin chung (General
+                    Info)</button>
+                <button class="tab-btn" onclick="switchTab('tab-units')">Quy đổi đơn vị (Unit Conversions)</button>
+                <button class="tab-btn" onclick="switchTab('tab-storage')">Vị trí lưu trữ (Storage)</button>
+            </div>
+
+            <div class="slide-body">
+                <!-- Tab 1: General Info -->
+                <div id="tab-general" class="tab-content active">
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Tên Thuốc (Medicine Name) <span
+                                    style="color:#ef4444">*</span></label>
+                            <input type="text" id="medicineName" class="form-input" placeholder="VD: Panadol Extra (Hộp 12 viên)">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Hàm lượng (Strength)</label>
+                            <input type="text" id="medicineStrength" class="form-input" placeholder="VD: 500mg, 10ml, 20mg/ml">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Đường dùng (Route of Administration)</label>
+                            <select id="medicineRoute" class="form-select">
+                                <option value="">--- Chọn đường dùng ---</option>
+                                <option value="Uống">Uống</option>
+                                <option value="Tiêm">Tiêm</option>
+                                <option value="Bôi ngoài da">Bôi ngoài da</option>
+                                <option value="Đặt âm đạo">Đặt âm đạo</option>
+                                <option value="Nhỏ mắt/tai">Nhỏ mắt/tai</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Mã SKU</label>
+                            <input type="text" id="medicineSku" class="form-input" placeholder="Tự động tạo (Auto-generated)" disabled
+                                style="background:#f9fafb;cursor:not-allowed;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Danh mục (Category) <span style="color:#ef4444">*</span></label>
+                            <select id="medicineCategory" class="form-select">
+                                <option value="">--- Chọn danh mục ---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Hoạt chất (Active Ingredient)</label>
+                            <input type="text" id="medicineActiveIngredient" class="form-input" placeholder="VD: Paracetamol 500mg, Caffeine 65mg...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Số Đăng Ký (SĐK)</label>
+                            <input type="text" id="medicineRegistration" class="form-input" placeholder="VD: VD-29381-18">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nhà Sản Xuất</label>
+                            <input type="text" id="medicineManufacturer" class="form-input" placeholder="VD: AstraZeneca, Sanofi...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Ảnh sản phẩm</label>
+                            <div class="product-image-manager">
+                                <div class="product-image-toolbar">
+                                    <div style="font-size:12px;color:#64748b;">Hỗ trợ JPG, PNG, WebP. Kéo ảnh đã tải để sắp xếp, chọn vai trò ảnh phụ/bao bì/nhãn.</div>
+                                    <label class="product-image-upload">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i> Chọn ảnh
+                                        <input type="file" id="medicineImageFiles" accept="image/jpeg,image/png,image/webp" multiple>
+                                    </label>
+                                </div>
+                                <div id="medicineImageGrid" class="product-image-grid"></div>
+                                <input type="hidden" id="medicineImageUrl">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group"
+                        style="display:flex;align-items:center;gap:12px;background:#fef2f2;padding:16px 20px;border-radius:10px;border:1px solid #fecaca;margin-top:20px;">
+                        <input type="checkbox" id="requirePre" style="width:20px;height:20px;accent-color:#ef4444;">
+                        <label for="requirePre"
+                            style="font-size:14px;font-weight:700;color:#991b1b;cursor:pointer;">Đánh dấu đây là Thuốc
+                            Bán Theo Đơn (Prescription Required)</label>
+                    </div>
+                    <div class="form-group" id="specialControlGroupWrapper"
+                        style="display:none;background:#fff7ed;padding:16px 20px;border-radius:10px;border:1px solid #fed7aa;margin-top:12px;">
+                        <label class="form-label" style="color:#9a3412;">Nhóm Thuốc Quản Lý Đặc Biệt <span
+                                style="color:#ef4444">*</span></label>
+                        <select id="medicineSpecialControlGroup" class="form-select">
+                            <option value="">--- Chọn nhóm quản lý ---</option>
+                            <option value="Thuốc kê đơn thông thường">Thuốc kê đơn thông thường</option>
+                            <option value="Thuốc gây nghiện">Thuốc gây nghiện</option>
+                            <option value="Thuốc hướng tâm thần">Thuốc hướng tâm thần</option>
+                            <option value="Tiền chất">Tiền chất</option>
+                            <option value="Thuốc độc">Thuốc độc</option>
+                            <option value="Kháng sinh">Kháng sinh</option>
+                        </select>
+                    </div>
+                    <!-- Nhãn sản phẩm / Tags -->
+                    <div class="form-group" style="background:#f8fafc; padding:16px 20px; border-radius:10px; border:1px solid #cbd5e1; margin-top:16px;">
+                        <label class="form-label" style="font-weight:700; color:#1e293b;"><i class="fa-solid fa-tags"></i> Nhãn sản phẩm (Tags)</label>
+                        <p style="font-size:11px; color:#64748b; margin-bottom:8px;">Chọn gắn nhãn marketing để phân loại và hiển thị lên các khung tiêu đề trang chủ.</p>
+                        
+                        <!-- Chọn nhanh -->
+                        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                            <label style="display:flex; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:16px; padding:4px 12px; font-size:12px; cursor:pointer; gap:6px;">
+                                <input type="checkbox" name="medicineQuickTag" value="flash-sale" style="width:14px; height:14px;"> Flash Sale
+                            </label>
+                            <label style="display:flex; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:16px; padding:4px 12px; font-size:12px; cursor:pointer; gap:6px;">
+                                <input type="checkbox" name="medicineQuickTag" value="deal" style="width:14px; height:14px;"> Deal Siêu Khủng
+                            </label>
+                            <label style="display:flex; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:16px; padding:4px 12px; font-size:12px; cursor:pointer; gap:6px;">
+                                <input type="checkbox" name="medicineQuickTag" value="best-seller" style="width:14px; height:14px;"> Bán Chạy
+                            </label>
+                            <label style="display:flex; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:16px; padding:4px 12px; font-size:12px; cursor:pointer; gap:6px;">
+                                <input type="checkbox" name="medicineQuickTag" value="discount" style="width:14px; height:14px;"> Giảm Giá
+                            </label>
+                            <label style="display:flex; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:16px; padding:4px 12px; font-size:12px; cursor:pointer; gap:6px;">
+                                <input type="checkbox" name="medicineQuickTag" value="exclusive" style="width:14px; height:14px;"> Độc Quyền
+                            </label>
+                            <label style="display:flex; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:16px; padding:4px 12px; font-size:12px; cursor:pointer; gap:6px;">
+                                <input type="checkbox" name="medicineQuickTag" value="imported" style="width:14px; height:14px;"> Nhập Khẩu
+                            </label>
+                            <label style="display:flex; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:16px; padding:4px 12px; font-size:12px; cursor:pointer; gap:6px;">
+                                <input type="checkbox" name="medicineQuickTag" value="trending" style="width:14px; height:14px;"> Đang Thu Hút
+                            </label>
+                        </div>
+                        
+                        <!-- Nhập tự do -->
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" id="medicineCustomTagInput" class="form-input" placeholder="Gõ tag tự chọn và nhấn Enter..." style="height:34px; font-size:12px;">
+                        </div>
+                        <div id="medicineCustomTagsList" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;"></div>
+                    </div>
+                    <!-- Warning when product requires prescription -->
+                    <div id="rxPromoWarning" style="display:none; color:#ef4444; font-size:12px; margin-top:8px; font-weight:600; display:flex; align-items:center; gap:6px; background:#fef2f2; padding:10px 14px; border-radius:8px; border:1px solid #fecaca; margin-bottom:12px;">
+                        <i class="fa-solid fa-circle-exclamation"></i> Thuốc kê đơn không được phép áp dụng các nhãn khuyến mãi/quảng cáo công khai theo quy định Luật Dược 2016.
+                    </div>
+
+                    <!-- Cấu hình Khuyến mãi nâng cao -->
+                    <div id="promotionConfigsWrapper" style="display:none; background:#f0fdf4; padding:16px 20px; border-radius:10px; border:1px solid #bbf7d0; margin-top:16px;">
+                        <label class="form-label" style="font-weight:700; color:#166534;"><i class="fa-solid fa-calculator"></i> Cấu hình Khuyến mãi Chi tiết</label>
+                        <p style="font-size:11px; color:#15803d; margin-bottom:12px;">Thiết lập các thông số giảm giá, thời gian chạy và giới hạn cho từng nhãn khuyến mãi.</p>
+
+                        <!-- Flash Sale Config Section -->
+                        <div id="promo-config-flash-sale" class="promo-sub-form" style="display:none; background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:12px;">
+                            <div style="font-weight:700; color:#ef4444; margin-bottom:8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-bolt"></i> CẤU HÌNH FLASH SALE
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;">
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Loại giảm giá</label>
+                                    <select class="form-select promo-discount-type" style="height:34px; font-size:12px;" onchange="updatePromoPreview('flash-sale')">
+                                        <option value="percentage">Giảm theo %</option>
+                                        <option value="fixed_price">Giá bán cố định VND</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Giá trị giảm</label>
+                                    <input type="number" class="form-input promo-discount-value" style="height:34px; font-size:12px;" min="0" placeholder="Nhập % hoặc giá tiền" oninput="updatePromoPreview('flash-sale')">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Số lượng mở bán</label>
+                                    <input type="number" class="form-input promo-campaign-qty" style="height:34px; font-size:12px;" min="1" placeholder="Không giới hạn">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Mua tối đa / khách</label>
+                                    <input type="number" class="form-input promo-max-per-customer" style="height:34px; font-size:12px;" min="1" placeholder="Không giới hạn">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Bắt đầu</label>
+                                    <input type="datetime-local" class="form-input promo-start-time" style="height:34px; font-size:12px;">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Kết thúc</label>
+                                    <input type="datetime-local" class="form-input promo-end-time" style="height:34px; font-size:12px;">
+                                </div>
+                            </div>
+                            <div class="promo-preview" style="font-size:11px; margin-top:8px; padding:6px 10px; background:#f8fafc; border-radius:4px; border:1px dashed #cbd5e1; color:#475569; font-weight:500;">
+                                Bảng giá xem trước: Hãy nhập giá bán lẻ và giá trị giảm giá.
+                            </div>
+                        </div>
+
+                        <!-- Deal Config Section -->
+                        <div id="promo-config-deal" class="promo-sub-form" style="display:none; background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:12px;">
+                            <div style="font-weight:700; color:#f97316; margin-bottom:8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-fire"></i> CẤU HÌNH DEAL SIÊU KHỦNG
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;">
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Loại giảm giá</label>
+                                    <select class="form-select promo-discount-type" style="height:34px; font-size:12px;" onchange="updatePromoPreview('deal')">
+                                        <option value="percentage">Giảm theo %</option>
+                                        <option value="fixed_price">Giá bán cố định VND</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Giá trị giảm</label>
+                                    <input type="number" class="form-input promo-discount-value" style="height:34px; font-size:12px;" min="0" placeholder="Nhập % hoặc giá tiền" oninput="updatePromoPreview('deal')">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Số lượng mở bán</label>
+                                    <input type="number" class="form-input promo-campaign-qty" style="height:34px; font-size:12px;" min="1" placeholder="Không giới hạn">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Mua tối đa / khách</label>
+                                    <input type="number" class="form-input promo-max-per-customer" style="height:34px; font-size:12px;" min="1" placeholder="Không giới hạn">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Bắt đầu</label>
+                                    <input type="datetime-local" class="form-input promo-start-time" style="height:34px; font-size:12px;">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Kết thúc</label>
+                                    <input type="datetime-local" class="form-input promo-end-time" style="height:34px; font-size:12px;">
+                                </div>
+                            </div>
+                            <div class="promo-preview" style="font-size:11px; margin-top:8px; padding:6px 10px; background:#f8fafc; border-radius:4px; border:1px dashed #cbd5e1; color:#475569; font-weight:500;">
+                                Bảng giá xem trước: Hãy nhập giá bán lẻ và giá trị giảm giá.
+                            </div>
+                        </div>
+
+                        <!-- Discount Config Section -->
+                        <div id="promo-config-discount" class="promo-sub-form" style="display:none; background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:12px;">
+                            <div style="font-weight:700; color:#3b82f6; margin-bottom:8px; border-bottom:1px solid #e2e8f0; padding-bottom:4px; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-tag"></i> CẤU HÌNH GIẢM GIÁ
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;">
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Loại giảm giá</label>
+                                    <select class="form-select promo-discount-type" style="height:34px; font-size:12px;" onchange="updatePromoPreview('discount')">
+                                        <option value="percentage">Giảm theo %</option>
+                                        <option value="fixed_price">Giá bán cố định VND</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Giá trị giảm</label>
+                                    <input type="number" class="form-input promo-discount-value" style="height:34px; font-size:12px;" min="0" placeholder="Nhập % hoặc giá tiền" oninput="updatePromoPreview('discount')">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Số lượng mở bán</label>
+                                    <input type="number" class="form-input promo-campaign-qty" style="height:34px; font-size:12px;" min="1" placeholder="Không giới hạn">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Mua tối đa / khách</label>
+                                    <input type="number" class="form-input promo-max-per-customer" style="height:34px; font-size:12px;" min="1" placeholder="Không giới hạn">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Bắt đầu</label>
+                                    <input type="datetime-local" class="form-input promo-start-time" style="height:34px; font-size:12px;">
+                                </div>
+                                <div>
+                                    <label class="form-label" style="font-size:12px;">Kết thúc</label>
+                                    <input type="datetime-local" class="form-input promo-end-time" style="height:34px; font-size:12px;">
+                                </div>
+                            </div>
+                            <div class="promo-preview" style="font-size:11px; margin-top:8px; padding:6px 10px; background:#f8fafc; border-radius:4px; border:1px dashed #cbd5e1; color:#475569; font-weight:500;">
+                                Bảng giá xem trước: Hãy nhập giá bán lẻ và giá trị giảm giá.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Unit Conversions -->
+                <div id="tab-units" class="tab-content">
+                    <div class="form-group"
+                        style="padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:24px;">
+                        <label class="form-label" style="color:#1e40af;"><i class="fa-solid fa-cube"></i> Đơn vị
+                            tính cơ bản nhất (Base Unit)</label>
+                        <p style="font-size:12px;color:#6b7280;margin-bottom:12px;">Đơn vị nhỏ nhất không thể xé lẻ
+                            thêm để bán.</p>
+                        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
+                            <div>
+                                <label class="form-label">Tên đơn vị cơ bản <span style="color:#ef4444">*</span></label>
+                                <input type="text" id="medicineBaseUnit" class="form-input" placeholder="VD: Viên, Gói, Tuýp..." value="">
+                            </div>
+                            <div>
+                                <label class="form-label">Mã vạch đơn vị cơ bản</label>
+                                <input type="text" id="medicineBarcode" class="form-input" placeholder="VD: 893xxxxxxxxxx">
+                            </div>
+                            <div>
+                                <label class="form-label">Giá nhập dự kiến</label>
+                                <div style="position:relative;">
+                                    <input type="number" id="medicineCostPrice" class="form-input" placeholder="0" min="0" style="padding-right:48px;"
+                                        value="">
+                                    <span
+                                        style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#9ca3af;font-weight:600;">VNĐ</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Giá bán lẻ <span style="color:#ef4444">*</span></label>
+                                <div style="position:relative;">
+                                    <input type="number" id="medicineRetailPrice" class="form-input" placeholder="0" min="0" style="padding-right:48px;"
+                                        value="">
+                                    <span
+                                        style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:#9ca3af;font-weight:600;">VNĐ</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Min Stock Alert (Mức cảnh báo tồn tối thiểu)</label>
+                                <input type="number" id="medicineMinStock" class="form-input" placeholder="10" min="0" value="10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <div>
+                            <h3 style="font-size:15px;font-weight:700;color:#1f2937;">Quy đổi đơn vị lớn hơn</h3>
+                            <p style="font-size:13px;color:#6b7280;margin-top:2px;">Khai báo cách đóng gói: [Số lượng]
+                                [Đơn vị nhỏ] = 1 [Đơn vị lớn]. Ví dụ: 10 Viên = 1 Vỉ. 10 Vỉ = 1 Hộp.</p>
+                        </div>
+                    </div>
+
+                    <div class="unit-conversion-wrapper"
+                        style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                        <table class="dynamic-table" style="width:100%;text-align:left;">
+                            <thead style="background:#f1f5f9;border-bottom:1px solid #e2e8f0;">
+                                <tr>
+                                    <th style="padding:12px 16px;font-size:12px;color:#475569;">Đơn vị lớn (Unit Name)
+                                    </th>
+                                    <th style="padding:12px 16px;font-size:12px;color:#475569;">Bằng số lượng (Qty)</th>
+                                    <th style="padding:12px 16px;font-size:12px;color:#475569;">Barcode</th>
+                                    <th style="padding:12px 16px;font-size:12px;color:#475569;">Giá bán lẻ nguyên
+                                        (Retail Price)</th>
+                                    <th style="padding:12px 16px;text-align:center;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="unitConversionRows"></tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addUnitRow()" type="button"
+                            style="width:100%;border:none;border-radius:0;border-top:1px dashed #cbd5e1;background:#fcfcfc;color:#10b981;font-weight:600;padding:12px;"><i
+                                class="fa-solid fa-plus"></i> Thêm cấp đơn vị đóng gói lớn hơn</button>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Storage -->
+                <div id="tab-storage" class="tab-content">
+                    <p style="font-size:14px;color:#4b5563;margin-bottom:24px;line-height:1.6;">Chỉ định chính xác vị
+                        trí hệ thống Tủ Kệ để tối ưu hoá thời gian Pharmacist tìm thuốc trên POS.</p>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Khu vực (Zone)</label>
+                            <select class="form-select">
+                                <option value="">--- Chọn Khu Vực ---</option>
+                                <option value="1">Khu Thuốc Kê Đơn (Rx Zone)</option>
+                                <option value="2">Khu Thuốc Không Kê Đơn (OTC Zone)</option>
+                                <option value="3">Khu Thực Phẩm Chức Năng</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tủ (Cabinet)</label>
+                            <select class="form-select">
+                                <option value="">--- Chọn Tủ Thuốc ---</option>
+                                <option value="1">Tủ Rx - Kháng sinh</option>
+                                <option value="2">Tủ Lạnh (Bảo quản 2-8°C)</option>
+                                <option value="3">Tủ Rx - Huyết áp tim mạch</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Kệ (Shelf)</label>
+                            <select class="form-select">
+                                <option value="">--- Chọn Kệ Tầng ---</option>
+                                <option value="1">Kệ 1 (Cao nhất)</option>
+                                <option value="2">Kệ 2</option>
+                                <option value="3">Kệ 3</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Trạng thái kinh doanh</label>
+                            <select id="medicineStatus" class="form-select">
+                                <option value="draft">Bản nháp - đang nhập</option>
+                                <option value="pending_review">Chờ duyệt dữ liệu</option>
+                                <option value="active">Đang kinh doanh</option>
+                                <option value="inactive">Ngừng kinh doanh</option>
+                                <option value="rejected">Từ chối public</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Điều kiện bảo quản đặc biệt</label>
+                            <select id="medicineStorageCondition" class="form-select">
+                                <option value="Điều kiện thường">Điều kiện thường</option>
+                                <option value="Lưu kho lạnh (2-8°C)">Lưu kho lạnh (2-8°C)</option>
+                                <option value="Tủ khóa kiểm soát đặc biệt">Tủ khóa kiểm soát đặc biệt (dành cho thuốc gây nghiện/hướng thần)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="productAuditPanel" class="audit-panel" style="display:none;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                            <div>
+                                <div style="font-size:14px;font-weight:800;color:#1f2937;">Lịch sử thay đổi catalog</div>
+                                <div style="font-size:12px;color:#64748b;margin-top:2px;">Ghi nhận các thay đổi quan trọng phục vụ truy vết GPP.</div>
+                            </div>
+                            <button type="button" class="btn-secondary" style="height:32px;padding:0 12px;" onclick="loadProductAudit(catalogState.editingProductId)">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                        <div id="productAuditList" class="audit-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <button class="btn-secondary" onclick="closeAddModal()">Huỷ bỏ (Cancel)</button>
+                <button class="btn-primary" id="saveMedicineBtn" onclick="saveMedicine()" style="padding:0 32px;"><i
+                        class="fa-solid fa-floppy-disk"></i> Lưu Thuốc (Save Medicine)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ SCRIPTS ============ -->
+    <script>
+        // Set active sidebar link safely without erroring if missing
+        var activeLink = document.querySelector('.sidebar-link[href="inventory.html"]');
+        if (activeLink) {
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            activeLink.classList.add('active');
+        }
+
+        function resetMedicineForm() {
+            catalogState.editingProductId = null;
+            document.getElementById('productFormTitle').textContent = 'Phiếu Đăng Ký Thuốc Mới (Register New Medicine)';
+            document.getElementById('productFormSubtitle').textContent = 'Thêm sản phẩm mới vào danh mục hệ thống. Điền cẩn thận thông tin quy đổi đơn vị.';
+            setInputValue('medicineName', '');
+            setInputValue('medicineStrength', '');
+            setInputValue('medicineRoute', '');
+            setInputValue('medicineSku', '');
+            setInputValue('medicineCategory', '');
+            setInputValue('medicineActiveIngredient', '');
+            setInputValue('medicineRegistration', '');
+            setInputValue('medicineManufacturer', '');
+            setInputValue('medicineBarcode', '');
+            setInputValue('medicineImageUrl', '');
+            setInputValue('medicineBaseUnit', '');
+            setInputValue('medicineCostPrice', '');
+            setInputValue('medicineRetailPrice', '');
+            setInputValue('medicineMinStock', '10');
+            setInputValue('medicineStatus', 'draft');
+            setInputValue('medicineSpecialControlGroup', '');
+            setInputValue('medicineStorageCondition', 'Điều kiện thường');
+            document.getElementById('requirePre').checked = false;
+            catalogState.currentSpecifications = [];
+            catalogState.currentImages = [];
+            catalogState.pendingImages = [];
+            catalogState.draggingImageId = null;
+            catalogState.currentTags = [];
+            document.querySelectorAll('input[name="medicineQuickTag"]').forEach(cb => cb.checked = false);
+            renderCustomTagsChips();
+            catalogState.currentAudit = [];
+            renderProductAudit();
+            toggleSpecialControlGroup();
+            renderUnitRows([]);
+            renderProductImageManager();
+            resetPromotionFormFields();
+        }
+
+        // Modal Slide-over logic
+        function openAddModal() {
+            resetMedicineForm();
+            document.getElementById('addMedicineModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            switchTab('tab-general'); // Reset to first tab
+        }
+
+        function closeAddModal() {
+            document.getElementById('addMedicineModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Tab switching logic
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // Show target content
+            document.getElementById(tabId).classList.add('active');
+
+            // Update active states on buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick').includes(tabId)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Tab switching logic (Main Page)
+        function switchMainTab(tabId) {
+            // Hide all tab content
+            document.querySelectorAll('.main-tab-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('active');
+            });
+            // Show new tab
+            var target = document.getElementById(tabId);
+            target.style.display = 'block';
+            setTimeout(() => target.classList.add('active'), 10);
+
+            // Update tab button styles
+            document.querySelectorAll('.tabs-header .tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('onclick').includes(tabId)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        async function openEditMedicine(productId) {
+            resetMedicineForm();
+            catalogState.editingProductId = Number(productId);
+            document.getElementById('productFormTitle').textContent = 'Cập Nhật Thông Tin Thuốc';
+            document.getElementById('productFormSubtitle').textContent = 'Chỉnh sửa dữ liệu master của thuốc. Thay đổi tồn kho và lô hàng thực hiện ở nghiệp vụ nhập kho.';
+            document.getElementById('addMedicineModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            switchTab('tab-general');
+
+            try {
+                setSaveLoading(true, 'Đang tải...');
+                var result = await window.MGAdminCatalogApi.get(`/products/${encodeURIComponent(productId)}`);
+                fillMedicineForm(result.data || {});
+                await loadProductAudit(productId);
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không tải được thông tin thuốc', 'error');
+                closeAddModal();
+            } finally {
+                setSaveLoading(false);
+            }
+        }
+
+        async function saveMedicine() {
+            var payload;
+            try {
+                payload = collectMedicinePayload();
+            } catch (err) {
+                showAdminCatalogToast(err.message, 'error');
+                switchTab(err.tab || 'tab-general');
+                return;
+            }
+
+            try {
+                setSaveLoading(true);
+                var productId = catalogState.editingProductId;
+                var requestedStatus = payload.status;
+                var shouldPublishAfterUpload = !catalogState.editingProductId
+                    && requestedStatus === 'active'
+                    && catalogState.pendingImages.length > 0
+                    && !payload.image_url;
+                if (shouldPublishAfterUpload) payload.status = 'pending_review';
+                if (catalogState.editingProductId) {
+                    await window.MGAdminCatalogApi.put(`/products/${encodeURIComponent(catalogState.editingProductId)}`, payload);
+                    showAdminCatalogToast('Đã cập nhật thông tin thuốc');
+                } else {
+                    var result = await window.MGAdminCatalogApi.post('/products', payload);
+                    productId = Number(result.data?.id || 0);
+                    showAdminCatalogToast('Đã thêm thuốc mới vào catalog');
+                }
+                if (catalogState.pendingImages.length) {
+                    setSaveLoading(true, 'Đang tải ảnh...');
+                    await uploadPendingProductImages(productId);
+                }
+                if (shouldPublishAfterUpload) {
+                    await window.MGAdminCatalogApi.put(`/products/${encodeURIComponent(productId)}`, { status: requestedStatus });
+                }
+                closeAddModal();
+                catalogState.batchCache.clear();
+                await loadCatalogInventory();
+                catalogState.activeTab = 'tab-master';
+                switchMainTab('tab-master');
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không lưu được thuốc', 'error');
+            } finally {
+                setSaveLoading(false);
+            }
+        }
+    </script>
+
+    <!-- Shared Layout Components -->
+    <script src="js/admin-catalog-api.js"></script>
+    <script src="js/admin-components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminLayout('inventory');
+            initAdminCatalogInventory();
+        });
+
+        var catalogState = {
+            activeTab: 'tab-stock',
+            stockPage: 1,
+            masterPage: 1,
+            pageSize: 10,
+            stockPageSize: 8,
+            categories: [],
+            inventory: [],
+            productMeta: new Map(),
+            batchCache: new Map(),
+            loading: false,
+            editingProductId: null,
+            currentSpecifications: [],
+            currentImages: [],
+            pendingImages: [],
+            draggingImageId: null,
+            currentTags: [],
+            currentAudit: []
+        };
+
+        var imageFallback = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23f3f4f6%22/%3E%3Ctext x=%2250%22 y=%2255%22 font-family=%22Arial%22 font-size=%2212%22 text-anchor=%22middle%22 fill=%22%239ca3af%22%3EImage%3C/text%3E%3C/svg%3E';
+
+        function initAdminCatalogInventory() {
+            var searchInput = document.getElementById('catalogSearchInput');
+            var categoryFilter = document.getElementById('catalogCategoryFilter');
+            var statusFilter = document.getElementById('catalogStatusFilter');
+            var qualityFilter = document.getElementById('catalogQualityFilter');
+            var stockRiskFilter = document.getElementById('stockRiskFilter');
+            var baseUnitInput = document.getElementById('medicineBaseUnit');
+            var prescriptionCheckbox = document.getElementById('requirePre');
+            var imageInput = document.getElementById('medicineImageFiles');
+            var specialControlSelect = document.getElementById('medicineSpecialControlGroup');
+            var categorySelect = document.getElementById('medicineCategory');
+
+            searchInput?.addEventListener('input', debounce(() => {
+                catalogState.stockPage = 1;
+                catalogState.masterPage = 1;
+                reloadCatalogView();
+            }, 350));
+            categoryFilter?.addEventListener('change', () => {
+                catalogState.stockPage = 1;
+                catalogState.masterPage = 1;
+                reloadCatalogView();
+            });
+            statusFilter?.addEventListener('change', () => {
+                catalogState.stockPage = 1;
+                catalogState.masterPage = 1;
+                reloadCatalogView();
+            });
+            stockRiskFilter?.addEventListener('change', () => {
+                catalogState.stockPage = 1;
+                renderStockTable();
+            });
+            qualityFilter?.addEventListener('change', () => {
+                catalogState.masterPage = 1;
+                if (catalogState.activeTab !== 'tab-master') {
+                    catalogState.activeTab = 'tab-master';
+                    switchMainTab('tab-master');
+                }
+                renderMasterTable();
+            });
+            baseUnitInput?.addEventListener('input', () => {
+                document.querySelectorAll('#unitConversionRows [data-unit-field="of_unit"]').forEach((input) => {
+                    if (!input.value.trim()) input.value = baseUnitInput.value.trim();
+                });
+            });
+            prescriptionCheckbox?.addEventListener('change', () => {
+                toggleSpecialControlGroup();
+                togglePromoConfigs();
+            });
+            document.querySelectorAll('input[name="medicineQuickTag"]').forEach(cb => {
+                cb.addEventListener('change', togglePromoConfigs);
+            });
+            var retailPriceInput = document.getElementById('medicineRetailPrice');
+            retailPriceInput?.addEventListener('input', () => {
+                ['flash-sale', 'deal', 'discount'].forEach(tag => {
+                    updatePromoPreview(tag);
+                });
+            });
+            specialControlSelect?.addEventListener('change', applySpecialControlStorageRule);
+            categorySelect?.addEventListener('change', applyCategoryBusinessHints);
+            imageInput?.addEventListener('change', handleProductImageFiles);
+
+            loadCatalogInventory();
+        }
+
+        async function loadCatalogInventory() {
+            setCatalogLoading(true);
+            try {
+                await Promise.all([
+                    loadCatalogStats(),
+                    loadCategories(),
+                    loadInventory()
+                ]);
+                await loadProductMetaForInventory();
+                await reloadCatalogView();
+            } catch (err) {
+                renderTableError('stockTableBody', 7, err.message || 'Không tải được dữ liệu tồn kho');
+                renderTableError('masterTableBody', 8, err.message || 'Không tải được danh mục thuốc');
+            } finally {
+                setCatalogLoading(false);
+            }
+        }
+
+        async function reloadCatalogView() {
+            if (catalogState.activeTab === 'tab-stock') {
+                await renderStockTable();
+            } else {
+                await renderMasterTable();
+            }
+        }
+
+        async function loadCatalogStats() {
+            var result = await window.MGAdminCatalogApi.get('/inventory/stats');
+            var stats = result.data || {};
+            document.getElementById('totalProductCount').textContent = formatNumber(stats.total_products || 0);
+            document.getElementById('totalUnitsCount').textContent = formatNumber(stats.total_units_in_stock || 0);
+            document.getElementById('lowStockCount').textContent = formatNumber(stats.low_stock_products || 0);
+            document.getElementById('nearExpiryCount').textContent = formatNumber(stats.near_expiry_batches || 0);
+            if (stats.total_inventory_cost !== undefined) {
+                document.getElementById('inventoryValue').textContent = formatCompactVnd(stats.total_inventory_cost);
+            }
+        }
+
+        async function loadCategories() {
+            var result = await window.MGAdminCatalogApi.get('/categories');
+            catalogState.categories = Array.isArray(result.data) ? result.data : [];
+            var select = document.getElementById('catalogCategoryFilter');
+            if (select) {
+                select.innerHTML = '<option value="">Tất cả danh mục</option>' + catalogState.categories
+                    .map((category) => `<option value="${escapeHtml(category.id)}" data-name="${escapeHtml(category.name)}">${escapeHtml(category.name)}</option>`)
+                    .join('');
+            }
+            var formSelect = document.getElementById('medicineCategory');
+            if (formSelect) {
+                formSelect.innerHTML = '<option value="">--- Chọn danh mục ---</option>' + catalogState.categories
+                    .map((category) => `<option value="${escapeHtml(category.id)}">${escapeHtml(category.name)}</option>`)
+                    .join('');
+            }
+            applyCategoryBusinessHints();
+        }
+
+        async function loadInventory() {
+            var result = await window.MGAdminCatalogApi.get('/inventory');
+            catalogState.inventory = Array.isArray(result.data)
+                ? result.data.map((item) => ({
+                    ...item,
+                    product_id: Number(item.product_id || item.id || 0),
+                    stock_total: Number(item.stock_total || item.total_stock || 0)
+                }))
+                : [];
+        }
+
+        async function loadProductMetaForInventory() {
+            var ids = catalogState.inventory.map((item) => item.product_id).filter(Boolean);
+            var chunks = chunkArray(ids, 80);
+            var products = [];
+            for (const chunk of chunks) {
+                var result = await window.MGAdminCatalogApi.get('/products', {
+                    ids: chunk.join(','),
+                    status: 'active',
+                    limit: chunk.length || 1
+                });
+                if (Array.isArray(result.data)) products.push(...result.data);
+            }
+            catalogState.productMeta = new Map(products.map((product) => [Number(product.id), product]));
+            if (document.getElementById('inventoryValue').textContent === '--') updateInventoryValue();
+        }
+
+        function updateInventoryValue() {
+            var totalValue = catalogState.inventory.reduce((sum, item) => {
+                var product = catalogState.productMeta.get(Number(item.product_id)) || {};
+                return sum + Number(item.stock_total || 0) * Number(product.retail_price || product.price || 0);
+            }, 0);
+            document.getElementById('inventoryValue').textContent = formatCompactVnd(totalValue);
+        }
+
+        function getFilters() {
+            var categorySelect = document.getElementById('catalogCategoryFilter');
+            var selectedCategory = categorySelect?.selectedOptions?.[0];
+            return {
+                q: document.getElementById('catalogSearchInput')?.value.trim() || '',
+                categoryId: categorySelect?.value || '',
+                categoryName: selectedCategory?.dataset?.name || '',
+                status: document.getElementById('catalogStatusFilter')?.value || '',
+                quality: document.getElementById('catalogQualityFilter')?.value || '',
+                stockRisk: document.getElementById('stockRiskFilter')?.value || ''
+            };
+        }
+
+        function filterInventoryRows() {
+            var filters = getFilters();
+            var keyword = normalizeText(filters.q);
+            return catalogState.inventory.filter((item) => {
+                var product = catalogState.productMeta.get(Number(item.product_id)) || {};
+                var haystack = normalizeText(`${item.name || ''} ${item.sku || ''} ${product.active_ingredient || ''}`);
+                var matchesKeyword = !keyword || haystack.includes(keyword);
+                var matchesCategory = !filters.categoryName || product.category_name === filters.categoryName;
+                var matchesStatus = !filters.status || filters.status === 'active';
+                var risk = getInventoryRisk(item, product);
+                var matchesRisk = !filters.stockRisk
+                    || (filters.stockRisk === 'risk' && risk.priority <= 2)
+                    || (filters.stockRisk === 'near_expiry' && risk.type === 'near_expiry')
+                    || (filters.stockRisk === 'out' && risk.type === 'out')
+                    || (filters.stockRisk === 'in_stock' && Number(item.stock_total || 0) > 0);
+                return matchesKeyword && matchesCategory && matchesStatus && matchesRisk;
+            }).sort((a, b) => {
+                var productA = catalogState.productMeta.get(Number(a.product_id)) || {};
+                var productB = catalogState.productMeta.get(Number(b.product_id)) || {};
+                var riskA = getInventoryRisk(a, productA);
+                var riskB = getInventoryRisk(b, productB);
+                if (riskA.priority !== riskB.priority) return riskA.priority - riskB.priority;
+                return String(a.name || productA.name || '').localeCompare(String(b.name || productB.name || ''), 'vi');
+            });
+        }
+
+        function getInventoryRisk(item, product = {}) {
+            var stock = Number(item.stock_total || 0);
+            var minStock = Number(product.min_stock_alert || 10);
+            var days = daysUntil(item.nearest_expiry);
+            if (days !== null && days <= 90 && stock > 0) return { type: 'near_expiry', priority: 1, label: 'Cận hạn FEFO' };
+            if (stock <= 0) return { type: 'out', priority: 2, label: 'Hết hàng' };
+            if (stock <= minStock) return { type: 'low', priority: 2, label: `Sắp hết <= ${formatNumber(minStock)}` };
+            return { type: 'safe', priority: 3, label: 'Ổn định' };
+        }
+
+        async function renderStockTable() {
+            var body = document.getElementById('stockTableBody');
+            if (!body) return;
+            body.innerHTML = loadingRow(7, 'Đang tải tồn kho theo lô...');
+
+            var filtered = filterInventoryRows();
+            var total = filtered.length;
+            var start = (catalogState.stockPage - 1) * catalogState.stockPageSize;
+            var visibleProducts = filtered.slice(start, start + catalogState.stockPageSize);
+
+            if (!visibleProducts.length) {
+                body.innerHTML = emptyRow(7, 'Không có sản phẩm tồn kho phù hợp bộ lọc.');
+                renderPagination('stock', total, catalogState.stockPage, catalogState.stockPageSize);
+                return;
+            }
+
+            var rows = [];
+            for (const item of visibleProducts) {
+                var batches = await getProductBatches(item.product_id);
+                var product = catalogState.productMeta.get(Number(item.product_id)) || {};
+                if (!batches.length || Number(item.stock_total || 0) <= 0) {
+                    rows.push(renderStockRow(item, product, null));
+                    continue;
+                }
+                batches.forEach((batch) => rows.push(renderStockRow(item, product, batch)));
+            }
+
+            body.innerHTML = rows.join('');
+            renderPagination('stock', total, catalogState.stockPage, catalogState.stockPageSize);
+        }
+
+        async function getProductBatches(productId) {
+            var id = Number(productId);
+            if (!id) return [];
+            if (catalogState.batchCache.has(id)) return catalogState.batchCache.get(id);
+            try {
+                var result = await window.MGAdminCatalogApi.get(`/inventory/${encodeURIComponent(id)}`);
+                var batches = Array.isArray(result.data) ? result.data : [];
+                catalogState.batchCache.set(id, batches);
+                return batches;
+            } catch (_err) {
+                catalogState.batchCache.set(id, []);
+                return [];
+            }
+        }
+
+        function renderStockRow(item, product, batch) {
+            var quantity = batch ? Number(batch.quantity_remaining || 0) : Number(item.stock_total || 0);
+            var status = getBatchStatus(batch, quantity);
+            var risk = getInventoryRisk(item, product);
+            var minStock = Number(product.min_stock_alert || 10);
+            var batchValue = batch
+                ? quantity * Number(batch.cost_price || 0)
+                : Number(item.stock_total || 0) * Number(product.retail_price || product.price || 0);
+            var rowClass = status.type === 'near_expiry' || risk.type === 'low' ? 'stock-risk-row' : quantity <= 0 ? 'stock-empty-row' : '';
+            var qtyClass = quantity <= 0 ? 'zero' : quantity <= minStock ? 'low' : '';
+            var expiryDays = batch?.expiry_date ? daysUntil(batch.expiry_date) : null;
+            var expiryText = batch?.expiry_date
+                ? `${formatDate(batch.expiry_date)}${expiryDays !== null ? ` • còn ${formatNumber(expiryDays)} ngày` : ''}`
+                : '--';
+            return `
+                <tr class="${rowClass}">
+                    <td class="stock-product-cell">
+                        <div class="stock-product-name">${escapeHtml(item.name || product.name || 'Chưa có tên')}</div>
+                        <div class="stock-product-meta">
+                            ${escapeHtml(item.sku || product.sku || '--')} • ${escapeHtml(product.category_name || 'Chưa phân loại')}
+                            ${Number(product.requires_prescription || 0) === 1 ? ' • Thuốc kê đơn' : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div><span class="stock-qty ${qtyClass}">${formatNumber(quantity)}</span> <span class="stock-subtext">${escapeHtml(item.base_unit || product.base_unit || 'đơn vị')}</span></div>
+                        <div class="stock-subtext">Cảnh báo tối thiểu: ${formatNumber(minStock)}</div>
+                    </td>
+                    <td>
+                        <span class="stock-lot-pill"><i class="fa-solid fa-barcode"></i>${escapeHtml(batch?.lot_number || '--')}</span>
+                        <div class="stock-subtext">${batch ? `Lô #${escapeHtml(batch.id)}` : 'Chưa có lô đang bán'}</div>
+                    </td>
+                    <td><span class="stock-expiry-pill ${status.type === 'near_expiry' ? 'warning' : status.type === 'expired' ? 'danger' : ''}"><i class="fa-solid fa-calendar-days"></i>${escapeHtml(expiryText)}</span></td>
+                    <td>
+                        <div style="font-weight:700;color:#0f172a;">${escapeHtml(batch?.location_name || product.location_name || '--')}</div>
+                        <div class="stock-subtext">Theo vị trí lô hiện tại</div>
+                    </td>
+                    <td>
+                        <div style="font-weight:900;color:#0f172a;">${formatCompactVnd(batchValue)}</div>
+                        <div class="stock-subtext">${batch?.cost_price ? `Giá nhập ${formatVnd(batch.cost_price)}` : 'Ước theo giá bán'}</div>
+                    </td>
+                    <td><span class="stock-risk-pill ${status.type === 'near_expiry' ? 'warning' : quantity <= 0 ? 'danger' : ''}"><i class="fa-solid ${status.icon}"></i>${status.label}</span></td>
+                </tr>
+            `;
+        }
+
+        function getBatchStatus(batch, quantity) {
+            if (!batch || quantity <= 0) {
+                return { label: 'Hết hàng', type: 'out', icon: 'fa-circle-minus', className: 'inactive', style: '', expiryColor: '#9ca3af' };
+            }
+            var daysLeft = daysUntil(batch.expiry_date);
+            if (batch.status === 'near_expiry' || (daysLeft !== null && daysLeft <= 90)) {
+                return {
+                    label: 'Cận hạn',
+                    type: 'near_expiry',
+                    icon: 'fa-triangle-exclamation',
+                    className: '',
+                    style: 'background:#fefce8; color:#a16207; border:1px solid #fef08a;',
+                    expiryColor: '#eab308'
+                };
+            }
+            return { label: 'An toàn', type: 'safe', icon: 'fa-circle-check', className: 'active', style: '', expiryColor: '#1f2937' };
+        }
+
+        async function renderMasterTable() {
+            var body = document.getElementById('masterTableBody');
+            if (!body) return;
+            body.innerHTML = loadingRow(8, 'Đang tải danh mục thuốc...');
+            var filters = getFilters();
+
+            try {
+                var result = await fetchMasterProducts(filters, catalogState.masterPage, catalogState.pageSize);
+                var products = Array.isArray(result.data) ? result.data : [];
+                if (!products.length) {
+                    body.innerHTML = emptyRow(8, 'Không có thuốc phù hợp bộ lọc.');
+                } else {
+                    body.innerHTML = products.map(renderMasterRow).join('');
+                }
+                renderPagination('master', result.pagination?.total || products.length, catalogState.masterPage, catalogState.pageSize);
+            } catch (err) {
+                renderTableError('masterTableBody', 8, err.message || 'Không tải được danh mục thuốc');
+            }
+        }
+
+        async function fetchMasterProducts(filters, page, limit) {
+            return window.MGAdminCatalogApi.get('/products', {
+                page,
+                limit,
+                q: filters.q,
+                category_id: filters.categoryId,
+                status: filters.status || 'all',
+                quality: filters.quality,
+                sort: 'newest'
+            });
+        }
+
+        function renderMasterRow(product) {
+            var totalStock = Number(product.total_stock || 0);
+            var statusMeta = getProductStatusMeta(product.status);
+            var qualityIssues = Array.isArray(product.quality_issues) ? product.quality_issues : [];
+            var qualityReady = Boolean(product.is_publish_ready) && qualityIssues.length === 0;
+            var qualityTitle = qualityIssues.length ? qualityIssues.join(', ') : 'Đủ dữ liệu catalog';
+            return `
+                <tr>
+                    <td><img src="${escapeHtml(product.image_url || product.thumbnail || imageFallback)}" alt="${escapeHtml(product.name || 'Product')}" class="inv-img" onerror="this.onerror=null;this.src='${imageFallback}'"></td>
+                    <td><span class="table-sku">${escapeHtml(product.sku || '--')}</span></td>
+                    <td>
+                        <div class="inv-name" data-product-name="${Number(product.id)}">${escapeHtml(product.name || 'Chưa có tên')} ${Number(product.requires_prescription || 0) === 1 ? '<i class="fa-solid fa-notes-medical" style="color:#ef4444;font-size:11px;" title="Thuốc kê đơn"></i>' : ''}</div>
+                        <div style="font-size:12px;color:#6b7280;">${escapeHtml(product.base_unit || 'Chưa có đơn vị bán')}</div>
+                        <div class="quality-chip ${qualityReady ? 'ready' : 'missing'}" title="${escapeHtml(qualityTitle)}">
+                            <i class="fa-solid ${qualityReady ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
+                            ${qualityReady ? 'Đủ dữ liệu' : `Thiếu ${qualityIssues.length || 1} mục`}
+                        </div>
+                    </td>
+                    <td><span class="inv-category">${escapeHtml(product.category_name || 'Chưa phân loại')}</span></td>
+                    <td><span style="font-weight:700;color:${totalStock <= 0 ? '#ef4444' : '#1f2937'};">${formatNumber(totalStock)}</span> ${escapeHtml(product.base_unit || 'đơn vị')}</td>
+                    <td><span class="inv-price">${formatVnd(product.retail_price || product.price || 0)}</span></td>
+                    <td><span class="status-badge ${statusMeta.className}" style="${statusMeta.style}">${statusMeta.label}</span></td>
+                    <td>
+                        <div class="action-btns" style="justify-content:flex-end;">
+                            ${renderCatalogWorkflowActions(product, qualityReady)}
+                            <button class="btn-icon" title="Chỉnh sửa" onclick="openEditMedicine(${Number(product.id)})"><i class="fa-solid fa-pen"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function renderCatalogWorkflowActions(product, qualityReady) {
+            var id = Number(product.id);
+            var status = product.status || 'draft';
+            if (status === 'draft') {
+                return `<button class="btn-icon" title="Gửi duyệt dữ liệu" onclick="changeMedicineStatus(${id}, 'pending_review')"><i class="fa-solid fa-paper-plane"></i></button>`;
+            }
+            if (status === 'pending_review') {
+                var approveDisabled = qualityReady ? '' : 'disabled';
+                var approveTitle = qualityReady ? 'Duyệt và public bán hàng' : 'Chưa đủ dữ liệu để public';
+                return `
+                    <button class="btn-icon" title="${approveTitle}" ${approveDisabled} onclick="changeMedicineStatus(${id}, 'active')"><i class="fa-solid fa-check"></i></button>
+                    <button class="btn-icon danger" title="Từ chối public" onclick="changeMedicineStatus(${id}, 'rejected')"><i class="fa-solid fa-ban"></i></button>
+                `;
+            }
+            if (status === 'active') {
+                return `<button class="btn-icon danger" title="Ngừng kinh doanh" onclick="deactivateMedicine(${id})"><i class="fa-solid fa-trash"></i></button>`;
+            }
+            if (status === 'inactive' || status === 'rejected') {
+                return `<button class="btn-icon" title="Đưa về chờ duyệt" onclick="changeMedicineStatus(${id}, 'pending_review')"><i class="fa-solid fa-rotate-left"></i></button>`;
+            }
+            return '';
+        }
+
+        function getProductStatusMeta(status) {
+            var value = status || 'draft';
+            var map = {
+                draft: {
+                    label: 'Bản nháp',
+                    className: '',
+                    style: 'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;'
+                },
+                pending_review: {
+                    label: 'Chờ duyệt',
+                    className: '',
+                    style: 'background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;'
+                },
+                active: {
+                    label: 'Hoạt động',
+                    className: 'active',
+                    style: ''
+                },
+                inactive: {
+                    label: 'Ngừng HĐ',
+                    className: 'inactive',
+                    style: ''
+                },
+                rejected: {
+                    label: 'Từ chối',
+                    className: '',
+                    style: 'background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;'
+                }
+            };
+            return map[value] || map.draft;
+        }
+
+        async function loadProductAudit(productId) {
+            var id = Number(productId || 0);
+            if (!id) {
+                catalogState.currentAudit = [];
+                renderProductAudit();
+                return;
+            }
+            try {
+                var result = await window.MGAdminCatalogApi.get(`/products/${encodeURIComponent(id)}/audit`, { limit: 30 });
+                catalogState.currentAudit = Array.isArray(result.data) ? result.data : [];
+            } catch (_err) {
+                catalogState.currentAudit = [];
+            }
+            renderProductAudit();
+        }
+
+        function renderProductAudit() {
+            var panel = document.getElementById('productAuditPanel');
+            var list = document.getElementById('productAuditList');
+            if (!panel || !list) return;
+            if (!catalogState.editingProductId) {
+                panel.style.display = 'none';
+                list.innerHTML = '';
+                return;
+            }
+            panel.style.display = 'block';
+            var audits = Array.isArray(catalogState.currentAudit) ? catalogState.currentAudit : [];
+            if (!audits.length) {
+                list.innerHTML = '<div class="audit-item"><div class="audit-item-meta">Chưa có lịch sử thay đổi cho thuốc này.</div></div>';
+                return;
+            }
+            list.innerHTML = audits.map((audit) => {
+                var metadata = audit.metadata || {};
+                var changedFields = metadata.changed_fields ? Object.keys(metadata.changed_fields) : [];
+                var detail = changedFields.length
+                    ? `Trường thay đổi: ${changedFields.join(', ')}`
+                    : getAuditSummary(audit);
+                return `
+                    <div class="audit-item">
+                        <div class="audit-item-title">
+                            <span>${escapeHtml(getAuditActionLabel(audit.action))}</span>
+                            <span>${escapeHtml(formatDateTime(audit.created_at))}</span>
+                        </div>
+                        <div class="audit-item-meta">
+                            Người thao tác: ${escapeHtml(audit.user_id || 'Hệ thống')}<br>
+                            ${escapeHtml(detail)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getAuditActionLabel(action) {
+            var labels = {
+                product_create: 'Tạo thuốc mới',
+                product_update: 'Cập nhật thuốc',
+                product_status_update: 'Đổi trạng thái thuốc',
+                product_image_upload: 'Tải ảnh sản phẩm',
+                product_image_update: 'Cập nhật ảnh',
+                product_image_reorder: 'Sắp xếp ảnh',
+                product_image_set_primary: 'Chọn ảnh chính',
+                product_image_delete: 'Xóa ảnh'
+            };
+            return labels[action] || action || 'Thay đổi catalog';
+        }
+
+        function getAuditSummary(audit) {
+            var metadata = audit.metadata || {};
+            if (metadata.product_id && audit.entity_type === 'product_image') return `Ảnh sản phẩm #${audit.entity_id}`;
+            if (metadata.unit_conversions_count !== undefined) return `${metadata.unit_conversions_count} quy đổi đơn vị`;
+            if (metadata.reason === 'soft_delete') return 'Ngừng kinh doanh sản phẩm';
+            return 'Đã ghi nhận thay đổi dữ liệu catalog';
+        }
+
+        function fillMedicineForm(product) {
+            var specs = specificationsToMap(product.specifications);
+            catalogState.currentSpecifications = Array.isArray(product.specifications) ? product.specifications : [];
+            catalogState.currentImages = Array.isArray(product.images) ? product.images : [];
+            catalogState.pendingImages = [];
+            setInputValue('medicineName', product.name || '');
+            setInputValue('medicineStrength', product.strength || specs.strength || '');
+            setInputValue('medicineRoute', product.route_of_administration || specs.route_of_administration || '');
+            setInputValue('medicineSku', product.sku || '');
+            setInputValue('medicineCategory', product.category?.id || product.category_id || '');
+            setInputValue('medicineActiveIngredient', product.active_ingredient || '');
+            setInputValue('medicineRegistration', product.registration_number || '');
+            setInputValue('medicineManufacturer', product.manufacturer || '');
+            setInputValue('medicineBarcode', product.barcode || '');
+            setInputValue('medicineImageUrl', product.image_url || '');
+            setInputValue('medicineBaseUnit', product.base_unit || '');
+            setInputValue('medicineCostPrice', product.cost_price || '');
+            setInputValue('medicineRetailPrice', product.retail_price || product.price || '');
+            setInputValue('medicineMinStock', product.min_stock_alert || 10);
+            setInputValue('medicineStatus', product.status || 'active');
+            setInputValue('medicineSpecialControlGroup', product.special_control_group || specs.special_control_group || '');
+            setInputValue('medicineStorageCondition', product.storage_condition || specs.storage_condition || 'Điều kiện thường');
+            document.getElementById('requirePre').checked = Number(product.requires_prescription || 0) === 1;
+            toggleSpecialControlGroup();
+            applyCategoryBusinessHints();
+            renderUnitRows(Array.isArray(product.units) ? product.units : []);
+            renderProductImageManager();
+
+            // Set tags
+            var tags = [];
+            if (product.tags) {
+                try {
+                    tags = Array.isArray(product.tags) ? product.tags : JSON.parse(product.tags);
+                } catch (e) {
+                    tags = [];
+                }
+            }
+            var standardTags = ['flash-sale', 'deal', 'best-seller', 'discount', 'exclusive', 'imported', 'trending'];
+            var customTags = [];
+            document.querySelectorAll('input[name="medicineQuickTag"]').forEach(cb => {
+                cb.checked = tags.includes(cb.value);
+            });
+            tags.forEach(t => {
+                if (!standardTags.includes(t)) {
+                    customTags.push(t);
+                }
+            });
+            catalogState.currentTags = customTags;
+            renderCustomTagsChips();
+
+            // Populate promotions_config
+            resetPromotionFormFields();
+            if (Array.isArray(product.promotions_config)) {
+                product.promotions_config.forEach(promo => {
+                    var tag = promo.tag_name;
+                    var configForm = document.getElementById(`promo-config-${tag}`);
+                    if (configForm) {
+                        configForm.querySelector('.promo-discount-type').value = promo.discount_type || 'percentage';
+                        configForm.querySelector('.promo-discount-value').value = promo.discount_value || '';
+                        configForm.querySelector('.promo-campaign-qty').value = promo.campaign_qty !== null && promo.campaign_qty !== undefined ? promo.campaign_qty : '';
+                        configForm.querySelector('.promo-max-per-customer').value = promo.max_per_customer !== null && promo.max_per_customer !== undefined ? promo.max_per_customer : '';
+                        configForm.querySelector('.promo-start-time').value = formatDateTimeLocal(promo.start_time);
+                        configForm.querySelector('.promo-end-time').value = formatDateTimeLocal(promo.end_time);
+                    }
+                });
+            }
+            togglePromoConfigs();
+        }
+
+        function collectMedicinePayload() {
+            var name = getInputValue('medicineName');
+            var strength = getInputValue('medicineStrength');
+            var route = getInputValue('medicineRoute');
+            var categoryId = Number(getInputValue('medicineCategory'));
+            var baseUnit = getInputValue('medicineBaseUnit');
+            var retailPrice = Number(getInputValue('medicineRetailPrice'));
+            var costPrice = Number(getInputValue('medicineCostPrice') || 0);
+            var minStockAlert = Number(getInputValue('medicineMinStock') || 0);
+            var barcode = getInputValue('medicineBarcode');
+            var requiresPrescription = document.getElementById('requirePre').checked;
+            var specialControlGroup = getInputValue('medicineSpecialControlGroup');
+            var storageCondition = getInputValue('medicineStorageCondition') || 'Điều kiện thường';
+            
+            // Collect tags
+            var tags = [];
+            document.querySelectorAll('input[name="medicineQuickTag"]:checked').forEach(cb => {
+                tags.push(cb.value);
+            });
+            tags = tags.concat(catalogState.currentTags || []);
+            var activeIngredient = getInputValue('medicineActiveIngredient');
+            var registrationNumber = getInputValue('medicineRegistration');
+            var manufacturer = getInputValue('medicineManufacturer');
+            var isMedicine = isMedicineCategory(categoryId) || requiresPrescription;
+            var status = getInputValue('medicineStatus') || 'draft';
+            var hasAnyImage = Boolean(getInputValue('medicineImageUrl'))
+                || catalogState.currentImages.length > 0
+                || catalogState.pendingImages.length > 0;
+
+            if (!name) throw validationError('Tên thuốc là bắt buộc', 'tab-general');
+            if (!Number.isInteger(categoryId) || categoryId <= 0) throw validationError('Danh mục thuốc là bắt buộc', 'tab-general');
+            if (requiresPrescription && !specialControlGroup) throw validationError('Thuốc bán theo đơn phải chọn nhóm thuốc quản lý đặc biệt', 'tab-general');
+            if (isMedicine) {
+                if (!activeIngredient) throw validationError('Thuốc phải có hoạt chất để đối chiếu hồ sơ GPP/Bộ Y tế', 'tab-general');
+                if (!registrationNumber) throw validationError('Thuốc phải có số đăng ký/SĐK', 'tab-general');
+                if (!manufacturer) throw validationError('Thuốc phải có nhà sản xuất', 'tab-general');
+                if (!strength) throw validationError('Thuốc phải có hàm lượng/nồng độ', 'tab-general');
+                if (!route) throw validationError('Thuốc phải có đường dùng', 'tab-general');
+            }
+            if (specialControlGroup === 'Kháng sinh' && !requiresPrescription) {
+                throw validationError('Kháng sinh phải được đánh dấu là thuốc bán theo đơn', 'tab-general');
+            }
+            if (isControlledSpecialGroup(specialControlGroup) && storageCondition !== 'Tủ khóa kiểm soát đặc biệt') {
+                throw validationError('Thuốc gây nghiện/hướng tâm thần/tiền chất/thuốc độc phải bảo quản trong tủ khóa kiểm soát đặc biệt', 'tab-storage');
+            }
+            if (!baseUnit) throw validationError('Đơn vị cơ bản là bắt buộc', 'tab-units');
+            if (!Number.isFinite(retailPrice) || retailPrice <= 0) throw validationError('Giá bán lẻ phải lớn hơn 0', 'tab-units');
+            if (!Number.isFinite(costPrice) || costPrice < 0) throw validationError('Giá nhập dự kiến không được âm', 'tab-units');
+            if (!Number.isInteger(minStockAlert) || minStockAlert < 0) throw validationError('Mức cảnh báo tồn tối thiểu không hợp lệ', 'tab-units');
+            if (barcode && !/^[A-Za-z0-9._-]{6,100}$/.test(barcode)) {
+                throw validationError('Barcode đơn vị cơ bản phải từ 6-100 ký tự, chỉ gồm chữ/số/ký tự . _ -', 'tab-units');
+            }
+            if (status === 'active' && !hasAnyImage) {
+                throw validationError('Thuốc chỉ được chuyển Hoạt động khi đã có ít nhất một ảnh sản phẩm', 'tab-general');
+            }
+
+            var promotions_config = [];
+            if (!requiresPrescription) {
+                var promoTags = ['flash-sale', 'deal', 'discount'];
+                promoTags.forEach(tag => {
+                    var cb = document.querySelector(`input[name="medicineQuickTag"][value="${tag}"]`);
+                    if (cb && cb.checked) {
+                        var configForm = document.getElementById(`promo-config-${tag}`);
+                        if (configForm) {
+                            var discountType = configForm.querySelector('.promo-discount-type').value;
+                            var discountValue = Number(configForm.querySelector('.promo-discount-value').value) || 0;
+                            var campaignQty = configForm.querySelector('.promo-campaign-qty').value;
+                            var maxPerCustomer = configForm.querySelector('.promo-max-per-customer').value;
+                            var startTime = configForm.querySelector('.promo-start-time').value;
+                            var endTime = configForm.querySelector('.promo-end-time').value;
+
+                            if (!discountValue || discountValue <= 0) {
+                                throw validationError(`Giá trị giảm giá của tag "${tag}" phải lớn hơn 0`, 'tab-general');
+                            }
+                            if (discountType === 'percentage' && discountValue > 100) {
+                                throw validationError(`Phần trăm giảm giá của tag "${tag}" không được vượt quá 100%`, 'tab-general');
+                            }
+                            if (!startTime) {
+                                throw validationError(`Mốc thời gian bắt đầu của tag "${tag}" là bắt buộc`, 'tab-general');
+                            }
+                            if (!endTime) {
+                                throw validationError(`Mốc thời gian kết thúc của tag "${tag}" là bắt buộc`, 'tab-general');
+                            }
+                            if (new Date(startTime) >= new Date(endTime)) {
+                                throw validationError(`Thời gian bắt đầu của tag "${tag}" phải trước thời gian kết thúc`, 'tab-general');
+                            }
+
+                            promotions_config.push({
+                                tag_name: tag,
+                                discount_type: discountType,
+                                discount_value: discountValue,
+                                campaign_qty: campaignQty ? Number(campaignQty) : null,
+                                max_per_customer: maxPerCustomer ? Number(maxPerCustomer) : null,
+                                start_time: new Date(startTime).toISOString(),
+                                end_time: new Date(endTime).toISOString()
+                            });
+                        }
+                    }
+                });
+            }
+
+            return {
+                name,
+                strength: strength || null,
+                route_of_administration: route || null,
+                category_id: categoryId,
+                active_ingredient: activeIngredient || null,
+                registration_number: registrationNumber || null,
+                manufacturer: manufacturer || null,
+                requires_prescription: requiresPrescription ? 1 : 0,
+                special_control_group: requiresPrescription ? specialControlGroup : null,
+                storage_condition: storageCondition,
+                base_unit: baseUnit,
+                retail_price: retailPrice,
+                cost_price: costPrice,
+                min_stock_alert: minStockAlert,
+                image_url: getInputValue('medicineImageUrl') || null,
+                barcode: barcode || null,
+                status,
+                tags,
+                promotions_config,
+                unit_conversions: collectUnitConversions(baseUnit, barcode),
+                specifications: buildMedicineSpecifications({
+                    strength,
+                    route,
+                    specialControlGroup: requiresPrescription ? specialControlGroup : '',
+                    storageCondition
+                })
+            };
+        }
+
+        function collectUnitConversions(baseUnit, baseBarcode = '') {
+            var rows = [...document.querySelectorAll('#unitConversionRows tr')];
+            var units = [];
+            var seenNames = new Set([normalizeText(baseUnit)]);
+            var seenBarcodes = new Set(baseBarcode ? [baseBarcode] : []);
+            var previousUnitName = baseUnit;
+
+            rows.forEach((row, index) => {
+                var rowNumber = index + 1;
+                var unitName = getUnitFieldValue(row, 'unit_name');
+                var qtyRaw = getUnitFieldValue(row, 'conversion_qty') || getUnitFieldValue(row, 'qty');
+                var qty = parseFormNumber(qtyRaw);
+                var ofUnit = previousUnitName;
+                var retailPriceRaw = getUnitFieldValue(row, 'retail_price');
+                var retailPrice = parseFormNumber(retailPriceRaw);
+                var barcode = getUnitFieldValue(row, 'barcode');
+
+                if (!unitName && !barcode && !retailPriceRaw && !qtyRaw) return;
+                if (!unitName) throw validationError(`Dòng quy đổi ${rowNumber}: thiếu tên đơn vị`, 'tab-units');
+                if (seenNames.has(normalizeText(unitName))) throw validationError(`Đơn vị "${unitName}" bị trùng hoặc trùng đơn vị cơ bản`, 'tab-units');
+                if (!Number.isFinite(qty) || qty <= 1) throw validationError(`Dòng quy đổi ${rowNumber}: số lượng quy đổi phải lớn hơn 1`, 'tab-units');
+                if (!ofUnit) throw validationError(`Dòng quy đổi ${rowNumber}: thiếu đơn vị gốc`, 'tab-units');
+                if (!barcode) throw validationError(`Dòng quy đổi ${rowNumber}: barcode riêng là bắt buộc`, 'tab-units');
+                if (!Number.isFinite(retailPrice) || retailPrice <= 0) throw validationError(`Dòng quy đổi ${rowNumber}: giá bán phải lớn hơn 0`, 'tab-units');
+                if (barcode) {
+                    if (!/^[A-Za-z0-9._-]{6,100}$/.test(barcode)) throw validationError(`Dòng quy đổi ${rowNumber}: barcode không hợp lệ`, 'tab-units');
+                    if (seenBarcodes.has(barcode)) throw validationError(`Barcode "${barcode}" bị trùng. Mỗi đơn vị bán phải có mã vạch riêng`, 'tab-units');
+                    seenBarcodes.add(barcode);
+                }
+
+                seenNames.add(normalizeText(unitName));
+                units.push({
+                    unit_name: unitName,
+                    conversion_qty: qty,
+                    of_unit: ofUnit,
+                    retail_price: retailPrice,
+                    barcode: barcode || null
+                });
+                previousUnitName = unitName;
+            });
+
+            return units;
+        }
+
+        function getUnitFieldValue(row, fieldName) {
+            return row.querySelector(`[data-unit-field="${fieldName}"]`)?.value.trim() || '';
+        }
+
+        function parseFormNumber(value) {
+            var normalized = String(value || '').replace(/\s/g, '').replace(/,/g, '');
+            if (!normalized) return NaN;
+            return Number(normalized);
+        }
+
+        function buildMedicineSpecifications({ strength, route, specialControlGroup, storageCondition }) {
+            var managedKeys = new Set(['strength', 'route_of_administration', 'special_control_group', 'storage_condition']);
+            var preservedSpecs = catalogState.currentSpecifications.filter((item) => !managedKeys.has(item.spec_key));
+            var managedSpecs = [
+                { spec_key: 'strength', spec_value: strength },
+                { spec_key: 'route_of_administration', spec_value: route },
+                { spec_key: 'special_control_group', spec_value: specialControlGroup },
+                { spec_key: 'storage_condition', spec_value: storageCondition }
+            ].filter((item) => item.spec_value);
+            return [...preservedSpecs, ...managedSpecs];
+        }
+
+        function specificationsToMap(specifications = []) {
+            return (Array.isArray(specifications) ? specifications : []).reduce((acc, item) => {
+                acc[item.spec_key] = item.spec_value;
+                return acc;
+            }, {});
+        }
+
+        function toggleSpecialControlGroup() {
+            var checked = document.getElementById('requirePre')?.checked;
+            var wrapper = document.getElementById('specialControlGroupWrapper');
+            if (!wrapper) return;
+            wrapper.style.display = checked ? 'block' : 'none';
+            if (!checked) setInputValue('medicineSpecialControlGroup', '');
+            applySpecialControlStorageRule();
+        }
+
+        function togglePromoConfigs() {
+            var requirePre = document.getElementById('requirePre')?.checked;
+            var rxWarning = document.getElementById('rxPromoWarning');
+            var promoWrapper = document.getElementById('promotionConfigsWrapper');
+            
+            var promoTags = ['flash-sale', 'deal', 'discount'];
+            var hasActivePromoTag = false;
+            
+            promoTags.forEach(tag => {
+                var cb = document.querySelector(`input[name="medicineQuickTag"][value="${tag}"]`);
+                var configForm = document.getElementById(`promo-config-${tag}`);
+                if (cb) {
+                    if (requirePre) {
+                        cb.checked = false;
+                        cb.disabled = true;
+                        if (configForm) configForm.style.display = 'none';
+                    } else {
+                        cb.disabled = false;
+                        if (cb.checked) {
+                            if (configForm) configForm.style.display = 'block';
+                            hasActivePromoTag = true;
+                            updatePromoPreview(tag);
+                        } else {
+                            if (configForm) configForm.style.display = 'none';
+                        }
+                    }
+                }
+            });
+            
+            if (requirePre) {
+                if (rxWarning) rxWarning.style.display = 'flex';
+                if (promoWrapper) promoWrapper.style.display = 'none';
+            } else {
+                if (rxWarning) rxWarning.style.display = 'none';
+                if (promoWrapper) {
+                    promoWrapper.style.display = hasActivePromoTag ? 'block' : 'none';
+                }
+            }
+        }
+
+        function updatePromoPreview(tag) {
+            var retailPrice = Number(document.getElementById('medicineRetailPrice')?.value) || 0;
+            var configForm = document.getElementById(`promo-config-${tag}`);
+            if (!configForm) return;
+            
+            var discountType = configForm.querySelector('.promo-discount-type').value;
+            var discountValue = Number(configForm.querySelector('.promo-discount-value').value) || 0;
+            var previewEl = configForm.querySelector('.promo-preview');
+            
+            if (retailPrice <= 0) {
+                previewEl.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Vui lòng nhập giá bán lẻ hợp lệ ở Tab Đơn vị tính để xem trước giá sau giảm.</span>`;
+                return;
+            }
+            
+            var promoPrice = 0;
+            var percentText = '';
+            
+            if (discountType === 'percentage') {
+                if (discountValue < 0 || discountValue > 100) {
+                    previewEl.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Phần trăm giảm giá phải từ 0% đến 100%.</span>`;
+                    return;
+                }
+                promoPrice = Math.max(0, retailPrice - (retailPrice * discountValue / 100));
+                percentText = `giảm ${discountValue}%`;
+            } else {
+                if (discountValue < 0) {
+                    previewEl.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Giá trị giảm phải lớn hơn hoặc bằng 0.</span>`;
+                    return;
+                }
+                if (discountValue > retailPrice) {
+                    previewEl.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Giá trị giảm không được lớn hơn giá bán lẻ gốc (${formatVnd(retailPrice)}).</span>`;
+                    return;
+                }
+                promoPrice = Math.max(0, retailPrice - discountValue);
+                var pct = retailPrice > 0 ? Math.round((discountValue / retailPrice) * 100) : 0;
+                percentText = `giảm còn ${formatVnd(promoPrice)} (giảm ~${pct}%)`;
+            }
+            
+            previewEl.innerHTML = `<span style="color:#166534;"><i class="fa-solid fa-circle-check"></i> Giá gốc: <strong>${formatVnd(retailPrice)}</strong> &rarr; Giá bán lẻ mới: <strong style="color:#ef4444; font-size:13px;">${formatVnd(promoPrice)}</strong> (${percentText})</span>`;
+        }
+
+        function resetPromotionFormFields() {
+            var promoTags = ['flash-sale', 'deal', 'discount'];
+            promoTags.forEach(tag => {
+                var configForm = document.getElementById(`promo-config-${tag}`);
+                if (configForm) {
+                    configForm.querySelector('.promo-discount-type').value = 'percentage';
+                    configForm.querySelector('.promo-discount-value').value = '';
+                    configForm.querySelector('.promo-campaign-qty').value = '';
+                    configForm.querySelector('.promo-max-per-customer').value = '';
+                    configForm.querySelector('.promo-start-time').value = '';
+                    configForm.querySelector('.promo-end-time').value = '';
+                    configForm.querySelector('.promo-preview').innerHTML = 'Bảng giá xem trước: Hãy nhập giá bán lẻ và giá trị giảm giá.';
+                }
+            });
+            var wrapper = document.getElementById('promotionConfigsWrapper');
+            if (wrapper) wrapper.style.display = 'none';
+            var warning = document.getElementById('rxPromoWarning');
+            if (warning) warning.style.display = 'none';
+        }
+
+        function formatDateTimeLocal(dateStr) {
+            if (!dateStr) return '';
+            var d = new Date(dateStr);
+            if (isNaN(d.getTime())) return '';
+            var year = d.getFullYear();
+            var month = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            var hours = String(d.getHours()).padStart(2, '0');
+            var minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function applySpecialControlStorageRule() {
+            var specialControlGroup = getInputValue('medicineSpecialControlGroup');
+            var storageSelect = document.getElementById('medicineStorageCondition');
+            if (!storageSelect) return;
+            if (isControlledSpecialGroup(specialControlGroup)) {
+                storageSelect.value = 'Tủ khóa kiểm soát đặc biệt';
+            }
+        }
+
+        function applyCategoryBusinessHints() {
+            var categoryId = Number(getInputValue('medicineCategory'));
+            if (isMedicineCategory(categoryId)) {
+                document.getElementById('medicineRoute')?.setAttribute('required', 'required');
+                document.getElementById('medicineStrength')?.setAttribute('required', 'required');
+                return;
+            }
+            document.getElementById('medicineRoute')?.removeAttribute('required');
+            document.getElementById('medicineStrength')?.removeAttribute('required');
+        }
+
+        function isControlledSpecialGroup(value) {
+            return ['Thuốc gây nghiện', 'Thuốc hướng tâm thần', 'Tiền chất', 'Thuốc độc'].includes(value);
+        }
+
+        function isMedicineCategory(categoryId) {
+            var lineage = getCategoryLineage(categoryId);
+            return lineage.some((category) => Number(category.id) === 1000)
+                || lineage.some((category) => normalizeText(category.name).includes('thuoc'));
+        }
+
+        function getCategoryLineage(categoryId) {
+            var lineage = [];
+            var currentId = Number(categoryId);
+            var visited = new Set();
+            while (Number.isInteger(currentId) && currentId > 0 && !visited.has(currentId)) {
+                visited.add(currentId);
+                var category = catalogState.categories.find((item) => Number(item.id) === currentId);
+                if (!category) break;
+                lineage.push(category);
+                currentId = Number(category.parent_id || 0);
+            }
+            return lineage;
+        }
+
+        function renderUnitRows(units = []) {
+            var body = document.getElementById('unitConversionRows');
+            if (!body) return;
+            body.innerHTML = '';
+            units.forEach((unit) => addUnitRow(unit));
+        }
+
+        function addUnitRow(unit = {}) {
+            var body = document.getElementById('unitConversionRows');
+            if (!body) return;
+            var tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="padding:12px;"><input type="text" class="form-input" data-unit-field="unit_name" value="${escapeHtml(unit.unit_name || '')}" placeholder="VD: Vỉ, Hộp" style="height:34px;"></td>
+                <td style="padding:12px;"><input type="number" class="form-input" data-unit-field="conversion_qty" value="${escapeHtml(unit.conversion_qty || '')}" min="2" placeholder="10" style="height:34px;"></td>
+                <input type="hidden" data-unit-field="of_unit" value="${escapeHtml(unit.of_unit || getInputValue('medicineBaseUnit'))}">
+                <td style="padding:12px;"><input type="text" class="form-input" data-unit-field="barcode" value="${escapeHtml(unit.barcode || '')}" placeholder="Bắt buộc" style="height:34px;"></td>
+                <td style="padding:12px;">
+                    <div style="position:relative;">
+                        <input type="number" class="form-input" data-unit-field="retail_price" value="${escapeHtml(unit.retail_price || '')}" min="0" placeholder="0" style="height:34px;padding-right:48px;">
+                        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:#9ca3af;">VNĐ</span>
+                    </div>
+                </td>
+                <td style="padding:12px;text-align:center;"><button type="button" class="dyn-del-btn" style="color:#ef4444;" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            body.appendChild(tr);
+        }
+
+        function handleProductImageFiles(event) {
+            var files = Array.from(event.target.files || []);
+            var allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+            var hasPrimary = catalogState.currentImages.some((image) => Number(image.is_primary) === 1)
+                || catalogState.pendingImages.some((image) => image.isPrimary);
+
+            files.forEach((file, index) => {
+                if (!allowedTypes.has(file.type)) {
+                    showAdminCatalogToast(`Ảnh "${file.name}" không đúng định dạng JPG, PNG hoặc WebP`, 'error');
+                    return;
+                }
+                if (file.size > 8 * 1024 * 1024) {
+                    showAdminCatalogToast(`Ảnh "${file.name}" vượt quá 8MB`, 'error');
+                    return;
+                }
+                catalogState.pendingImages.push({
+                    tempId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                    file,
+                    previewUrl: URL.createObjectURL(file),
+                    isPrimary: !hasPrimary && index === 0
+                });
+            });
+
+            event.target.value = '';
+            renderProductImageManager();
+        }
+
+        function renderProductImageManager() {
+            var grid = document.getElementById('medicineImageGrid');
+            if (!grid) return;
+
+            var currentCards = catalogState.currentImages.map((image) => `
+                <div class="product-image-card" draggable="true" data-image-id="${Number(image.id)}" ondragstart="onProductImageDragStart(event)" ondragover="onProductImageDragOver(event)" ondrop="onProductImageDrop(event)" ondragend="onProductImageDragEnd(event)">
+                    <span class="product-image-drag" title="Kéo để sắp xếp"><i class="fa-solid fa-grip-vertical"></i></span>
+                    ${Number(image.is_primary) === 1 ? '<span class="product-image-badge">Ảnh chính</span>' : ''}
+                    <img src="${escapeHtml(image.public_url || image.image_url || imageFallback)}" alt="${escapeHtml(image.alt_text || image.original_name || 'Ảnh sản phẩm')}" onerror="this.onerror=null;this.src='${imageFallback}'">
+                    <div class="product-image-name">${escapeHtml(image.original_name || image.file_name || 'Ảnh đã tải')}</div>
+                    <div class="product-image-meta">
+                        <select ${Number(image.is_primary) === 1 ? 'disabled' : ''} onchange="updateProductImageMeta(${Number(image.id)}, { image_role: this.value })">
+                            ${renderImageRoleOptions(image.image_role || (Number(image.is_primary) === 1 ? 'main' : 'gallery'))}
+                        </select>
+                        <input type="text" value="${escapeHtml(image.alt_text || '')}" placeholder="Alt text / ghi chú ảnh" onblur="updateProductImageMeta(${Number(image.id)}, { alt_text: this.value })">
+                    </div>
+                    <div class="product-image-actions">
+                        <button type="button" onclick="setPrimaryProductImage(${Number(image.id)})" ${Number(image.is_primary) === 1 ? 'disabled' : ''}>Chính</button>
+                        <button type="button" class="danger" onclick="deleteProductImage(${Number(image.id)})">Xóa</button>
+                    </div>
+                </div>
+            `);
+
+            var pendingCards = catalogState.pendingImages.map((image) => `
+                <div class="product-image-card">
+                    ${image.isPrimary ? '<span class="product-image-badge">Ảnh chính</span>' : ''}
+                    <img src="${escapeHtml(image.previewUrl)}" alt="${escapeHtml(image.file.name)}">
+                    <div class="product-image-name">${escapeHtml(image.file.name)}</div>
+                    <div class="product-image-actions">
+                        <button type="button" onclick="setPendingPrimaryImage('${escapeHtml(image.tempId)}')" ${image.isPrimary ? 'disabled' : ''}>Chính</button>
+                        <button type="button" class="danger" onclick="removePendingProductImage('${escapeHtml(image.tempId)}')">Xóa</button>
+                    </div>
+                </div>
+            `);
+
+            grid.innerHTML = [...currentCards, ...pendingCards].join('')
+                || '<div class="product-image-empty">Chưa có ảnh sản phẩm. Ảnh chính sẽ hiển thị trên catalog, POS và client.</div>';
+        }
+
+        function renderImageRoleOptions(selectedRole = 'gallery') {
+            var roles = [
+                ['main', 'Ảnh chính'],
+                ['gallery', 'Ảnh phụ'],
+                ['packaging', 'Bao bì'],
+                ['label', 'Nhãn thuốc'],
+                ['certificate', 'Giấy tờ']
+            ];
+            return roles.map(([value, label]) => `<option value="${value}" ${selectedRole === value ? 'selected' : ''}>${label}</option>`).join('');
+        }
+
+        function setPendingPrimaryImage(tempId) {
+            catalogState.currentImages = catalogState.currentImages.map((image) => ({ ...image, is_primary: 0 }));
+            catalogState.pendingImages = catalogState.pendingImages.map((image) => ({
+                ...image,
+                isPrimary: image.tempId === tempId
+            }));
+            renderProductImageManager();
+        }
+
+        function removePendingProductImage(tempId) {
+            var removed = catalogState.pendingImages.find((image) => image.tempId === tempId);
+            if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+            catalogState.pendingImages = catalogState.pendingImages.filter((image) => image.tempId !== tempId);
+            ensureOnePrimaryImage();
+            renderProductImageManager();
+        }
+
+        async function setPrimaryProductImage(imageId) {
+            if (!catalogState.editingProductId || !imageId) return;
+            try {
+                await window.MGAdminCatalogApi.put(`/products/${encodeURIComponent(catalogState.editingProductId)}/images/${encodeURIComponent(imageId)}/primary`, {});
+                catalogState.currentImages = catalogState.currentImages.map((image) => ({
+                    ...image,
+                    is_primary: Number(image.id) === Number(imageId) ? 1 : 0,
+                    image_role: Number(image.id) === Number(imageId) ? 'main' : (image.image_role === 'main' ? 'gallery' : image.image_role)
+                }));
+                catalogState.pendingImages = catalogState.pendingImages.map((image) => ({ ...image, isPrimary: false }));
+                renderProductImageManager();
+                showAdminCatalogToast('Đã đặt ảnh chính');
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không đặt được ảnh chính', 'error');
+            }
+        }
+
+        async function deleteProductImage(imageId) {
+            if (!catalogState.editingProductId || !imageId) return;
+            if (!confirm('Xóa ảnh sản phẩm này khỏi catalog?')) return;
+            try {
+                await window.MGAdminCatalogApi.delete(`/products/${encodeURIComponent(catalogState.editingProductId)}/images/${encodeURIComponent(imageId)}`);
+                catalogState.currentImages = catalogState.currentImages.filter((image) => Number(image.id) !== Number(imageId));
+                ensureOnePrimaryImage();
+                renderProductImageManager();
+                showAdminCatalogToast('Đã xóa ảnh sản phẩm');
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không xóa được ảnh sản phẩm', 'error');
+            }
+        }
+
+        async function updateProductImageMeta(imageId, changes) {
+            if (!catalogState.editingProductId || !imageId) return;
+            var image = catalogState.currentImages.find((item) => Number(item.id) === Number(imageId));
+            if (!image) return;
+            if (Number(image.is_primary) === 1 && changes.image_role && changes.image_role !== 'main') {
+                showAdminCatalogToast('Ảnh chính phải giữ vai trò Ảnh chính', 'error');
+                renderProductImageManager();
+                return;
+            }
+            try {
+                var result = await window.MGAdminCatalogApi.put(
+                    `/products/${encodeURIComponent(catalogState.editingProductId)}/images/${encodeURIComponent(imageId)}`,
+                    changes
+                );
+                var updated = result.data || {};
+                catalogState.currentImages = catalogState.currentImages.map((item) => (
+                    Number(item.id) === Number(imageId) ? { ...item, ...updated } : item
+                ));
+                renderProductImageManager();
+                showAdminCatalogToast('Đã cập nhật thông tin ảnh');
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không cập nhật được ảnh', 'error');
+                renderProductImageManager();
+            }
+        }
+
+        function onProductImageDragStart(event) {
+            var card = event.currentTarget;
+            catalogState.draggingImageId = Number(card.dataset.imageId || 0);
+            card.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', String(catalogState.draggingImageId));
+        }
+
+        function onProductImageDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        }
+
+        async function onProductImageDrop(event) {
+            event.preventDefault();
+            var fromId = Number(catalogState.draggingImageId || event.dataTransfer.getData('text/plain') || 0);
+            var toId = Number(event.currentTarget.dataset.imageId || 0);
+            if (!fromId || !toId || fromId === toId) return;
+
+            var fromIndex = catalogState.currentImages.findIndex((image) => Number(image.id) === fromId);
+            var toIndex = catalogState.currentImages.findIndex((image) => Number(image.id) === toId);
+            if (fromIndex < 0 || toIndex < 0) return;
+
+            var reordered = [...catalogState.currentImages];
+            var [moved] = reordered.splice(fromIndex, 1);
+            reordered.splice(toIndex, 0, moved);
+            catalogState.currentImages = reordered.map((image, index) => ({ ...image, sort_order: index }));
+            renderProductImageManager();
+            await saveProductImageOrder();
+        }
+
+        function onProductImageDragEnd(event) {
+            event.currentTarget.classList.remove('dragging');
+            catalogState.draggingImageId = null;
+        }
+
+        async function saveProductImageOrder() {
+            if (!catalogState.editingProductId || catalogState.currentImages.length < 2) return;
+            try {
+                var imageIds = catalogState.currentImages.map((image) => Number(image.id)).filter(Boolean);
+                var result = await window.MGAdminCatalogApi.put(
+                    `/products/${encodeURIComponent(catalogState.editingProductId)}/images/reorder`,
+                    { image_ids: imageIds }
+                );
+                if (Array.isArray(result.data)) catalogState.currentImages = result.data;
+                renderProductImageManager();
+                showAdminCatalogToast('Đã lưu thứ tự ảnh');
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không lưu được thứ tự ảnh', 'error');
+            }
+        }
+
+        function ensureOnePrimaryImage() {
+            var hasPrimary = catalogState.currentImages.some((image) => Number(image.is_primary) === 1)
+                || catalogState.pendingImages.some((image) => image.isPrimary);
+            if (hasPrimary) return;
+            if (catalogState.currentImages.length) {
+                catalogState.currentImages[0].is_primary = 1;
+            } else if (catalogState.pendingImages.length) {
+                catalogState.pendingImages[0].isPrimary = true;
+            }
+        }
+
+        async function uploadPendingProductImages(productId) {
+            if (!Number(productId)) throw new Error('Không xác định được thuốc để tải ảnh');
+            for (let index = 0; index < catalogState.pendingImages.length; index += 1) {
+                var image = catalogState.pendingImages[index];
+                var dataBase64 = await fileToBase64(image.file);
+                await window.MGAdminCatalogApi.post(`/products/${encodeURIComponent(productId)}/images`, {
+                    original_name: image.file.name,
+                    mime_type: image.file.type,
+                    data_base64: dataBase64,
+                    image_role: image.isPrimary ? 'main' : 'gallery',
+                    is_primary: image.isPrimary ? 1 : 0,
+                    sort_order: catalogState.currentImages.length + index
+                });
+            }
+            catalogState.pendingImages.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+            catalogState.pendingImages = [];
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                var reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error(`Không đọc được file ảnh "${file.name}"`));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function deactivateMedicine(productId) {
+            var productName = document.querySelector(`[data-product-name="${Number(productId)}"]`)?.textContent.trim();
+            var confirmed = confirm(`Ngừng kinh doanh thuốc "${productName || productId}"?\n\nThao tác này chỉ ẩn sản phẩm khỏi bán mới, không xóa lô hàng và lịch sử tồn kho.`);
+            if (!confirmed) return;
+            try {
+                await window.MGAdminCatalogApi.put(`/products/${encodeURIComponent(productId)}`, { status: 'inactive' });
+                showAdminCatalogToast('Đã chuyển thuốc sang trạng thái ngừng kinh doanh');
+                catalogState.batchCache.clear();
+                await loadCatalogInventory();
+                if (catalogState.activeTab !== 'tab-master') switchMainTab('tab-master');
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không thể ngừng kinh doanh thuốc', 'error');
+            }
+        }
+
+        async function changeMedicineStatus(productId, nextStatus) {
+            var id = Number(productId);
+            if (!id) return;
+            var statusMeta = getProductStatusMeta(nextStatus);
+            var productName = document.querySelector(`[data-product-name="${id}"]`)?.textContent.trim() || `#${id}`;
+            var messageMap = {
+                pending_review: `Chuyển thuốc "${productName}" sang trạng thái chờ duyệt?`,
+                active: `Duyệt và public thuốc "${productName}" ra client/POS?`,
+                rejected: `Từ chối public thuốc "${productName}"?`,
+                draft: `Đưa thuốc "${productName}" về bản nháp?`,
+                inactive: `Ngừng kinh doanh thuốc "${productName}"?`
+            };
+            if (!confirm(messageMap[nextStatus] || `Chuyển trạng thái thuốc "${productName}" sang ${statusMeta.label}?`)) return;
+            try {
+                await window.MGAdminCatalogApi.put(`/products/${encodeURIComponent(id)}`, { status: nextStatus });
+                showAdminCatalogToast(`Đã chuyển thuốc sang ${statusMeta.label}`);
+                catalogState.batchCache.clear();
+                await loadCatalogInventory();
+                if (catalogState.activeTab !== 'tab-master') switchMainTab('tab-master');
+            } catch (err) {
+                showAdminCatalogToast(err.message || 'Không đổi được trạng thái thuốc', 'error');
+            }
+        }
+
+        function setInputValue(id, value) {
+            var el = document.getElementById(id);
+            if (el) el.value = value ?? '';
+        }
+
+        function getInputValue(id) {
+            return document.getElementById(id)?.value.trim() || '';
+        }
+
+        function validationError(message, tab) {
+            var err = new Error(message);
+            err.tab = tab;
+            return err;
+        }
+
+        function setSaveLoading(isLoading, label = 'Đang lưu...') {
+            var btn = document.getElementById('saveMedicineBtn');
+            if (!btn) return;
+            btn.disabled = isLoading;
+            btn.innerHTML = isLoading
+                ? `<i class="fa-solid fa-spinner fa-spin"></i> ${escapeHtml(label)}`
+                : '<i class="fa-solid fa-floppy-disk"></i> Lưu Thuốc (Save Medicine)';
+        }
+
+        function showAdminCatalogToast(message, type = 'success') {
+            var toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:14px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);display:flex;align-items:center;gap:10px;max-width:420px;';
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}" style="color:${type === 'error' ? '#ef4444' : '#10b981'};font-size:16px;"></i><span>${escapeHtml(message)}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity .35s, transform .35s';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 350);
+            }, 3000);
+        }
+
+        function renderPagination(type, total, page, limit) {
+            var info = document.getElementById(type === 'stock' ? 'stockPageInfo' : 'masterPageInfo');
+            var controls = document.getElementById(type === 'stock' ? 'stockPageControls' : 'masterPageControls');
+            var totalPages = Math.max(1, Math.ceil(Number(total || 0) / limit));
+            var from = total ? ((page - 1) * limit) + 1 : 0;
+            var to = Math.min(page * limit, total);
+            if (info) info.textContent = type === 'stock'
+                ? `Hiển thị ${from} - ${to} trên ${formatNumber(total)} sản phẩm tồn kho`
+                : `Hiển thị ${from} - ${to} trên ${formatNumber(total)} sản phẩm`;
+            if (!controls) return;
+            controls.innerHTML = `
+                <button class="btn-page" ${page <= 1 ? 'disabled' : ''} onclick="changeCatalogPage('${type}', ${page - 1})"><i class="fa-solid fa-chevron-left"></i></button>
+                ${renderPageButtons(type, page, totalPages)}
+                <button class="btn-page" ${page >= totalPages ? 'disabled' : ''} onclick="changeCatalogPage('${type}', ${page + 1})"><i class="fa-solid fa-chevron-right"></i></button>
+            `;
+        }
+
+        function renderPageButtons(type, page, totalPages) {
+            var pages = new Set([1, totalPages, page - 1, page, page + 1]);
+            return [...pages]
+                .filter((item) => item >= 1 && item <= totalPages)
+                .sort((a, b) => a - b)
+                .map((item, index, list) => {
+                    var gap = index > 0 && item - list[index - 1] > 1 ? '<button class="btn-page" disabled>...</button>' : '';
+                    return `${gap}<button class="btn-page ${item === page ? 'active' : ''}" onclick="changeCatalogPage('${type}', ${item})">${item}</button>`;
+                })
+                .join('');
+        }
+
+        function changeCatalogPage(type, page) {
+            if (type === 'stock') {
+                catalogState.stockPage = Math.max(1, page);
+                renderStockTable();
+            } else {
+                catalogState.masterPage = Math.max(1, page);
+                renderMasterTable();
+            }
+        }
+
+        var originalSwitchMainTab = window.switchMainTab;
+        window.switchMainTab = function (tabId) {
+            catalogState.activeTab = tabId;
+            originalSwitchMainTab(tabId);
+            reloadCatalogView();
+        };
+
+        function setCatalogLoading(isLoading) {
+            catalogState.loading = isLoading;
+            if (isLoading) {
+                document.getElementById('stockTableBody').innerHTML = loadingRow(7, 'Đang tải tồn kho từ catalog...');
+                document.getElementById('masterTableBody').innerHTML = loadingRow(8, 'Đang tải danh mục thuốc từ catalog...');
+            }
+        }
+
+        function loadingRow(colspan, message) {
+            return `<tr><td colspan="${colspan}" style="text-align:center;color:#6b7280;padding:32px;">${escapeHtml(message)}</td></tr>`;
+        }
+
+        function emptyRow(colspan, message) {
+            return `<tr><td colspan="${colspan}" style="text-align:center;color:#6b7280;padding:32px;">${escapeHtml(message)}</td></tr>`;
+        }
+
+        function renderTableError(tbodyId, colspan, message) {
+            var body = document.getElementById(tbodyId);
+            if (body) body.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center;color:#ef4444;padding:32px;">${escapeHtml(message)}</td></tr>`;
+        }
+
+        function debounce(fn, wait) {
+            var timer = null;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), wait);
+            };
+        }
+
+        function chunkArray(items, size) {
+            var chunks = [];
+            for (let i = 0; i < items.length; i += size) chunks.push(items.slice(i, i + size));
+            return chunks;
+        }
+
+        function normalizeText(value) {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .toLowerCase();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeJs(value) {
+            return String(value ?? '')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/\n/g, ' ');
+        }
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('vi-VN').format(Number(value || 0));
+        }
+
+        function formatVnd(value) {
+            return `${formatNumber(value)}₫`;
+        }
+
+        function formatCompactVnd(value) {
+            var amount = Number(value || 0);
+            if (amount >= 1000000000) return `${(amount / 1000000000).toFixed(1).replace('.0', '')}B`;
+            if (amount >= 1000000) return `${(amount / 1000000).toFixed(1).replace('.0', '')}M`;
+            return formatNumber(amount);
+        }
+
+        function formatDate(value) {
+            if (!value) return '--';
+            var date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '--';
+            return date.toLocaleDateString('vi-VN');
+        }
+
+        function formatDateTime(value) {
+            if (!value) return '--';
+            var date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '--';
+            return date.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function daysUntil(value) {
+            if (!value) return null;
+            var date = new Date(value);
+            if (Number.isNaN(date.getTime())) return null;
+            return Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        }
+
+        function renderCustomTagsChips() {
+            var container = document.getElementById('medicineCustomTagsList');
+            if (!container) return;
+            var tags = catalogState.currentTags || [];
+            container.innerHTML = tags.map((t, idx) => `
+                <span style="background:#e2e8f0; color:#475569; padding:4px 10px; border-radius:12px; font-size:12px; display:inline-flex; align-items:center; gap:6px; font-weight:500; margin-bottom: 4px;">
+                    # ${escapeHtml(t)}
+                    <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:11px;" onclick="removeCustomTag(${idx})"></i>
+                </span>
+            `).join('');
+        }
+
+        function removeCustomTag(idx) {
+            catalogState.currentTags.splice(idx, 1);
+            renderCustomTagsChips();
+        }
+
+        // Add keydown listener on custom tag input
+        document.addEventListener('DOMContentLoaded', () => {
+            var tagInput = document.getElementById('medicineCustomTagInput');
+            if (tagInput) {
+                tagInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        var val = tagInput.value.trim().toLowerCase().replace(/\s+/g, '-');
+                        if (val) {
+                            if (!/^[a-z0-9_-]+$/.test(val)) {
+                                showAdminCatalogToast('Tag chỉ được chứa chữ thường, số, dấu gạch nối hoặc gạch dưới', 'error');
+                                return;
+                            }
+                            if (!catalogState.currentTags) catalogState.currentTags = [];
+                            var standardTags = ['flash-sale', 'deal', 'best-seller', 'discount', 'exclusive', 'imported', 'trending'];
+                            if (standardTags.includes(val)) {
+                                var cb = document.querySelector(`input[name="medicineQuickTag"][value="${val}"]`);
+                                if (cb) cb.checked = true;
+                            } else if (!catalogState.currentTags.includes(val)) {
+                                catalogState.currentTags.push(val);
+                                renderCustomTagsChips();
+                            }
+                            tagInput.value = '';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- ============ PRINT BARCODE LABELS MODAL ============ -->
+    <div class="standard-modal-overlay" id="printBarcodeModal">
+        <div class="standard-modal-container" style="max-width: 800px;">
+            <div class="standard-modal-header">
+                <h3 class="standard-modal-title"><i class="fa-solid fa-barcode"
+                        style="margin-right:8px;color:var(--admin-primary)"></i> In Tem Nhãn Mã Vạch (Print Barcodes)
+                </h3>
+                <button class="standard-modal-close" onclick="closePrintBarcodeModal()"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="standard-modal-body" style="background:#f8fafc;">
+                <div style="display:flex;gap:24px;">
+                    <!-- Left: Settings -->
+                    <div
+                        style="flex:1;background:white;padding:20px;border-radius:8px;border:1px solid var(--admin-border);">
+                        <h4
+                            style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:16px;border-bottom:1px solid var(--admin-border);padding-bottom:8px;">
+                            Cài đặt in ấn</h4>
+
+                        <div class="form-group">
+                            <label class="form-label">Chọn sản phẩm (Search Medicine)</label>
+                            <input type="text" class="form-input" placeholder="Nhập tên thuốc hoặc mã SKU..."
+                                value="Panadol Extra (Hộp 12 viên)">
+                        </div>
+
+                        <div class="form-group" style="margin-top:16px;">
+                            <label class="form-label">Số lượng tem cần in</label>
+                            <input type="number" class="form-input" value="50" min="1">
+                        </div>
+
+                        <div class="form-group" style="margin-top:16px;">
+                            <label class="form-label">Kích thước giấy in (Paper Size)</label>
+                            <select class="form-select">
+                                <option>Cuộn tiêu chuẩn Nhà thuốc (35x22mm)</option>
+                                <option>Tem dán hộp lớn (50x30mm)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Right: Print Preview -->
+                    <div
+                        style="flex:1;background:white;padding:20px;border-radius:8px;border:1px solid var(--admin-border);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                        <h4
+                            style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:16px;width:100%;text-align:left;">
+                            Bản xem trước (Print Preview)</h4>
+
+                        <!-- Mock Label View -->
+                        <div
+                            style="width: 250px; height: 140px; border: 1px dashed #9ca3af; padding: 12px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; background:#fff;">
+                            <div
+                                style="font-size:11px;font-weight:600;color:#1e293b;text-align:center;line-height:1.2;">
+                                Panadol Extra (Hộp 12 viên)</div>
+                            <div style="font-size:16px;font-weight:800;color:#1e293b;">45,000₫</div>
+
+                            <!-- CSS Mock Barcode -->
+                            <div style="display:flex;height:40px;align-items:flex-end;gap:2px;margin-top:4px;">
+                                <div style="width:2px;height:40px;background:#000;"></div>
+                                <div style="width:1px;height:40px;background:#000;"></div>
+                                <div style="width:4px;height:40px;background:#000;"></div>
+                                <div style="width:1px;height:40px;background:#000;"></div>
+                                <div style="width:2px;height:40px;background:#000;"></div>
+                                <div style="width:1px;height:40px;background:#000;"></div>
+                                <div style="width:3px;height:40px;background:#000;"></div>
+                                <div style="width:1px;height:40px;background:#000;"></div>
+                                <div style="width:2px;height:40px;background:#000;"></div>
+                                <div style="width:2px;height:40px;background:#000;"></div>
+                                <div style="width:4px;height:40px;background:#000;"></div>
+                                <div style="width:1px;height:40px;background:#000;"></div>
+                                <div style="width:2px;height:40px;background:#000;"></div>
+                                <div style="width:1px;height:40px;background:#000;"></div>
+                                <div style="width:3px;height:40px;background:#000;"></div>
+                                <div style="width:1px;height:40px;background:#000;"></div>
+                                <div style="width:2px;height:40px;background:#000;"></div>
+                            </div>
+
+                            <div style="font-size:10px;color:#6b7280;margin-top:2px;letter-spacing:1px;">MED-PAN012
+                            </div>
+                        </div>
+                        <p style="font-size:12px;color:#6b7280;margin-top:16px;text-align:center;">Dữ liệu in thực tế sẽ
+                            lấy trực tiếp từ máy quét mã vạch và máy in nhiệt.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="standard-modal-footer">
+                <button class="btn-secondary" onclick="closePrintBarcodeModal()">Hủy Quay Lại</button>
+                <button class="btn-primary" onclick="showToast('Đang gửi lệnh in 50 tem tới máy in nhiệt...', 'info')"><i
+                        class="fa-solid fa-print"></i> Gửi Lệnh In (Send to Printer)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPrintBarcodeModal() {
+            document.getElementById('printBarcodeModal').classList.add('open');
+        }
+
+        function closePrintBarcodeModal() {
+            document.getElementById('printBarcodeModal').classList.remove('open');
+        }
+    </script>
+</body>
+
+</html>

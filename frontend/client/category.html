@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thuốc — Nhà Thuốc Minh Giang</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ====== CATEGORY PAGE STYLES ====== */
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f3f4f6; /* Đảm bảo nền xám nhạt để khối trắng nổi lên */
+        }
+        
+        .breadcrumb {
+            padding: 12px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: #0b7a3e;
+            text-decoration: none;
+        }
+
+        .category-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+            padding-bottom: 40px;
+        }
+
+        /* --- SIDEBAR --- */
+        .cat-sidebar {
+            background: #fff;
+            font-size: 14px;
+            align-self: start;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .cat-sidebar > h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 20px 0;
+            padding-bottom: 0;
+            border-bottom: none;
+            text-transform: none;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-section h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #4b5563;
+            margin: 0 0 12px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .sidebar-section h4 i {
+            color: #9ca3af;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        /* Price Blocks */
+        .price-block-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .price-block-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            background: #fff;
+            text-align: left;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .price-block-btn:hover, .price-block-btn.active {
+            border-color: #0b7a3e;
+            color: #0b7a3e;
+            background: #f0fdf4;
+        }
+
+        /* Filter Search Box */
+        .filter-search-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+        .filter-search-box input {
+            width: 100%;
+            padding: 8px 12px 8px 32px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+        }
+        .filter-search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .filter-check-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Custom scrollbar for filter list */
+        .filter-check-list::-webkit-scrollbar { width: 6px; }
+        .filter-check-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        .filter-check-list::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+
+        .filter-check-list li {
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4b5563;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .filter-check-list li input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0b7a3e;
+            cursor: pointer;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .cat-main { min-width: 0; }
+
+        .cat-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #116a35;
+            margin-bottom: 20px;
+        }
+
+        /* Sub Categories Grid */
+        .subcats-container {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .subcat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .subcat-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .subcat-card:hover {
+            border-color: #0b7a3e;
+            box-shadow: 0 4px 12px rgba(11, 122, 62, 0.1);
+        }
+
+        .subcat-icon {
+            width: 40px;
+            height: 40px;
+            background: #116a35;
+            color: #fff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .btn-view-more-subcat {
+            display: block;
+            text-align: center;
+            margin: 20px auto 0 auto;
+            color: #1f2937;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        /* Tabs (Kê đơn / Không kê đơn) */
+        .cat-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 16px;
+        }
+
+        .cat-tab-btn {
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: #fff;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-tab-btn.active {
+            border-color: #0b7a3e;
+            color: #0b7a3e;
+            background: #f0fdf4;
+        }
+
+        /* Toolbar Sort */
+        .cat-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .cat-toolbar select {
+            padding: 8px 32px 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: #fff;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23374151%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px top 50%;
+            background-size: 10px auto;
+        }
+
+        /* Product Grid: Override for 4 columns */
+        .cat-main .product-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+            padding: 0;
+            background: none;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 40px;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover, .page-btn.active {
+            background: #0b7a3e;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .page-ellipsis {
+            color: #9ca3af;
+            font-weight: 700;
+            padding: 0 4px;
+        }
+
+
+        /* --- TOP SEARCHES --- */
+        .top-searches {
+            margin-top: 30px;
+            padding: 20px 0;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .top-searches h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 14px;
+        }
+
+        .top-search-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-search-links a {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4b5563;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .top-search-links a:hover {
+            border-color: #0b7a3e;
+            color: #0b7a3e;
+            background: #ecfdf5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Banner -->
+    <div mg-include="../components/header_banner.html"></div>
+
+    <!-- Top Bar -->
+    <div mg-include="../components/top_bar.html"></div>
+
+    <!-- Main Header -->
+    <div mg-include="../components/main_header.html"></div>
+
+    <!-- ====== CATEGORY PAGE CONTENT ====== -->
+    <main class="container">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" id="catBreadcrumb">
+            <a href="index.html">Trang chủ</a> <span>›</span> <strong style="color:#1f2937;">Thuốc</strong>
+        </div>
+
+        <div class="category-layout">
+
+            <!-- === LEFT SIDEBAR === -->
+            <aside class="cat-sidebar">
+                <h3>Bộ lọc nâng cao</h3>
+
+                <!-- Price Range -->
+                <div class="sidebar-section">
+                    <h4 data-toggle="catPriceBlock">Khung giá <i class="fa-solid fa-chevron-up"></i></h4>
+                    <div class="price-block-list" id="catPriceBlock">
+                        <button class="price-block-btn" data-min="0" data-max="100000">Dưới 100.000đ</button>
+                        <button class="price-block-btn" data-min="100000" data-max="300000">100.000đ - 300.000đ</button>
+                        <button class="price-block-btn" data-min="300000" data-max="500000">300.000đ - 500.000đ</button>
+                        <button class="price-block-btn" data-min="500000" data-max="1000000">500.000đ - 1.000.000đ</button>
+                        <button class="price-block-btn" data-min="1000000" data-max="">Trên 1.000.000đ</button>
+                    </div>
+                </div>
+
+
+                <!-- Brand Filter -->
+                <div class="sidebar-section">
+                    <h4 data-toggle="catBrandBlock">Thương hiệu <i class="fa-solid fa-chevron-up"></i></h4>
+                    <div id="catBrandBlock">
+                        <div class="filter-search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Tìm kiếm" id="searchBrand">
+                        </div>
+                        <ul class="filter-check-list" id="listBrand">
+                            <!-- JS nạp dữ liệu -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Origin Filter -->
+                <div class="sidebar-section">
+                    <h4 data-toggle="catOriginBlock">Xuất xứ <i class="fa-solid fa-chevron-down" style="transform: rotate(180deg);"></i></h4>
+                    <div id="catOriginBlock" style="display:none;">
+                        <div class="filter-search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Tìm kiếm" id="searchOrigin">
+                        </div>
+                        <ul class="filter-check-list" id="listOrigin">
+                            <!-- JS nạp dữ liệu -->
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- === MAIN CONTENT === -->
+            <div class="cat-main">
+                <h1 class="cat-title" id="mainCategoryTitle">Danh mục</h1>
+                
+                <!-- Sub Categories Grid -->
+                <div class="subcats-container" id="subCatsWrapper" style="display:none;">
+                    <div class="subcat-grid" id="subCategoriesGrid">
+                        <!-- Nạp bằng JS -->
+                    </div>
+                    <button class="btn-view-more-subcat" id="btnViewMoreSubcats" style="display:none;"><i class="fa-solid fa-chevron-down"></i> Xem thêm danh mục</button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="cat-tabs">
+                    <button class="cat-tab-btn active" data-rx="" id="tabAllProducts">Tất cả sản phẩm</button>
+                    <button class="cat-tab-btn" data-rx="0" id="tabNonRxProducts">Thuốc không kê đơn (0)</button>
+                    <button class="cat-tab-btn" data-rx="1" id="tabRxProducts">Thuốc kê đơn (0)</button>
+                </div>
+
+                <!-- Toolbar (Sort & Limit) -->
+                <div class="cat-toolbar">
+                    <select id="sortSelect">
+                        <option value="popular">Xếp theo phổ biến nhất</option>
+                        <option value="newest">Mới nhất</option>
+                        <option value="price_asc">Giá thấp đến cao</option>
+                        <option value="price_desc">Giá cao xuống thấp</option>
+                    </select>
+                    <select id="limitSelect">
+                        <option value="28">28 Mỗi trang</option>
+                        <option value="56">56 Mỗi trang</option>
+                    </select>
+                </div>
+
+                <!-- Product Grid -->
+                <div class="product-grid" id="productList">
+                    <!-- Nạp bằng JS -->
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingProducts" style="text-align:center; padding:40px; display:none;">
+                    <i class="fa-solid fa-spinner fa-spin fa-2x" style="color:#0b7a3e;"></i>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyProducts" style="text-align:center; padding:40px; color:#6b7280; display:none;">
+                    <i class="fa-solid fa-box-open fa-3x" style="margin-bottom:16px;"></i>
+                    <p>Không có sản phẩm nào phù hợp với tiêu chí tìm kiếm.</p>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="paginationBox">
+                    <!-- Nạp bằng JS -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Top Searches -->
+        <div class="top-searches">
+            <h3>Tìm kiếm hàng đầu</h3>
+            <div class="top-search-links">
+                <span class="catalog-widget-loading">Đang tải tìm kiếm hàng đầu...</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Pre-Footer Promises -->
+    <div mg-include="../components/promises.html"></div>
+
+    <!-- Newsletter -->
+    <div mg-include="../components/newsletter.html"></div>
+
+    <!-- Main Footer -->
+    <div mg-include="../components/main_footer.html"></div>
+
+    <script>
+        // Sort button toggle
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Sub-category chip toggle
+        document.querySelectorAll('.cat-sub-chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.cat-sub-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+            });
+        });
+
+        // Page button toggle
+        document.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    </script>
+
+    <script src="../assets/js/dropdown-handler.js"></script>
+    <script src="../assets/js/mega-menu-loader.js"></script>
+    <script src="../assets/js/client-api.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/catalog-widgets.js"></script>
+    <script src="../assets/js/category-loader.js"></script>
+</body>
+
+</html>

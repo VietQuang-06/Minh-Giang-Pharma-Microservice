@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERD — Nhà Thuốc Minh Giang</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0f1e;--surface:#111827;--surface2:#1f2937;--border:#2d3748;--text:#e2e8f0;--muted:#8b9ab3}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow:hidden;height:100vh;user-select:none}
+
+/* HEADER */
+#hdr{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;z-index:100;position:relative;flex-shrink:0}
+#logo{font-size:15px;font-weight:800;color:#fff;white-space:nowrap;letter-spacing:-.3px}
+#logo span{color:#3b82f6}
+.hdiv{width:1px;height:28px;background:var(--border);flex-shrink:0}
+#search{background:#0a0f1e;border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-size:12px;width:190px;outline:none}
+#search:focus{border-color:#3b82f6}
+#search::placeholder{color:var(--muted)}
+.pill-group{display:flex;gap:6px;align-items:center}
+.s-pill{padding:4px 11px;border-radius:20px;border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.2px;transition:all .2s;color:#fff;background:#1e3a5f}
+.s-pill.off{opacity:.28;filter:grayscale(.5)}
+.s-pill[data-s=mg_identity]{background:#1d4ed8}
+.s-pill[data-s=mg_catalog]{background:#047857}
+.s-pill[data-s=mg_order]{background:#b45309}
+.s-pill[data-s=mg_cms]{background:#6d28d9}
+.s-pill[data-s=mg_notification]{background:#b91c1c}
+.hbtn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.hbtn:hover{background:#374151}
+.ckbox{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.ckbox input{accent-color:#3b82f6;cursor:pointer}
+#ml{margin-left:auto;display:flex;align-items:center;gap:8px}
+#zoom-pct{font-size:11px;color:var(--muted);min-width:38px;text-align:center}
+
+/* CANVAS AREA */
+#wrap{position:relative;width:100vw;height:calc(100vh - 54px);overflow:hidden;cursor:grab}
+#wrap.panning{cursor:grabbing}
+#svg-layer{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
+#canvas{position:absolute;transform-origin:0 0}
+
+/* TABLE CARD */
+.tc{position:absolute;width:236px;background:var(--surface);border-radius:10px;overflow:hidden;cursor:move;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:box-shadow .15s,opacity .2s}
+.tc:hover{box-shadow:0 8px 32px rgba(0,0,0,.7);z-index:5}
+.tc.dragging{z-index:999;box-shadow:0 20px 60px rgba(0,0,0,.9);opacity:.95}
+.tc.dim{opacity:.1}
+
+/* TABLE HEADER */
+.th{padding:8px 10px;display:flex;align-items:center;gap:7px;cursor:pointer}
+.th-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.th-schema{font-size:9px;font-weight:600;opacity:.75;letter-spacing:.5px;text-transform:uppercase}
+.th-name{font-size:12px;font-weight:800;color:#fff;flex:1;line-height:1.2}
+.th-cnt{font-size:10px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.08);padding:1px 5px;border-radius:10px}
+.th-arrow{font-size:10px;color:rgba(255,255,255,.3);transition:transform .2s;flex-shrink:0}
+
+/* TABLE BODY */
+.tb{border-top:1px solid rgba(255,255,255,.06)}
+.tc.coll .tb{display:none}
+.tc.coll .th-arrow{transform:rotate(-90deg)}
+
+/* COLUMN ROW */
+.cr{display:flex;align-items:center;gap:5px;padding:3px 10px;font-size:10.5px;border-bottom:1px solid rgba(255,255,255,.03)}
+.cr:last-child{border-bottom:none;padding-bottom:5px}
+.ck{font-size:8.5px;font-weight:700;padding:1px 4px;border-radius:3px;min-width:22px;text-align:center;flex-shrink:0;letter-spacing:.3px}
+.ck.pk{background:#f59e0b22;color:#fbbf24;border:1px solid #f59e0b55}
+.ck.fk{background:#3b82f622;color:#60a5fa;border:1px solid #3b82f655}
+.ck.uk{background:#8b5cf622;color:#a78bfa;border:1px solid #8b5cf655}
+.ck.--{background:transparent;border:1px solid transparent;color:transparent}
+.cn{color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ct{color:var(--muted);font-size:9.5px;flex-shrink:0}
+.ci{color:#ef444477;font-size:8px;flex-shrink:0;margin-left:1px}
+
+/* STATS */
+#stats{position:absolute;bottom:14px;left:14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:11px;color:var(--muted);display:flex;gap:14px;z-index:50;pointer-events:none}
+.si strong{color:var(--text)}
+
+/* ZOOMBTN */
+#zbtns{position:absolute;bottom:14px;right:14px;display:flex;gap:4px;z-index:50}
+.zbtn{width:30px;height:30px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zbtn:hover{background:var(--surface2)}
+
+/* TOOLTIP */
+#tip{position:fixed;background:#1e293b;border:1px solid #475569;border-radius:6px;padding:5px 9px;font-size:10px;color:#e2e8f0;pointer-events:none;z-index:9999;display:none;line-height:1.5}
+
+/* TABLE HOVER HIGHLIGHT */
+.tc.hi{z-index:10;box-shadow:0 0 0 2px #3b82f6,0 8px 32px rgba(59,130,246,.3)!important}
+.tc.lo{opacity:.2}
+
+/* MINI LEGEND */
+#leg{position:absolute;top:12px;right:14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:10px;color:var(--muted);z-index:50;line-height:2}
+#leg li{display:flex;align-items:center;gap:6px;list-style:none}
+.lline{width:24px;height:1.5px;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div id="logo">Nhà Thuốc <span>Minh Giang</span> · ERD</div>
+  <div class="hdiv"></div>
+  <input id="search" type="search" placeholder="🔍  Tìm bảng / cột...">
+  <div class="hdiv"></div>
+  <div class="pill-group">
+    <span style="font-size:11px;color:var(--muted)">Schema:</span>
+    <button class="s-pill" data-s="mg_identity">identity</button>
+    <button class="s-pill" data-s="mg_catalog">catalog</button>
+    <button class="s-pill" data-s="mg_order">order</button>
+    <button class="s-pill" data-s="mg_cms">cms</button>
+    <button class="s-pill" data-s="mg_notification">notification</button>
+  </div>
+  <div class="hdiv"></div>
+  <label class="ckbox"><input type="checkbox" id="ck-cross" checked>Cross-schema FK</label>
+  <label class="ckbox" style="margin-left:4px"><input type="checkbox" id="ck-fk" checked>Tất cả FK</label>
+  <div id="ml">
+    <button class="hbtn" onclick="collapseAll()">Thu gọn tất cả</button>
+    <button class="hbtn" onclick="expandAll()">Mở rộng tất cả</button>
+    <button class="hbtn" onclick="fitScreen()">⛶ Fit screen</button>
+    <div class="hdiv"></div>
+    <span id="zoom-pct">100%</span>
+  </div>
+</div>
+
+<div id="wrap">
+  <svg id="svg-layer"></svg>
+  <div id="canvas"></div>
+</div>
+
+<div id="stats">
+  <div class="si"><strong id="st-schemas">5</strong> schemas</div>
+  <div class="si"><strong id="st-tables">45</strong> bảng</div>
+  <div class="si"><strong id="st-cols">0</strong> cột</div>
+  <div class="si"><strong id="st-fks">0</strong> FK</div>
+</div>
+
+<div id="zbtns">
+  <button class="zbtn" onclick="zoom(1.2)" title="Zoom in">+</button>
+  <button class="zbtn" onclick="zoom(0.8)" title="Zoom out">−</button>
+</div>
+
+<ul id="leg">
+  <li><svg width="24" height="3"><line x1="0" y1="1.5" x2="24" y2="1.5" stroke="#3b82f6" stroke-width="2"/></svg>identity FK</li>
+  <li><svg width="24" height="3"><line x1="0" y1="1.5" x2="24" y2="1.5" stroke="#10b981" stroke-width="2"/></svg>catalog FK</li>
+  <li><svg width="24" height="3"><line x1="0" y1="1.5" x2="24" y2="1.5" stroke="#f59e0b" stroke-width="2"/></svg>order FK</li>
+  <li><svg width="24" height="3"><line x1="0" y1="1.5" x2="24" y2="1.5" stroke="#a78bfa" stroke-width="2"/></svg>cms FK</li>
+  <li><svg width="24" height="3"><line x1="0" y1="1.5" x2="24" y2="1.5" stroke="#f87171" stroke-width="2"/></svg>notification FK</li>
+  <li><svg width="24" height="3"><line x1="0" y1="1.5" x2="24" y2="1.5" stroke="#fb923c" stroke-width="2" stroke-dasharray="6,3"/></svg>cross-schema FK</li>
+  <li><span class="ck pk" style="min-width:auto">PK</span> Primary Key</li>
+  <li><span class="ck fk" style="min-width:auto">FK</span> Foreign Key</li>
+  <li><span class="ck uk" style="min-width:auto">UK</span> Unique Key</li>
+</ul>
+
+<div id="tip"></div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SCHEMA COLOURS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const SC = {
+  mg_identity:     { hdr:'#1d4ed8', dot:'#60a5fa', bg:'rgba(37,52,100,.35)', label:'identity' },
+  mg_catalog:      { hdr:'#047857', dot:'#34d399', bg:'rgba(6,78,59,.35)',   label:'catalog'  },
+  mg_order:        { hdr:'#b45309', dot:'#fbbf24', bg:'rgba(92,57,3,.35)',   label:'order'    },
+  mg_cms:          { hdr:'#6d28d9', dot:'#c4b5fd', bg:'rgba(60,20,120,.35)', label:'cms'      },
+  mg_notification: { hdr:'#b91c1c', dot:'#fca5a5', bg:'rgba(100,10,10,.35)', label:'notif'   },
+};
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TABLE DATA  — [name, key, type]  key: PK/FK/UK/--
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const TABLES = [
+{id:'mg_identity.customer_addresses',s:'mg_identity',x:40,y:40,cols:[
+  ['id','PK','BIGINT'], ['customer_id','FK','BIGINT'], ['receiver_name','--','VARCHAR(200)'], ['phone','--','VARCHAR(20)'], ['province','--','VARCHAR(100)'], ['district','--','VARCHAR(100)'], ['ward','--','VARCHAR(100)'], ['street_address','--','TEXT'], ['is_default','--','TINYINT(1)']
+]},
+{id:'mg_identity.customers',s:'mg_identity',x:460,y:40,cols:[
+  ['id','PK','BIGINT'], ['full_name','--','VARCHAR(200)'], ['email','UK','VARCHAR(200)'], ['phone','UK','VARCHAR(20)'], ['password_hash','--','VARCHAR(255)'], ['date_of_birth','--','DATE'], ['gender','--','ENUM(\'MALE\',\'FEMALE\',\'OTHER\')'], ['loyalty_points','--','INT'], ['loyalty_tier','--','ENUM(\'MEMBER\',\'SILVER\',\'GOLD\',\'VIP\')'], ['is_active','--','TINYINT(1)'], ['email_verified_at','--','DATETIME'], ['phone_verified_at','--','DATETIME'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME'], ['deleted_at','--','DATETIME'], ['code','UK','VARCHAR(20)'], ['zalo_id','UK','VARCHAR(50)'], ['notes','--','TEXT']
+]},
+{id:'mg_identity.loyalty_points_transactions',s:'mg_identity',x:880,y:40,cols:[
+  ['id','PK','BIGINT'], ['customer_id','FK','BIGINT'], ['transaction_type','--','ENUM(\'EARN_PURCHASE\',\'EARN_BONUS\',\'REDEEM\',\'ADJUST_ADD\',\'ADJUST_DEDUCT\',\'EXPIRE\')'], ['points_change','--','INT'], ['description','--','VARCHAR(300)'], ['reference_order_id','FK','BIGINT'], ['adjusted_by','FK','BIGINT'], ['admin_note','--','TEXT'], ['created_at','--','DATETIME'], ['idempotency_key','UK','VARCHAR(128)'], ['expires_at','--','DATETIME']
+]},
+{id:'mg_identity.loyalty_tier_config',s:'mg_identity',x:40,y:560,cols:[
+  ['id','PK','INT'], ['tier_code','UK','ENUM(\'MEMBER\',\'SILVER\',\'GOLD\',\'VIP\')'], ['tier_name','--','VARCHAR(100)'], ['tier_icon','--','VARCHAR(20)'], ['min_spending','--','DECIMAL(15,2)'], ['max_spending','--','DECIMAL(15,2)'], ['points_ratio','--','DECIMAL(5,2)'], ['points_per_vnd','--','INT'], ['discount_pct','--','DECIMAL(5,2)'], ['description','--','VARCHAR(300)'], ['updated_at','--','DATETIME'], ['points_expiry_months','--','INT']
+]},
+{id:'mg_identity.otp_codes',s:'mg_identity',x:460,y:560,cols:[
+  ['id','PK','BIGINT'], ['target','--','VARCHAR(200)'], ['target_type','--','ENUM(\'PHONE\',\'EMAIL\')'], ['otp_hash','--','VARCHAR(255)'], ['purpose','--','ENUM(\'REGISTER\',\'RESET_PASSWORD\',\'VERIFY_EMAIL\',\'POS_CONFIRM\')'], ['attempts','--','INT'], ['expires_at','--','DATETIME'], ['used_at','--','DATETIME'], ['created_at','--','DATETIME'], ['send_count_today','--','INT'], ['last_send_at','--','DATETIME'], ['blocked_until','--','DATETIME']
+]},
+{id:'mg_identity.refresh_tokens',s:'mg_identity',x:880,y:560,cols:[
+  ['id','PK','BIGINT'], ['user_id','--','BIGINT'], ['user_type','--','ENUM(\'STAFF\',\'CUSTOMER\')'], ['token_hash','UK','VARCHAR(255)'], ['expires_at','--','DATETIME'], ['revoked_at','--','DATETIME'], ['created_at','--','DATETIME']
+]},
+{id:'mg_identity.roles',s:'mg_identity',x:40,y:1080,cols:[
+  ['id','PK','INT'], ['name','UK','VARCHAR(50)'], ['description','--','VARCHAR(200)'], ['permissions','--','JSON'], ['created_at','--','DATETIME']
+]},
+{id:'mg_identity.shifts',s:'mg_identity',x:460,y:1080,cols:[
+  ['id','PK','BIGINT'], ['user_id','FK','BIGINT'], ['kiosk_id','--','VARCHAR(20)'], ['shift_start','--','DATETIME'], ['shift_end','--','DATETIME'], ['opening_cash','--','DECIMAL(12,2)'], ['closing_cash','--','DECIMAL(12,2)'], ['total_cash_sales','--','DECIMAL(12,2)'], ['total_card_sales','--','DECIMAL(12,2)'], ['total_qr_sales','--','DECIMAL(12,2)'], ['status','--','ENUM(\'OPEN\',\'CLOSED\')'], ['notes','--','TEXT'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME'], ['expected_closing_cash','--','DECIMAL(12,2)'], ['cash_difference','--','DECIMAL(12,2)'], ['reconciliation_status','--','ENUM(\'PENDING\',\'MATCHED\',\'EXCESS\',\'SHORTAGE\',\'APPROVED\')'], ['approved_by','FK','BIGINT'], ['approved_at','--','DATETIME'], ['approval_note','--','TEXT']
+]},
+{id:'mg_identity.users',s:'mg_identity',x:880,y:1080,cols:[
+  ['id','PK','BIGINT'], ['username','UK','VARCHAR(100)'], ['email','UK','VARCHAR(200)'], ['password_hash','--','VARCHAR(255)'], ['full_name','--','VARCHAR(200)'], ['phone','--','VARCHAR(20)'], ['role_id','FK','INT'], ['avatar_url','--','VARCHAR(500)'], ['is_active','--','TINYINT(1)'], ['last_login_at','--','DATETIME'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME'], ['code','UK','VARCHAR(20)']
+]},
+{id:'mg_catalog.audit_items',s:'mg_catalog',x:1340,y:40,cols:[
+  ['id','PK','BIGINT'], ['audit_id','FK','BIGINT'], ['batch_item_id','FK','BIGINT'], ['product_id','FK','BIGINT'], ['system_quantity','--','INT'], ['actual_quantity','--','INT'], ['difference_quantity','--','INT'], ['notes','--','TEXT']
+]},
+{id:'mg_catalog.batch_items',s:'mg_catalog',x:1760,y:40,cols:[
+  ['id','PK','BIGINT'], ['batch_id','FK','BIGINT'], ['product_id','FK','BIGINT'], ['lot_number','--','VARCHAR(100)'], ['manufacture_date','--','DATE'], ['expiry_date','--','DATE'], ['quantity_received','--','INT'], ['quantity_remaining','--','INT'], ['cost_price','--','DECIMAL(15,2)'], ['clearance_discount_pct','--','DECIMAL(5,2)'], ['clearance_price','--','DECIMAL(15,2)'], ['location_id','FK','BIGINT'], ['status','--','ENUM(\'AVAILABLE\',\'NEAR_EXPIRY\',\'EXPIRED\',\'DEPLETED\')'], ['deleted_reason','--','VARCHAR(300)']
+]},
+{id:'mg_catalog.batches',s:'mg_catalog',x:2180,y:40,cols:[
+  ['id','PK','BIGINT'], ['batch_code','UK','VARCHAR(50)'], ['supplier_id','FK','BIGINT'], ['delivery_person','--','VARCHAR(150)'], ['received_date','--','DATE'], ['total_amount','--','DECIMAL(15,2)'], ['paid_amount','--','DECIMAL(15,2)'], ['status','--','ENUM(\'DRAFT\',\'COMPLETED\')'], ['notes','--','TEXT'], ['created_by','FK','BIGINT'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME'], ['invoice_number','--','VARCHAR(100)']
+]},
+{id:'mg_catalog.brands',s:'mg_catalog',x:2600,y:40,cols:[
+  ['id','PK','INT'], ['name','--','VARCHAR(150)'], ['slug','UK','VARCHAR(200)'], ['logo_url','--','VARCHAR(500)'], ['country','--','VARCHAR(100)'], ['is_featured','--','TINYINT(1)'], ['is_active','--','TINYINT(1)'], ['sort_order','--','INT']
+]},
+{id:'mg_catalog.catalog_audit_logs',s:'mg_catalog',x:1340,y:560,cols:[
+  ['id','PK','BIGINT'], ['action','--','VARCHAR(100)'], ['entity_type','--','VARCHAR(100)'], ['entity_id','--','BIGINT'], ['user_id','FK','BIGINT'], ['request_id','--','VARCHAR(64)'], ['before_data','--','JSON'], ['after_data','--','JSON'], ['metadata','--','JSON'], ['created_at','--','DATETIME']
+]},
+{id:'mg_catalog.catalog_gift_campaigns',s:'mg_catalog',x:1760,y:560,cols:[
+  ['id','PK','BIGINT'], ['name','--','VARCHAR(255)'], ['min_order_amount','--','DECIMAL(15,2)'], ['gift_product_id','FK','BIGINT'], ['max_per_customer','--','INT'], ['usage_count','--','INT'], ['status','--','ENUM(\'ACTIVE\',\'PAUSED\',\'EXPIRED\')'], ['valid_from','--','DATE'], ['valid_to','--','DATE'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.catalog_idempotency_keys',s:'mg_catalog',x:2180,y:560,cols:[
+  ['id','PK','BIGINT'], ['idempotency_scope','UK','VARCHAR(100)'], ['idempotency_key','UK','VARCHAR(120)'], ['request_hash','--','VARCHAR(64)'], ['response_data','--','JSON'], ['created_at','--','DATETIME']
+]},
+{id:'mg_catalog.catalog_loyalty_config',s:'mg_catalog',x:2600,y:560,cols:[
+  ['id','PK','INT'], ['tiers','--','JSON'], ['redemption','--','JSON'], ['channels','--','JSON'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.catalog_vouchers',s:'mg_catalog',x:1340,y:1080,cols:[
+  ['id','PK','BIGINT'], ['code','UK','VARCHAR(50)'], ['name','--','VARCHAR(255)'], ['discount_type','--','ENUM(\'PERCENT\',\'FIXED\',\'FREESHIP\')'], ['discount_value','--','DECIMAL(15,2)'], ['max_discount','--','DECIMAL(15,2)'], ['min_order_amount','--','DECIMAL(15,2)'], ['usage_count','--','INT'], ['usage_limit','--','INT'], ['valid_from','--','DATE'], ['valid_to','--','DATE'], ['status','--','ENUM(\'ACTIVE\',\'PAUSED\',\'EXPIRED\',\'USED_UP\')'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.categories',s:'mg_catalog',x:1760,y:1080,cols:[
+  ['id','PK','BIGINT'], ['name','--','VARCHAR(150)'], ['slug','UK','VARCHAR(200)'], ['parent_id','FK','BIGINT'], ['description','--','TEXT'], ['image_url','--','VARCHAR(500)'], ['is_active','--','TINYINT(1)'], ['sort_order','--','INT'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.delivery_config',s:'mg_catalog',x:2180,y:1080,cols:[
+  ['id','PK','INT'], ['max_delivery_radius_km','--','DECIMAL(5,1)'], ['base_shipping_fee','--','DECIMAL(10,2)'], ['free_shipping_threshold','--','DECIMAL(12,2)'], ['is_enabled','--','TINYINT(1)'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.delivery_timeslots',s:'mg_catalog',x:2600,y:1080,cols:[
+  ['id','PK','INT'], ['label','--','VARCHAR(100)'], ['start_time','--','TIME'], ['end_time','--','TIME'], ['slot_type','--','ENUM(\'STANDARD\',\'RUSHED\')'], ['is_active','--','TINYINT(1)'], ['sort_order','--','INT']
+]},
+{id:'mg_catalog.inventory_audits',s:'mg_catalog',x:1340,y:1600,cols:[
+  ['id','PK','BIGINT'], ['audit_code','UK','VARCHAR(50)'], ['location_id','FK','BIGINT'], ['total_items','--','INT'], ['total_missing','--','INT'], ['total_surplus','--','INT'], ['total_value_diff','--','DECIMAL(15,2)'], ['status','--','ENUM(\'DRAFT\',\'RECONCILED\')'], ['notes','--','TEXT'], ['created_by','FK','BIGINT'], ['reconciled_by','FK','BIGINT'], ['reconciled_at','--','DATETIME'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.locations',s:'mg_catalog',x:1760,y:1600,cols:[
+  ['id','PK','BIGINT'], ['zone','--','VARCHAR(100)'], ['cabinet','--','VARCHAR(100)'], ['shelf','--','VARCHAR(100)'], ['label','--','VARCHAR(200)'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_catalog.outbox_events',s:'mg_catalog',x:2180,y:1600,cols:[
+  ['id','PK','BIGINT'], ['event_type','--','VARCHAR(100)'], ['aggregate_type','--','VARCHAR(50)'], ['aggregate_id','--','BIGINT'], ['payload','--','JSON'], ['status','--','ENUM(\'PENDING\',\'DISPATCHED\',\'FAILED\')'], ['retry_count','--','TINYINT'], ['error_message','--','TEXT'], ['created_at','--','DATETIME'], ['dispatched_at','--','DATETIME']
+]},
+{id:'mg_catalog.product_images',s:'mg_catalog',x:2600,y:1600,cols:[
+  ['id','PK','BIGINT'], ['product_id','FK','BIGINT'], ['file_name','--','VARCHAR(255)'], ['original_name','--','VARCHAR(255)'], ['mime_type','--','VARCHAR(100)'], ['file_size','--','BIGINT'], ['storage_path','--','VARCHAR(500)'], ['public_url','--','VARCHAR(500)'], ['image_role','--','ENUM(\'MAIN\',\'GALLERY\',\'PACKAGING\',\'LABEL\',\'CERTIFICATE\')'], ['alt_text','--','VARCHAR(300)'], ['is_primary','--','TINYINT(1)'], ['sort_order','--','INT'], ['uploaded_by','FK','BIGINT'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.product_recalls',s:'mg_catalog',x:1340,y:2120,cols:[
+  ['id','PK','BIGINT'], ['recall_code','UK','VARCHAR(100)'], ['product_id','FK','BIGINT'], ['lot_numbers','--','JSON'], ['recall_reason','--','TEXT'], ['severity','--','ENUM(\'CLASS_I\',\'CLASS_II\',\'CLASS_III\')'], ['regulatory_reference','--','VARCHAR(200)'], ['recalled_by','FK','BIGINT'], ['recall_date','--','DATE'], ['status','--','ENUM(\'ACTIVE\',\'RESOLVED\')'], ['resolved_at','--','DATETIME'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.product_reviews',s:'mg_catalog',x:1760,y:2120,cols:[
+  ['id','PK','BIGINT'], ['product_id','FK','BIGINT'], ['customer_id','UK','BIGINT'], ['order_id','FK','BIGINT'], ['order_item_id','FK','BIGINT'], ['rating','--','TINYINT'], ['title','--','VARCHAR(160)'], ['comment','--','TEXT'], ['status','--','ENUM(\'PENDING\',\'APPROVED\',\'REJECTED\',\'HIDDEN\')'], ['is_verified_purchase','--','TINYINT(1)'], ['moderation_note','--','VARCHAR(500)'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME'], ['approved_at','--','DATETIME'], ['approved_by','FK','BIGINT'], ['hidden_at','--','DATETIME']
+]},
+{id:'mg_catalog.product_specifications',s:'mg_catalog',x:2180,y:2120,cols:[
+  ['id','PK','BIGINT'], ['product_id','FK','BIGINT'], ['spec_key','--','VARCHAR(150)'], ['spec_value','--','TEXT'], ['sort_order','--','INT']
+]},
+{id:'mg_catalog.product_tag_promotions',s:'mg_catalog',x:2600,y:2120,cols:[
+  ['id','PK','BIGINT'], ['product_id','FK','BIGINT'], ['tag_name','UK','ENUM(\'FLASH-SALE\', \'DEAL\', \'DISCOUNT\')'], ['discount_type','--','ENUM(\'PERCENTAGE\', \'FIXED_PRICE\')'], ['discount_value','--','DECIMAL(15, 2)'], ['campaign_qty','--','INT'], ['sold_qty','--','INT'], ['max_per_customer','--','INT'], ['start_time','--','DATETIME'], ['end_time','--','DATETIME'], ['status','UK','ENUM(\'ACTIVE\', \'INACTIVE\', \'PAUSED\')'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_catalog.product_units',s:'mg_catalog',x:1340,y:2640,cols:[
+  ['id','PK','BIGINT'], ['product_id','FK','BIGINT'], ['unit_name','--','VARCHAR(50)'], ['conversion_qty','--','INT'], ['of_unit','--','VARCHAR(50)'], ['retail_price','--','DECIMAL(15,2)'], ['sort_order','--','INT'], ['barcode','--','VARCHAR(100)']
+]},
+{id:'mg_catalog.products',s:'mg_catalog',x:1760,y:2640,cols:[
+  ['id','PK','BIGINT'], ['sku','UK','VARCHAR(50)'], ['name','--','VARCHAR(300)'], ['strength','--','VARCHAR(100)'], ['route_of_administration','--','VARCHAR(100)'], ['category_id','FK','BIGINT'], ['active_ingredient','--','TEXT'], ['registration_number','--','VARCHAR(100)'], ['manufacturer','--','VARCHAR(300)'], ['requires_prescription','--','TINYINT(1)'], ['special_control_group','--','VARCHAR(100)'], ['storage_condition','--','VARCHAR(100)'], ['base_unit','--','VARCHAR(50)'], ['cost_price','--','DECIMAL(15,2)'], ['retail_price','--','DECIMAL(15,2)'], ['min_stock_alert','--','INT'], ['image_url','--','VARCHAR(500)'], ['description','--','TEXT'], ['status','--','ENUM(\'DRAFT\',\'PENDING_REVIEW\',\'ACTIVE\',\'INACTIVE\',\'REJECTED\')'], ['barcode','UK','VARCHAR(100)'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME'], ['brand_id','--','INT'], ['tags','--','JSON'], ['country_of_origin','--','VARCHAR(100)'], ['is_exclusive','--','TINYINT(1)'], ['sales_volume','--','INT'], ['gallery','--','JSON']
+]},
+{id:'mg_catalog.stock_movements',s:'mg_catalog',x:2180,y:2640,cols:[
+  ['id','PK','BIGINT'], ['movement_code','--','VARCHAR(50)'], ['batch_item_id','FK','BIGINT'], ['product_id','FK','BIGINT'], ['movement_type','--','ENUM(\'INBOUND\',\'OUTBOUND_SALE\',\'OUTBOUND_RETURN_SUPPLIER\',\'OUTBOUND_DAMAGE\',\'OUTBOUND_EXPIRY\',\'ADJUSTMENT\')'], ['quantity','--','INT'], ['reference_type','--','ENUM(\'PURCHASE_ORDER\',\'POS_ORDER\',\'WEB_ORDER\',\'RETURN\',\'ADJUSTMENT\')'], ['reference_id','--','BIGINT'], ['reason','--','TEXT'], ['created_by','FK','BIGINT'], ['created_at','--','DATETIME']
+]},
+{id:'mg_catalog.stock_reservations',s:'mg_catalog',x:2600,y:2640,cols:[
+  ['id','PK','BIGINT'], ['batch_item_id','FK','BIGINT'], ['product_id','FK','BIGINT'], ['quantity','--','INT'], ['source_type','--','ENUM(\'POS_HOLD\',\'WEB_CHECKOUT\',\'POS_CHECKOUT\')'], ['source_id','--','BIGINT'], ['reserved_by','--','BIGINT'], ['reserved_at','--','DATETIME'], ['expires_at','--','DATETIME'], ['released_at','--','DATETIME'], ['release_reason','--','ENUM(\'COMPLETED\',\'CANCELLED\',\'EXPIRED\')']
+]},
+{id:'mg_catalog.storage_cabinets',s:'mg_catalog',x:1340,y:3160,cols:[
+  ['id','PK','INT'], ['zone_id','FK','INT'], ['code','UK','VARCHAR(50)'], ['name','--','VARCHAR(100)'], ['shelf_count','--','INT'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_catalog.storage_shelves',s:'mg_catalog',x:1760,y:3160,cols:[
+  ['id','PK','INT'], ['cabinet_id','FK','INT'], ['name','--','VARCHAR(100)'], ['location_id','FK','BIGINT'], ['product_type','--','VARCHAR(100)'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_catalog.storage_zones',s:'mg_catalog',x:2180,y:3160,cols:[
+  ['id','PK','INT'], ['code','UK','VARCHAR(50)'], ['name','--','VARCHAR(100)'], ['description','--','VARCHAR(300)'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_catalog.suppliers',s:'mg_catalog',x:2600,y:3160,cols:[
+  ['id','PK','BIGINT'], ['code','UK','VARCHAR(20)'], ['name','--','VARCHAR(300)'], ['contact_name','--','VARCHAR(150)'], ['phone','--','VARCHAR(20)'], ['email','--','VARCHAR(150)'], ['address','--','TEXT'], ['tax_code','--','VARCHAR(50)'], ['total_purchase_value','--','DECIMAL(20,2)'], ['current_debt','--','DECIMAL(20,2)'], ['status','--','ENUM(\'ACTIVE\',\'INACTIVE\')'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_order.cart_items',s:'mg_order',x:3060,y:40,cols:[
+  ['id','PK','BIGINT'], ['cart_id','FK','BIGINT'], ['product_id','UK','BIGINT'], ['product_name','--','VARCHAR(300)'], ['product_sku','--','VARCHAR(100)'], ['thumbnail','--','TEXT'], ['unit_name','UK','VARCHAR(50)'], ['quantity','--','INT'], ['unit_price','--','DECIMAL(12,2)'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_order.carts',s:'mg_order',x:3480,y:40,cols:[
+  ['id','PK','BIGINT'], ['customer_id','FK','BIGINT'], ['session_id','--','VARCHAR(100)'], ['is_active','--','TINYINT(1)'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_order.order_internal_notes',s:'mg_order',x:3900,y:40,cols:[
+  ['id','PK','BIGINT'], ['order_id','FK','BIGINT'], ['note','--','TEXT'], ['created_by','FK','BIGINT'], ['created_at','--','DATETIME']
+]},
+{id:'mg_order.order_items',s:'mg_order',x:3060,y:560,cols:[
+  ['id','PK','BIGINT'], ['order_id','FK','BIGINT'], ['product_id','FK','BIGINT'], ['product_name','--','VARCHAR(300)'], ['unit_name','--','VARCHAR(50)'], ['quantity','--','INT'], ['unit_price','--','DECIMAL(12,2)'], ['total_price','--','DECIMAL(12,2)'], ['batch_item_id','FK','BIGINT'], ['lot_number','--','VARCHAR(100)'], ['prescription_id','FK','BIGINT'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_order.order_promotions',s:'mg_order',x:3480,y:560,cols:[
+  ['id','PK','BIGINT'], ['order_id','FK','BIGINT'], ['promotion_id','--','BIGINT'], ['promo_code_snapshot','--','VARCHAR(50)'], ['promo_name_snapshot','--','VARCHAR(200)'], ['promo_type_snapshot','--','VARCHAR(50)'], ['discount_value_snapshot','--','DECIMAL(10,2)'], ['discount_applied','--','DECIMAL(12,2)'], ['applied_at','--','DATETIME']
+]},
+{id:'mg_order.orders',s:'mg_order',x:3900,y:560,cols:[
+  ['id','PK','BIGINT'], ['order_code','UK','VARCHAR(50)'], ['order_channel','--','ENUM(\'WEB\',\'POS\')'], ['customer_id','FK','BIGINT'], ['customer_name','--','VARCHAR(200)'], ['customer_phone','--','VARCHAR(20)'], ['shipping_address','--','TEXT'], ['staff_id','FK','BIGINT'], ['kiosk_id','--','VARCHAR(20)'], ['shift_id','FK','BIGINT'], ['subtotal','--','DECIMAL(15,2)'], ['shipping_fee','--','DECIMAL(12,2)'], ['discount_amount','--','DECIMAL(12,2)'], ['total_amount','--','DECIMAL(15,2)'], ['payment_method','--','ENUM(\'CASH\',\'COD\',\'VNPAY\',\'MOMO\',\'CARD_VISA\',\'QR_TRANSFER\')'], ['payment_status','--','ENUM(\'PENDING\',\'PAID\',\'FAILED\',\'REFUNDED\')'], ['order_status','--','ENUM(\'PENDING_APPROVAL\',\'CONFIRMED\',\'PICKING\',\'SHIPPING\',\'COMPLETED\',\'CANCELLED\')'], ['requires_vat_invoice','--','TINYINT(1)'], ['customer_notes','--','TEXT'], ['is_active','--','TINYINT(1)'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_order.outbox_events',s:'mg_order',x:3060,y:1080,cols:[
+  ['id','PK','BIGINT'], ['event_type','--','VARCHAR(100)'], ['aggregate_type','--','VARCHAR(50)'], ['aggregate_id','--','BIGINT'], ['payload','--','JSON'], ['status','--','ENUM(\'PENDING\',\'DISPATCHED\',\'FAILED\')'], ['retry_count','--','TINYINT'], ['error_message','--','TEXT'], ['created_at','--','DATETIME'], ['dispatched_at','--','DATETIME']
+]},
+{id:'mg_order.pos_held_order_items',s:'mg_order',x:3480,y:1080,cols:[
+  ['id','PK','BIGINT'], ['hold_id','FK','BIGINT'], ['product_id','FK','BIGINT'], ['product_name','--','VARCHAR(300)'], ['sku','--','VARCHAR(100)'], ['unit_name','--','VARCHAR(50)'], ['quantity','--','DECIMAL(10,3)'], ['unit_price','--','DECIMAL(12,2)'], ['current_unit_price','--','DECIMAL(12,2)'], ['price_discrepancy','--','DECIMAL(12,2)'], ['discount_amount','--','DECIMAL(12,2)'], ['subtotal','--','DECIMAL(12,2)'], ['note','--','VARCHAR(300)']
+]},
+{id:'mg_order.pos_held_orders',s:'mg_order',x:3900,y:1080,cols:[
+  ['id','PK','BIGINT'], ['hold_code','UK','VARCHAR(50)'], ['staff_id','FK','BIGINT'], ['shift_id','FK','BIGINT'], ['customer_id','FK','BIGINT'], ['customer_name','--','VARCHAR(200)'], ['note','--','VARCHAR(500)'], ['held_at','--','DATETIME'], ['auto_release_at','--','DATETIME'], ['is_released','--','TINYINT(1)'], ['released_at','--','DATETIME'], ['released_note','--','VARCHAR(300)']
+]},
+{id:'mg_order.prescriptions',s:'mg_order',x:3060,y:1600,cols:[
+  ['id','PK','BIGINT'], ['prescription_code','UK','VARCHAR(100)'], ['order_id','FK','BIGINT'], ['customer_id','FK','BIGINT'], ['patient_name','--','VARCHAR(200)'], ['patient_dob','--','DATE'], ['patient_phone','--','VARCHAR(20)'], ['doctor_name','--','VARCHAR(200)'], ['doctor_license','--','VARCHAR(100)'], ['hospital_name','--','VARCHAR(300)'], ['issue_date','--','DATE'], ['expiry_date','--','DATE'], ['image_url','--','VARCHAR(500)'], ['image_sha256','UK','CHAR(64)'], ['verified_image_url','--','VARCHAR(500)'], ['max_dispensing_qty','--','INT'], ['dispensed_qty','--','INT'], ['diagnosis_code','--','VARCHAR(50)'], ['diagnosis_text','--','VARCHAR(500)'], ['notes','--','TEXT'], ['status','--','ENUM(\'PENDING\',\'VERIFIED\',\'REJECTED\',\'EXPIRED\')'], ['verified_by','FK','BIGINT'], ['verified_at','--','DATETIME'], ['rejection_reason','--','VARCHAR(500)'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_order.return_items',s:'mg_order',x:3480,y:1600,cols:[
+  ['id','PK','BIGINT'], ['return_id','FK','BIGINT'], ['order_item_id','FK','BIGINT'], ['quantity_returned','--','INT'], ['return_to_stock','--','TINYINT(1)'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_order.returns',s:'mg_order',x:3900,y:1600,cols:[
+  ['id','PK','BIGINT'], ['return_code','UK','VARCHAR(50)'], ['order_id','FK','BIGINT'], ['order_channel','--','ENUM(\'WEB\',\'POS\',\'SUPPLIER\')'], ['reason','--','TEXT'], ['refund_amount','--','DECIMAL(15,2)'], ['refund_method','--','ENUM(\'CASH\',\'ORIGINAL_PAYMENT\',\'STORE_CREDIT\')'], ['status','--','ENUM(\'PENDING\',\'APPROVED\',\'REJECTED\',\'COMPLETED\')'], ['handled_by','--','BIGINT'], ['is_active','--','TINYINT(1)'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_cms.articles',s:'mg_cms',x:4360,y:40,cols:[
+  ['id','PK','BIGINT'], ['title','--','VARCHAR(400)'], ['slug','UK','VARCHAR(450)'], ['content','--','LONGTEXT'], ['excerpt','--','TEXT'], ['thumbnail_url','--','VARCHAR(500)'], ['category_id','FK','INT'], ['author_id','FK','BIGINT'], ['related_product_ids','--','JSON'], ['related_article_ids','--','JSON'], ['tags','--','JSON'], ['status','--','ENUM(\'DRAFT\',\'PUBLISHED\',\'ARCHIVED\')'], ['published_at','--','DATETIME'], ['view_count','--','INT'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME'], ['content_sanitized','--','LONGTEXT'], ['sanitized_at','--','DATETIME']
+]},
+{id:'mg_cms.banners',s:'mg_cms',x:4780,y:40,cols:[
+  ['id','PK','INT'], ['title','--','VARCHAR(200)'], ['image_url','--','VARCHAR(500)'], ['link_url','--','VARCHAR(500)'], ['position','--','ENUM(\'HERO\',\'POPUP\',\'SIDEBAR\')'], ['is_active','--','TINYINT(1)'], ['start_date','--','DATE'], ['end_date','--','DATE'], ['sort_order','--','INT']
+]},
+{id:'mg_cms.cms_categories',s:'mg_cms',x:4360,y:560,cols:[
+  ['id','PK','INT'], ['name','--','VARCHAR(150)'], ['slug','UK','VARCHAR(200)'], ['type','--','ENUM(\'ARTICLE\',\'DISEASE\',\'PROMOTION\')'], ['parent_id','FK','INT'], ['description','--','TEXT'], ['image_url','--','VARCHAR(500)'], ['is_active','--','TINYINT(1)'], ['sort_order','--','INT']
+]},
+{id:'mg_cms.cms_media',s:'mg_cms',x:4780,y:560,cols:[
+  ['id','PK','BIGINT'], ['original_name','--','VARCHAR(500)'], ['stored_name','--','VARCHAR(500)'], ['file_url','--','VARCHAR(1000)'], ['thumbnail_url','--','VARCHAR(1000)'], ['file_size','--','BIGINT'], ['mime_type','--','VARCHAR(100)'], ['media_type','--','ENUM(\'IMAGE\',\'DOCUMENT\',\'VIDEO\',\'OTHER\')'], ['width','--','INT'], ['height','--','INT'], ['alt_text','--','VARCHAR(300)'], ['tags','--','JSON'], ['used_in','--','VARCHAR(100)'], ['used_in_id','--','BIGINT'], ['uploaded_by','FK','BIGINT'], ['is_deleted','--','TINYINT(1)'], ['deleted_at','--','DATETIME'], ['created_at','--','DATETIME'], ['file_extension','--','VARCHAR(10)']
+]},
+{id:'mg_cms.cms_pages',s:'mg_cms',x:4360,y:1080,cols:[
+  ['id','PK','INT'], ['slug','UK','VARCHAR(200)'], ['title','--','VARCHAR(300)'], ['content','--','LONGTEXT'], ['meta_title','--','VARCHAR(300)'], ['meta_description','--','VARCHAR(500)'], ['meta_keywords','--','VARCHAR(300)'], ['featured_image','--','VARCHAR(1000)'], ['author_id','FK','BIGINT'], ['published_by','FK','BIGINT'], ['is_active','--','TINYINT(1)'], ['show_in_footer','--','TINYINT(1)'], ['sort_order','--','INT'], ['published_at','--','DATETIME'], ['created_at','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_cms.promotions',s:'mg_cms',x:4780,y:1080,cols:[
+  ['id','PK','BIGINT'], ['name','--','VARCHAR(200)'], ['campaign_name','--','VARCHAR(200)'], ['code','UK','VARCHAR(50)'], ['type','--','ENUM(\'PERCENT_DISCOUNT\',\'FIXED_DISCOUNT\',\'FREE_SHIPPING\',\'BUY_X_GET_Y\')'], ['discount_value','--','DECIMAL(10,2)'], ['min_order_value','--','DECIMAL(12,2)'], ['max_discount_amount','--','DECIMAL(12,2)'], ['applicable_to','--','ENUM(\'ALL\',\'SPECIFIC_CATEGORIES\',\'SPECIFIC_PRODUCTS\')'], ['applicable_ids','--','JSON'], ['gift_product_name','--','VARCHAR(300)'], ['gift_product_qty','--','INT'], ['applicable_channel','--','ENUM(\'ALL\',\'WEB\',\'POS\')'], ['usage_limit','--','INT'], ['usage_count','--','INT'], ['start_date','--','DATETIME'], ['end_date','--','DATETIME'], ['is_active','--','TINYINT(1)'], ['created_at','--','DATETIME']
+]},
+{id:'mg_cms.store_config',s:'mg_cms',x:4360,y:1600,cols:[
+  ['config_key','PK','VARCHAR(100)'], ['config_value','--','TEXT'], ['value_type','--','ENUM(\'STRING\',\'INTEGER\',\'DECIMAL\',\'BOOLEAN\',\'JSON\')'], ['display_name','--','VARCHAR(200)'], ['description','--','VARCHAR(500)'], ['group_name','--','VARCHAR(100)'], ['is_public','--','TINYINT(1)'], ['is_editable','--','TINYINT(1)'], ['updated_by','FK','BIGINT'], ['updated_at','--','DATETIME'], ['is_sensitive','--','TINYINT(1)'], ['value_hash','--','CHAR(64)'], ['id','UK','INT'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_cms.trending_searches',s:'mg_cms',x:4780,y:1600,cols:[
+  ['id','PK','INT'], ['keyword','UK','VARCHAR(300)'], ['context','UK','ENUM(\'GLOBAL\',\'PRODUCT\',\'DISEASE\',\'ARTICLE\')'], ['search_count','--','BIGINT'], ['distinct_users','--','INT'], ['is_pinned','--','TINYINT(1)'], ['is_hidden','--','TINYINT(1)'], ['pin_order','--','INT'], ['period_start','UK','DATE'], ['period_end','--','DATE'], ['last_searched','--','DATETIME'], ['updated_at','--','DATETIME']
+]},
+{id:'mg_notification.notification_templates',s:'mg_notification',x:5260,y:40,cols:[
+  ['id','PK','INT'], ['name','UK','VARCHAR(100)'], ['channel','UK','ENUM(\'EMAIL\',\'SMS\',\'PUSH\',\'IN_APP\',\'ZALO\')'], ['subject','--','VARCHAR(300)'], ['body_template','--','TEXT'], ['is_active','--','TINYINT(1)']
+]},
+{id:'mg_notification.notifications',s:'mg_notification',x:5260,y:560,cols:[
+  ['id','PK','BIGINT'], ['template_id','FK','INT'], ['recipient_type','--','ENUM(\'CUSTOMER\',\'STAFF\',\'ADMIN\')'], ['recipient_id','--','BIGINT'], ['channel','--','ENUM(\'EMAIL\',\'SMS\',\'PUSH\',\'IN_APP\',\'ZALO\')'], ['reference_type','--','VARCHAR(50)'], ['reference_id','--','BIGINT'], ['payload','--','JSON'], ['status','--','ENUM(\'PENDING\',\'SENT\',\'FAILED\')'], ['sent_at','--','DATETIME'], ['created_at','--','DATETIME']
+]},
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// FOREIGN KEY RELATIONSHIPS
+// [fromTable, fromCol, toTable, toCol, crossSchema]
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const FKS = [
+['mg_identity.customer_addresses','customer_id','mg_identity.customers','id',false],
+['mg_identity.loyalty_points_transactions','customer_id','mg_identity.customers','id',false],
+['mg_identity.loyalty_points_transactions','reference_order_id','mg_order.orders','id',true],
+['mg_identity.loyalty_points_transactions','adjusted_by','mg_identity.users','id',true],
+['mg_identity.shifts','user_id','mg_identity.users','id',false],
+['mg_identity.shifts','approved_by','mg_identity.users','id',true],
+['mg_identity.users','role_id','mg_identity.roles','id',false],
+['mg_catalog.audit_items','audit_id','mg_catalog.inventory_audits','id',false],
+['mg_catalog.audit_items','batch_item_id','mg_catalog.batch_items','id',false],
+['mg_catalog.audit_items','product_id','mg_catalog.products','id',false],
+['mg_catalog.batch_items','batch_id','mg_catalog.batches','id',false],
+['mg_catalog.batch_items','product_id','mg_catalog.products','id',false],
+['mg_catalog.batch_items','location_id','mg_catalog.locations','id',false],
+['mg_catalog.batches','supplier_id','mg_catalog.suppliers','id',false],
+['mg_catalog.batches','created_by','mg_identity.users','id',true],
+['mg_catalog.catalog_audit_logs','user_id','mg_identity.users','id',true],
+['mg_catalog.catalog_gift_campaigns','gift_product_id','mg_catalog.products','id',false],
+['mg_catalog.categories','parent_id','mg_catalog.categories','id',false],
+['mg_catalog.inventory_audits','location_id','mg_catalog.locations','id',false],
+['mg_catalog.inventory_audits','created_by','mg_identity.users','id',true],
+['mg_catalog.inventory_audits','reconciled_by','mg_identity.users','id',true],
+['mg_catalog.product_recalls','product_id','mg_catalog.products','id',false],
+['mg_catalog.product_recalls','recalled_by','mg_identity.users','id',true],
+['mg_catalog.product_specifications','product_id','mg_catalog.products','id',false],
+['mg_catalog.product_units','product_id','mg_catalog.products','id',false],
+['mg_catalog.products','category_id','mg_catalog.categories','id',false],
+['mg_catalog.product_images','product_id','mg_catalog.products','id',false],
+['mg_catalog.product_images','uploaded_by','mg_identity.users','id',true],
+['mg_catalog.product_reviews','product_id','mg_catalog.products','id',false],
+['mg_catalog.product_reviews','order_id','mg_order.orders','id',true],
+['mg_catalog.product_reviews','order_item_id','mg_order.order_items','id',true],
+['mg_catalog.product_reviews','approved_by','mg_identity.users','id',true],
+['mg_catalog.product_tag_promotions','product_id','mg_catalog.products','id',false],
+['mg_catalog.stock_movements','batch_item_id','mg_catalog.batch_items','id',false],
+['mg_catalog.stock_movements','product_id','mg_catalog.products','id',false],
+['mg_catalog.stock_movements','created_by','mg_identity.users','id',true],
+['mg_catalog.stock_reservations','batch_item_id','mg_catalog.batch_items','id',false],
+['mg_catalog.stock_reservations','product_id','mg_catalog.products','id',false],
+['mg_catalog.storage_cabinets','zone_id','mg_catalog.storage_zones','id',false],
+['mg_catalog.storage_shelves','cabinet_id','mg_catalog.storage_cabinets','id',false],
+['mg_catalog.storage_shelves','location_id','mg_catalog.locations','id',false],
+['mg_order.cart_items','cart_id','mg_order.carts','id',false],
+['mg_order.carts','customer_id','mg_identity.customers','id',true],
+['mg_order.order_internal_notes','order_id','mg_order.orders','id',false],
+['mg_order.order_internal_notes','created_by','mg_identity.users','id',true],
+['mg_order.order_items','order_id','mg_order.orders','id',false],
+['mg_order.order_items','product_id','mg_catalog.products','id',true],
+['mg_order.order_items','batch_item_id','mg_catalog.batch_items','id',true],
+['mg_order.order_items','prescription_id','mg_order.prescriptions','id',false],
+['mg_order.order_promotions','order_id','mg_order.orders','id',false],
+['mg_order.orders','customer_id','mg_identity.customers','id',true],
+['mg_order.orders','staff_id','mg_identity.users','id',true],
+['mg_order.orders','shift_id','mg_identity.shifts','id',true],
+['mg_order.pos_held_order_items','hold_id','mg_order.pos_held_orders','id',false],
+['mg_order.pos_held_order_items','product_id','mg_catalog.products','id',true],
+['mg_order.pos_held_orders','staff_id','mg_identity.users','id',true],
+['mg_order.pos_held_orders','shift_id','mg_identity.shifts','id',true],
+['mg_order.pos_held_orders','customer_id','mg_identity.customers','id',true],
+['mg_order.prescriptions','order_id','mg_order.orders','id',false],
+['mg_order.prescriptions','customer_id','mg_identity.customers','id',true],
+['mg_order.prescriptions','verified_by','mg_identity.users','id',true],
+['mg_order.return_items','return_id','mg_order.returns','id',false],
+['mg_order.return_items','order_item_id','mg_order.order_items','id',false],
+['mg_order.returns','order_id','mg_order.orders','id',false],
+['mg_cms.articles','category_id','mg_cms.cms_categories','id',false],
+['mg_cms.articles','author_id','mg_identity.users','id',true],
+['mg_cms.cms_categories','parent_id','mg_cms.cms_categories','id',false],
+['mg_cms.cms_media','uploaded_by','mg_identity.users','id',true],
+['mg_cms.cms_pages','author_id','mg_identity.users','id',true],
+['mg_cms.cms_pages','published_by','mg_identity.users','id',true],
+['mg_cms.store_config','updated_by','mg_identity.users','id',true],
+['mg_notification.notifications','template_id','mg_notification.notification_templates','id',false],
+];
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let positions = {}; // table id → {x,y}
+let collapsed = {};
+let scale = 0.72, tx = 40, ty = 24;
+let hiddenSchemas = new Set();
+let showCross = true, showFks = true;
+let dragging = null, dragOffX = 0, dragOffY = 0;
+let panning = false, panX0 = 0, panY0 = 0, panTx0 = 0, panTy0 = 0;
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// RENDER TABLES
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function init() {
+  // init positions from table data
+  TABLES.forEach(t => { positions[t.id] = {x:t.x, y:t.y}; });
+  renderAll();
+  applyTransform();
+  updateStats();
+}
+
+function renderAll() {
+  const canvas = document.getElementById('canvas');
+  canvas.innerHTML = '';
+  TABLES.forEach(t => renderTable(t, canvas));
+  renderFKLines();
+}
+
+function renderTable(t, canvas) {
+  const sc = SC[t.s];
+  const pos = positions[t.id];
+  const isColl = collapsed[t.id];
+  const el = document.createElement('div');
+  el.className = 'tc' + (isColl ? ' coll' : '');
+  el.id = 'tc_' + t.id;
+  el.style.cssText = `left:${pos.x}px;top:${pos.y}px;border-top:2px solid ${sc.hdr};`;
+  el.style.background = sc.bg;
+
+  const shortName = t.id.split('.')[1];
+  const schemaLabel = t.s.replace('mg_','');
+
+  el.innerHTML = `
+    <div class="th" style="background:${sc.hdr}22" onclick="toggleCollapse('${t.id}')">
+      <div class="th-dot" style="background:${sc.dot}"></div>
+      <div>
+        <div class="th-schema">${schemaLabel}</div>
+        <div class="th-name">${shortName}</div>
+      </div>
+      <div class="th-cnt">${t.cols.length}</div>
+      <div class="th-arrow">▾</div>
+    </div>
+    <div class="tb">${t.cols.map(c => `
+      <div class="cr">
+        <span class="ck ${c[1].toLowerCase().replace('--','--')}">${c[1]==='--'?'&nbsp;':c[1]}</span>
+        <span class="cn" title="${c[0]}">${c[0]}</span>
+        <span class="ct">${c[2]}</span>
+      </div>`).join('')}
+    </div>`;
+
+  // drag
+  el.addEventListener('mousedown', e => {
+    if (e.target.closest('.th')) return; // let header toggle
+    startDrag(e, t.id);
+  });
+  el.querySelector('.th').addEventListener('mousedown', e => e.stopPropagation());
+  el.querySelector('.th').addEventListener('click', e => e.stopPropagation());
+
+  canvas.appendChild(el);
+
+  // Hover: highlight connected tables & FK lines
+  el.addEventListener('mouseenter', () => onTableMouseEnter(t.id));
+  el.addEventListener('mouseleave', onTableMouseLeave);
+}
+
+function toggleCollapse(id) {
+  collapsed[id] = !collapsed[id];
+  const el = document.getElementById('tc_' + id);
+  if (el) {
+    el.classList.toggle('coll', collapsed[id]);
+  }
+  setTimeout(renderFKLines, 50);
+}
+function collapseAll() { TABLES.forEach(t => { collapsed[t.id]=true; document.getElementById('tc_'+t.id)?.classList.add('coll'); }); renderFKLines(); }
+function expandAll() { TABLES.forEach(t => { collapsed[t.id]=false; document.getElementById('tc_'+t.id)?.classList.remove('coll'); }); renderFKLines(); }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// FK LINES — Smart orthogonal routing
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function getTableRect(id) {
+  const el = document.getElementById('tc_' + id);
+  if (!el) return null;
+  const pos = positions[id];
+  return { x: pos.x, y: pos.y, w: 236, h: el.offsetHeight };
+}
+
+// Pick the best exit/entry ports (4 sides) based on relative positions
+function bestPorts(fr, tr) {
+  const fcx = fr.x + fr.w/2, fcy = fr.y + fr.h/2;
+  const tcx = tr.x + tr.w/2, tcy = tr.y + tr.h/2;
+  const dx = tcx - fcx, dy = tcy - fcy;
+
+  // Overlap detection
+  const xOverlap = Math.abs(dx) < (fr.w + tr.w) / 2 + 10;
+  const yOverlap = Math.abs(dy) < (fr.h + tr.h) / 2 + 10;
+
+  let x1, y1, sx1, sy1, x2, y2, sx2, sy2;
+  const GAP = 28; // control point distance
+
+  if (!xOverlap && Math.abs(dx) >= Math.abs(dy)) {
+    // Primary: left ↔ right
+    if (dx > 0) {
+      x1 = fr.x + fr.w; y1 = fcy; sx1 = GAP; sy1 = 0;
+      x2 = tr.x;        y2 = tcy; sx2 = -GAP; sy2 = 0;
+    } else {
+      x1 = fr.x;        y1 = fcy; sx1 = -GAP; sy1 = 0;
+      x2 = tr.x + tr.w; y2 = tcy; sx2 = GAP;  sy2 = 0;
+    }
+  } else if (!yOverlap) {
+    // Primary: top ↔ bottom
+    if (dy > 0) {
+      x1 = fcx; y1 = fr.y + fr.h; sx1 = 0; sy1 = GAP;
+      x2 = tcx; y2 = tr.y;        sx2 = 0; sy2 = -GAP;
+    } else {
+      x1 = fcx; y1 = fr.y;        sx1 = 0; sy1 = -GAP;
+      x2 = tcx; y2 = tr.y + tr.h; sx2 = 0; sy2 = GAP;
+    }
+  } else {
+    // Fallback: nearest corner combo
+    if (dx > 0) {
+      x1 = fr.x + fr.w; y1 = fcy; sx1 = GAP; sy1 = 0;
+      x2 = tr.x;        y2 = tcy; sx2 = -GAP; sy2 = 0;
+    } else {
+      x1 = fr.x;        y1 = fcy; sx1 = -GAP; sy1 = 0;
+      x2 = tr.x + tr.w; y2 = tcy; sx2 = GAP;  sy2 = 0;
+    }
+  }
+  return { x1, y1, sx1, sy1, x2, y2, sx2, sy2 };
+}
+
+// Build a smooth orthogonal path with rounded elbows
+function buildPath(x1, y1, sx1, sy1, x2, y2, sx2, sy2) {
+  const hExit  = (sx1 !== 0);
+  const hEntry = (sx2 !== 0);
+
+  if (hExit && hEntry) {
+    const midX = (x1 + x2) / 2;
+    return `M${x1},${y1} L${midX},${y1} L${midX},${y2} L${x2},${y2}`;
+  } else if (!hExit && !hEntry) {
+    const midY = (y1 + y2) / 2;
+    return `M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`;
+  } else {
+    // One horizontal, one vertical
+    if (hExit) {
+      return `M${x1},${y1} L${x2},${y1} L${x2},${y2}`;
+    } else {
+      return `M${x1},${y1} L${x1},${y2} L${x2},${y2}`;
+    }
+  }
+}
+
+// Schema-based line colour for within-schema FKs
+const LINE_COLOR = {
+  mg_identity:     '#3b82f6',
+  mg_catalog:      '#10b981',
+  mg_order:        '#f59e0b',
+  mg_cms:          '#a78bfa',
+  mg_notification: '#f87171',
+};
+
+let activeTable = null; // for hover-dim effect
+
+function renderFKLines() {
+  const svg = document.getElementById('svg-layer');
+
+  // Build marker defs for each colour
+  const colors = Object.values(LINE_COLOR);
+  const crossColor = '#fb923c';
+  const allColors = [...colors, crossColor];
+
+  let defsHtml = '<defs>';
+  allColors.forEach((col, i) => {
+    defsHtml += `<marker id="arr${i}" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0.5 L0,6.5 L6,3.5 z" fill="${col}"/>
+    </marker>`;
+    defsHtml += `<marker id="arrd${i}" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0.5 L0,6.5 L6,3.5 z" fill="${col}" opacity="0.7"/>
+    </marker>`;
+    // Wider invisible hit-area marker
+    defsHtml += `<filter id="glow${i}" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>`;
+  });
+  defsHtml += '</defs>';
+  svg.innerHTML = defsHtml;
+
+  if (!showFks) return;
+
+  // Group: render same-schema FKs first (below), cross-schema on top
+  const ordered = [...FKS].sort((a, b) => (a[4] ? 1 : 0) - (b[4] ? 1 : 0));
+
+  ordered.forEach(([from, fromCol, to, toCol, cross]) => {
+    if (!showCross && cross) return;
+    const fromS = from.split('.')[0];
+    const toS   = to.split('.')[0];
+    if (hiddenSchemas.has(fromS) || hiddenSchemas.has(toS)) return;
+
+    const fr = getTableRect(from);
+    const tr = getTableRect(to);
+    if (!fr || !tr) return;
+
+    const { x1, y1, sx1, sy1, x2, y2, sx2, sy2 } = bestPorts(fr, tr);
+    const d = buildPath(x1, y1, sx1, sy1, x2, y2, sx2, sy2);
+
+    // Choose colour: cross-schema = orange, within = schema colour
+    const baseColor = cross ? crossColor : (LINE_COLOR[fromS] || '#64748b');
+    const colorIdx  = cross ? allColors.length - 1 : colors.indexOf(LINE_COLOR[fromS]);
+
+    const isDimmed = activeTable && from !== activeTable && to !== activeTable;
+    const isBright = activeTable && (from === activeTable || to === activeTable);
+
+    const opacity = isDimmed ? 0.04 : (isBright ? 1 : (cross ? 0.38 : 0.45));
+    const sw      = isBright ? 2.5 : 1.5;
+    const markerSuffix = cross ? 'd' + colorIdx : '' + colorIdx;
+
+    // Hit-area path (invisible, wide)
+    const hitEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    hitEl.setAttribute('d', d);
+    hitEl.setAttribute('stroke', 'transparent');
+    hitEl.setAttribute('stroke-width', '12');
+    hitEl.setAttribute('fill', 'none');
+    hitEl.style.cursor = 'pointer';
+    hitEl.style.pointerEvents = 'stroke';
+    const lbl = `${from.split('.')[1]}.${fromCol}  →  ${to.split('.')[1]}.${toCol}${cross ? '  (cross-schema)' : ''}`;
+    hitEl.addEventListener('mouseenter', e => { showTip(e, lbl); });
+    hitEl.addEventListener('mouseleave', hideTip);
+
+    // Visual path
+    const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    pathEl.setAttribute('d', d);
+    pathEl.setAttribute('stroke', baseColor);
+    pathEl.setAttribute('stroke-width', sw);
+    pathEl.setAttribute('fill', 'none');
+    pathEl.setAttribute('opacity', opacity);
+    if (cross) pathEl.setAttribute('stroke-dasharray', '7,4');
+    pathEl.setAttribute('marker-end', `url(#arr${colorIdx})`);
+    pathEl.style.pointerEvents = 'none';
+    pathEl.style.transition = 'opacity 0.2s';
+
+    svg.appendChild(pathEl);
+    svg.appendChild(hitEl);
+  });
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TABLE HOVER → dim unrelated lines & tables
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function getRelatedTables(tableId) {
+  const related = new Set([tableId]);
+  FKS.forEach(([from, , to]) => {
+    if (from === tableId) related.add(to);
+    if (to === tableId)   related.add(from);
+  });
+  return related;
+}
+
+function onTableMouseEnter(tableId) {
+  activeTable = tableId;
+  const related = getRelatedTables(tableId);
+  TABLES.forEach(t => {
+    const el = document.getElementById('tc_' + t.id);
+    if (!el || hiddenSchemas.has(t.s)) return;
+    if (related.has(t.id))   { el.classList.add('hi');  el.classList.remove('lo'); }
+    else                      { el.classList.add('lo');  el.classList.remove('hi'); }
+  });
+  renderFKLines();
+}
+
+function onTableMouseLeave() {
+  activeTable = null;
+  TABLES.forEach(t => {
+    const el = document.getElementById('tc_' + t.id);
+    if (el) { el.classList.remove('hi', 'lo'); }
+  });
+  renderFKLines();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TRANSFORM (pan + zoom)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function applyTransform() {
+  const canvas = document.getElementById('canvas');
+  const svg    = document.getElementById('svg-layer');
+  canvas.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+  // SVG must be kept in sync
+  const vw = window.innerWidth, vh = window.innerHeight - 54;
+  // make SVG huge enough
+  const cw = 3200, ch = 1500;
+  svg.setAttribute('width',  vw);
+  svg.setAttribute('height', vh);
+  svg.setAttribute('viewBox', `${-tx/scale} ${-ty/scale} ${vw/scale} ${vh/scale}`);
+  document.getElementById('zoom-pct').textContent = Math.round(scale*100)+'%';
+}
+
+function zoom(factor) {
+  const vw = window.innerWidth/2, vh = (window.innerHeight-54)/2;
+  tx = vw - factor*(vw - tx);
+  ty = vh - factor*(vh - ty);
+  scale *= factor;
+  scale = Math.max(0.15, Math.min(3, scale));
+  applyTransform();
+}
+
+function fitScreen() {
+  // compute bounding box of all tables
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  TABLES.forEach(t => {
+    const p = positions[t.id];
+    const el = document.getElementById('tc_'+t.id);
+    const h = el ? el.offsetHeight : 200;
+    if (hiddenSchemas.has(t.s)) return;
+    minX=Math.min(minX,p.x); minY=Math.min(minY,p.y);
+    maxX=Math.max(maxX,p.x+236); maxY=Math.max(maxY,p.y+h);
+  });
+  const vw = window.innerWidth - 280; // leave room for legend
+  const vh = window.innerHeight - 54 - 60;
+  const contentW = maxX - minX + 40;
+  const contentH = maxY - minY + 40;
+  scale = Math.min(vw/contentW, vh/contentH, 1.2);
+  scale = Math.max(0.15, scale);
+  tx = -minX*scale + 20;
+  ty = -minY*scale + 20;
+  applyTransform();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DRAG TABLES
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function startDrag(e, id) {
+  e.stopPropagation();
+  dragging = id;
+  const pos = positions[id];
+  dragOffX = e.clientX/scale - pos.x - tx/scale;
+  dragOffY = e.clientY/scale - pos.y - ty/scale;
+  document.getElementById('tc_'+id)?.classList.add('dragging');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SEARCH
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  TABLES.forEach(t => {
+    const el = document.getElementById('tc_'+t.id);
+    if (!el) return;
+    if (!q) { el.classList.remove('dim'); return; }
+    const tName = t.id.toLowerCase();
+    const hasMatch = tName.includes(q) || t.cols.some(c => c[0].toLowerCase().includes(q));
+    el.classList.toggle('dim', !hasMatch);
+  });
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SCHEMA PILLS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.querySelectorAll('.s-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const s = btn.dataset.s;
+    if (hiddenSchemas.has(s)) { hiddenSchemas.delete(s); btn.classList.remove('off'); }
+    else { hiddenSchemas.add(s); btn.classList.add('off'); }
+    TABLES.forEach(t => {
+      const el = document.getElementById('tc_'+t.id);
+      if (!el) return;
+      el.style.display = hiddenSchemas.has(t.s) ? 'none' : '';
+    });
+    renderFKLines();
+  });
+});
+
+// cross-schema FK toggle
+document.getElementById('ck-cross').addEventListener('change', function() {
+  showCross = this.checked; renderFKLines();
+});
+document.getElementById('ck-fk').addEventListener('change', function() {
+  showFks = this.checked; renderFKLines();
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// MOUSE EVENTS — Global
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const wrap = document.getElementById('wrap');
+
+wrap.addEventListener('mousedown', e => {
+  if (e.target.closest('.tc')) return;
+  panning = true;
+  panX0 = e.clientX; panY0 = e.clientY;
+  panTx0 = tx; panTy0 = ty;
+  wrap.classList.add('panning');
+});
+
+document.addEventListener('mousemove', e => {
+  if (dragging) {
+    const pos = positions[dragging];
+    pos.x = e.clientX/scale - dragOffX - tx/scale;
+    pos.y = e.clientY/scale - dragOffY - ty/scale;
+    const el = document.getElementById('tc_'+dragging);
+    if (el) { el.style.left = pos.x+'px'; el.style.top = pos.y+'px'; }
+    renderFKLines();
+  } else if (panning) {
+    tx = panTx0 + (e.clientX - panX0);
+    ty = panTy0 + (e.clientY - panY0);
+    applyTransform();
+    renderFKLines();
+  }
+});
+
+document.addEventListener('mouseup', e => {
+  if (dragging) {
+    document.getElementById('tc_'+dragging)?.classList.remove('dragging');
+    dragging = null;
+  }
+  if (panning) { panning = false; wrap.classList.remove('panning'); }
+});
+
+wrap.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  const mx = e.clientX, my = e.clientY - 54;
+  tx = mx - factor*(mx - tx);
+  ty = my - factor*(my - ty);
+  scale *= factor;
+  scale = Math.max(0.1, Math.min(3, scale));
+  applyTransform();
+  renderFKLines();
+}, { passive: false });
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// TOOLTIP
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const tip = document.getElementById('tip');
+function showTip(e, text) {
+  tip.textContent = text;
+  tip.style.display = 'block';
+  tip.style.left = (e.clientX + 12)+'px';
+  tip.style.top  = (e.clientY + 12)+'px';
+}
+function hideTip() { tip.style.display = 'none'; }
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STATS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function updateStats() {
+  const totalCols = TABLES.reduce((a,t)=>a+t.cols.length,0);
+  document.getElementById('st-tables').textContent = TABLES.length;
+  document.getElementById('st-cols').textContent = totalCols;
+  document.getElementById('st-fks').textContent = FKS.length;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// KEYBOARD
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+document.addEventListener('keydown', e => {
+  if (e.key==='f' || e.key==='F') fitScreen();
+  if (e.key==='+' || e.key==='=') zoom(1.15);
+  if (e.key==='-') zoom(0.85);
+  if (e.key==='0') { scale=1; tx=40; ty=24; applyTransform(); renderFKLines(); }
+  if (e.key==='Escape') { expandAll(); document.getElementById('search').value=''; TABLES.forEach(t=>document.getElementById('tc_'+t.id)?.classList.remove('dim')); }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// BOOT
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+init();
+// After DOM settles, fit screen
+setTimeout(()=>{ fitScreen(); renderFKLines(); }, 150);
+</script>
+</body>
+</html>

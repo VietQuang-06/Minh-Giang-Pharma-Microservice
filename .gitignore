@@ -1,0 +1,145 @@
+# ════════════════════════════════════════════════════════════════
+# .gitignore — Minh Giang Pharmacy Microservices Project
+# Tránh commit các file nhạy cảm, build outputs, dependencies
+# ════════════════════════════════════════════════════════════════
+
+# ─── CRITICAL: Environment & Secrets ───────────────────────────────
+# Local environment variables (NEVER commit)
+.env
+# Local overrides
+.env.local
+# Environment-specific locals
+.env.*.local
+# Production secrets (NEVER commit)
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ─── Node.js Dependencies & Lock ───────────────────────────────────
+# npm install creates this (huge folder)
+node_modules/
+# npm debug logs
+npm-debug.log*
+npm-error.log*
+yarn-error.log*
+yarn-debug.log*
+# Optional: uncomment if team tracks it
+package-lock.json
+yarn.lock
+
+# ─── Build Outputs ─────────────────────────────────────────────────
+dist/
+build/
+out/
+bin/
+obj/
+# Maven build output
+target/
+# Compiled Java archives
+*.jar
+*.war
+*.ear
+
+# ─── IDE & Editor Files ────────────────────────────────────────────
+# VS Code workspace settings
+.vscode/
+# JetBrains IDEs (IntelliJ, WebStorm, etc.)
+.idea/
+# Visual Studio solution
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+# macOS folder metadata
+.DS_Store
+# Windows folder thumbnails
+Thumbs.db
+
+# ─── Editor Temporary Files ────────────────────────────────────────
+# Vim swap files
+*.swp
+*.swo
+# Emacs temporary
+*~
+# Backup files
+*.bak
+*.tmp
+
+# ─── OS Files ──────────────────────────────────────────────────────
+.AppleDouble
+.LSOverride
+
+# ─── Python (if used) ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ─── Database Files (local dev only) ────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+data/
+
+# ─── Log Files ─────────────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+.local-frontend.pid
+
+# ─── Runtime Uploads (local/demo/prod data, not source code) ───────
+frontend/uploads/
+backend/*/uploads/
+
+# ─── Test & Coverage ──────────────────────────────────────────────
+.cache/
+.coverage
+coverage/
+*.lcov
+test-results/
+junit.xml
+
+# ─── Sensitive Files & Credentials ────────────────────────────────
+*.pem
+*.key
+*.crt
+*.pfx
+secret*
+*credentials*
+*password*
+oauth.json
+api-keys.json
+private/
+
+# ─── Gradle & Maven ───────────────────────────────────────────────
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+.flattened-pom.xml
+.gradle/
+!.gradle-wrapper.jar
+gradle-app.setting
+.gradletasknamecache
+
+# ─── Postman local backups ────────────────────────────────────────
+Postman/backup/
+
+# ═══════════════════════════════════════════════════════════════════
+# EXCEPTIONS: Files to KEEP
+# ═══════════════════════════════════════════════════════════════════
+!.env.example
+!.vscode/extensions.json
+!.idea/codeStyles/
+!docker-compose.yml
+!Dockerfile
+!.gitignore
+
+# Local seeding script (one-time developer test tool)
+backend/order-service/seed_sales.js

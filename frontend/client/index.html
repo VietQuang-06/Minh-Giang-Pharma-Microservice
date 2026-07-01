@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <script>
+        window.onerror = function (message, source, lineno, colno, error) {
+            const errDiv = document.createElement('div');
+            errDiv.style = 'position:fixed;top:10px;left:10px;right:10px;background:#fef2f2;color:#991b1b;border:2px solid #f87171;padding:15px;z-index:999999;font-family:monospace;font-size:14px;border-radius:8px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);';
+            errDiv.innerHTML = '<strong>JS ERROR:</strong> ' + message + '<br><em>Line: ' + lineno + ' in ' + source + '</em>';
+            document.body.appendChild(errDiv);
+        };
+        window.addEventListener('unhandledrejection', function (event) {
+            const errDiv = document.createElement('div');
+            errDiv.style = 'position:fixed;top:100px;left:10px;right:10px;background:#fffbeb;color:#92400e;border:2px solid #fbbf24;padding:15px;z-index:999999;font-family:monospace;font-size:14px;border-radius:8px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);';
+            errDiv.innerHTML = '<strong>UNHANDLED REJECTION:</strong> ' + event.reason;
+            document.body.appendChild(errDiv);
+        });
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhà Thuốc Minh Giang</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        media="print" onload="this.media='all'">
+    <style>
+        /* --- CAROUSEL STYLES FOR TRENDING SECTION --- */
+        .pd-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .pd-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .carousel-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .carousel-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: transparent;
+            font-size: 14px;
+            color: #4b5563;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+            color: #1b8844;
+            border-color: #1b8844;
+        }
+
+        .carousel-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            margin: 0 -10px;
+            /* Safe padding cho box-shadow */
+            padding: 10px;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            gap: 15px;
+        }
+
+        .carousel-track>div {
+            flex: 0 0 calc((100% - 60px) / 5);
+        }
+
+        .carousel-wrapper {
+            position: relative;
+            margin: 0 10px;
+        }
+
+        .carousel-side-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .carousel-side-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+            color: #1b8844;
+            border-color: #1b8844;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .carousel-side-btn:disabled {
+            opacity: 0;
+            visibility: hidden;
+            cursor: not-allowed;
+        }
+
+        .carousel-side-btn.prev {
+            left: -20px;
+        }
+
+        .carousel-side-btn.next {
+            right: -20px;
+        }
+
+        .carousel-track>.product-card {
+            height: 100%;
+            min-height: 365px;
+        }
+
+        .carousel-track .product-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .carousel-track .product-card h5 {
+            min-height: 46px;
+            margin-bottom: 10px;
+        }
+
+        .carousel-track .product-card .product-price {
+            min-height: 54px;
+            align-content: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .carousel-track .product-card .btn-add-cart,
+        .carousel-track .product-card .btn-consult {
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        /* --- LAZY LOAD PLACEHOLDER & CLS PREVENTION --- */
+        [data-home-products] {
+            min-height: 380px;
+        }
+
+        .catalog-widget-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Banner -->
+    <div mg-include="../components/header_banner.html"></div>
+
+    <!-- Top Bar -->
+    <div mg-include="../components/top_bar.html"></div>
+
+    <!-- Main Header -->
+    <div mg-include="../components/main_header.html"></div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section container">
+            <div class="hero-grid">
+                <!-- Main Slider -->
+                <div class="hero-slider">
+                    <div class="slider-images" id="heroSliderImages">
+                        <img src="../assets/images/banner_slide_1.png" alt="Promo Slide 1" class="main-slide">
+                        <img src="../assets/images/banner_slide_2.png" alt="Promo Slide 2" class="main-slide">
+                        <img src="../assets/images/banner_slide_3.png" alt="Promo Slide 3" class="main-slide">
+                        <img src="../assets/images/banner_slide_4.png" alt="Promo Slide 4" class="main-slide">
+                        <img src="../assets/images/banner_slide_5.png" alt="Promo Slide 5" class="main-slide">
+                        <img src="../assets/images/banner_slide_6.png" alt="Promo Slide 6" class="main-slide">
+                    </div>
+                    <div class="slider-controls">
+                        <button class="slider-btn prev" onclick="moveSlide(-1)"><img
+                                src="../assets/images/icon_banner_arrow_left.png" alt="Prev"></button>
+                        <button class="slider-btn next" onclick="moveSlide(1)"><img
+                                src="../assets/images/icon_banner_arrow_right.png" alt="Next"></button>
+                    </div>
+                    <div class="slider-dots" id="heroSliderDots">
+                        <span class="dot active" onclick="currentSlide(0)"></span>
+                        <span class="dot" onclick="currentSlide(1)"></span>
+                        <span class="dot" onclick="currentSlide(2)"></span>
+                        <span class="dot" onclick="currentSlide(3)"></span>
+                        <span class="dot" onclick="currentSlide(4)"></span>
+                        <span class="dot" onclick="currentSlide(5)"></span>
+                    </div>
+                </div>
+
+                <!-- Side Banners -->
+                <div class="hero-side-banners">
+                    <a href="#" class="side-banner">
+                        <img src="../assets/images/banner_1.png" alt="Banner 1">
+                    </a>
+                    <a href="#" class="side-banner">
+                        <img src="../assets/images/banner_san_pham_ban_chay_so_1_han_quoc.png"
+                            alt="Sản phẩm bán chạy số 1 Hàn Quốc">
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Shortcuts -->
+        <section class="feature-shortcuts container">
+            <div class="shortcut-list">
+                <a href="#" class="shortcut-item">
+                    <div class="icon-wrapper">
+                        <img src="../assets/images/icon_duoc_si_tu_van.png" alt="Dược sĩ tư vấn">
+                    </div>
+                    <span>Dược sĩ tư vấn</span>
+                </a>
+                <a href="#" class="shortcut-item">
+                    <div class="icon-wrapper">
+                        <img src="../assets/images/icon_thuoc_mua_theo_don.png" alt="Mua thuốc theo đơn">
+                    </div>
+                    <span>Mua thuốc theo đơn</span>
+                </a>
+                <a href="#" class="shortcut-item">
+                    <div class="icon-wrapper">
+                        <img src="../assets/images/icon_he_thong_nha_thuoc.png" alt="Hệ thống nhà thuốc">
+                    </div>
+                    <span>Hệ thống nhà thuốc</span>
+                </a>
+                <a href="#" class="shortcut-item">
+                    <div class="icon-wrapper">
+                        <img src="../assets/images/icon_deal_sieu_hot.png" alt="Deal siêu hot">
+                    </div>
+                    <span>Deal siêu hot</span>
+                </a>
+                <a href="#" class="shortcut-item">
+                    <div class="icon-wrapper">
+                        <img src="../assets/images/icon_suc_khoe_tong_quat.png" alt="Sức khỏe tổng quát">
+                    </div>
+                    <span>Sức khỏe tổng quát</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Flash Sale Section -->
+        <section class="product-section container bg-green-container" data-home-section="flash-sale">
+            <div class="product-section-header">
+                <img src="../assets/images/banner_flash_sale.png" alt="Flash Sale" data-layout-img="header_flash_sale">
+            </div>
+            <div class="carousel-wrapper">
+                <button class="carousel-side-btn prev" id="btnPrevFlashSale"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="carousel-container" style="overflow: hidden; padding: 15px; background-color: #fff; border-radius: 8px;">
+                    <div class="carousel-track" id="pdFlashSaleProducts" data-home-products="flash-sale">
+                        <!-- Nạp bằng JS -->
+                    </div>
+                </div>
+                <button class="carousel-side-btn next" id="btnNextFlashSale"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <a href="category.html" class="view-all-btn">Xem tất cả ></a>
+        </section>
+
+        <!-- Deal Sieu Khung Section -->
+        <section class="product-section container bg-green-container" data-home-section="deal">
+            <div class="product-section-header">
+                <img src="../assets/images/banner_deal_sieu_khung.png" alt="Deal Siêu Khủng"
+                    data-layout-img="header_deal">
+            </div>
+            <div class="carousel-wrapper">
+                <button class="carousel-side-btn prev" id="btnPrevDeal"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="carousel-container" style="overflow: hidden; padding: 15px; background-color: #fff; border-radius: 8px;">
+                    <div class="carousel-track" id="pdDealProducts" data-home-products="deal">
+                        <!-- Nạp bằng JS -->
+                    </div>
+                </div>
+                <button class="carousel-side-btn next" id="btnNextDeal"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <a href="category.html" class="view-all-btn">Xem tất cả ></a>
+        </section>
+
+        <!-- San Pham Ban Chay Section -->
+        <section class="product-section container bg-green-container" data-home-section="best-seller">
+            <div class="product-section-header">
+                <img src="../assets/images/banner_san_pham_ban_chay.png" alt="Sản Phẩm Bán Chạy"
+                    data-layout-img="header_best_seller">
+            </div>
+            <div class="carousel-wrapper">
+                <button class="carousel-side-btn prev" id="btnPrevBestSeller"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="carousel-container" style="overflow: hidden; padding: 15px; background-color: #fff; border-radius: 8px;">
+                    <div class="carousel-track" id="pdBestSellerProducts" data-home-products="best-seller">
+                        <!-- Nạp bằng JS -->
+                    </div>
+                </div>
+                <button class="carousel-side-btn next" id="btnNextBestSeller"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <a href="category.html" class="view-all-btn">Xem tất cả ></a>
+        </section>
+
+        <!-- Giam đên 38% Section -->
+        <section class="product-section container bg-green-container" data-home-section="discount">
+            <div class="product-section-header">
+                <img src="../assets/images/banner_giam_gia.png" alt="Giảm Giá 38%" data-layout-img="header_discount">
+            </div>
+            <div class="carousel-wrapper">
+                <button class="carousel-side-btn prev" id="btnPrevDiscount"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="carousel-container" style="overflow: hidden; padding: 15px; background-color: #fff; border-radius: 8px;">
+                    <div class="carousel-track" id="pdDiscountProducts" data-home-products="discount">
+                        <!-- Nạp bằng JS -->
+                    </div>
+                </div>
+                <button class="carousel-side-btn next" id="btnNextDiscount"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <a href="category.html" class="view-all-btn">Xem tất cả ></a>
+        </section>
+
+        <!-- San Pham Doc Quyen Section -->
+        <section class="product-section container bg-yellow-container" data-home-section="exclusive">
+            <div class="product-section-header">
+                <img src="../assets/images/banner_san_pham_doc_quyen.png" alt="Sản Phẩm Độc Quyền"
+                    data-layout-img="header_exclusive">
+            </div>
+            <div class="carousel-wrapper">
+                <button class="carousel-side-btn prev" id="btnPrevExclusive"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="carousel-container" style="overflow: hidden; padding: 15px; background-color: #fff; border-radius: 8px;">
+                    <div class="carousel-track" id="pdExclusiveProducts" data-home-products="exclusive">
+                        <!-- Nạp bằng JS -->
+                    </div>
+                </div>
+                <button class="carousel-side-btn next" id="btnNextExclusive"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <a href="category.html" class="view-all-btn">Xem tất cả ></a>
+        </section>
+
+        <!-- Nhap Khau 100% Section -->
+        <section class="product-section container bg-red-container" data-home-section="imported">
+            <div class="product-section-header">
+                <img src="../assets/images/banner_nhap_khau_100.png" alt="Nhập Khẩu 100%"
+                    data-layout-img="header_imported">
+            </div>
+            <div class="carousel-wrapper">
+                <button class="carousel-side-btn prev" id="btnPrevImported"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="carousel-container" style="overflow: hidden; padding: 15px; background-color: #fff; border-radius: 8px;">
+                    <div class="carousel-track" id="pdImportedProducts" data-home-products="imported">
+                        <!-- Nạp bằng JS -->
+                    </div>
+                </div>
+                <button class="carousel-side-btn next" id="btnNextImported"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <a href="category.html" class="view-all-btn">Xem tất cả ></a>
+        </section>
+
+        <!-- Top Thương Hiệu Section -->
+        <section class="top-brands-section container" data-home-section="brands">
+            <h2 class="section-title">Top thương hiệu và sản phẩm nổi bật</h2>
+            <div class="top-brands-grid">
+                <a href="#" class="brand-banner banner-large" data-brand-link="1">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_1.png" alt="Tháng của nàng"
+                        data-brand-idx="1">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="2">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_2.png" alt="Blackmores"
+                        data-brand-idx="2">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="3">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_3.png" alt="Trung Sơn Care"
+                        data-brand-idx="3">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="4">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_4.png" alt="Nucos"
+                        data-brand-idx="4">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="5">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_5.png" alt="Cocoon"
+                        data-brand-idx="5">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="6">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_6.png" alt="Brand 6"
+                        data-brand-idx="6">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="7">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_7.png" alt="Brand 7"
+                        data-brand-idx="7">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="8">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_8.png" alt="Brand 8"
+                        data-brand-idx="8">
+                </a>
+                <a href="#" class="brand-banner" data-brand-link="9">
+                    <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_9.png" alt="Brand 9"
+                        data-brand-idx="9">
+                </a>
+            </div>
+
+            <a href="#" class="brand-banner" style="margin-bottom: 30px; display: block;" data-brand-link="bottom">
+                <img src="../assets/images/banner_top_thuong_hieu_va_san_pham_noi_bat_10.png"
+                    alt="Đặt hàng online nhận ngay ưu đãi" data-brand-idx="bottom">
+            </a>
+        </section>
+
+        <!-- Danh Mục Sản Phẩm Section -->
+        <section class="categories-section container" data-home-section="categories">
+            <div class="categories-header">
+                <img src="../assets/images/icon_danh_muc_san_pham.png" alt="Danh mục">
+                <h2>Danh mục sản phẩm</h2>
+            </div>
+            <div class="categories-grid" data-home-categories>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_than_kinh_nao.png" alt="Thần kinh não">
+                    <span>Thần kinh não</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_vitamin_va_khoang_chat.png" alt="Vitamin & Khoáng chất">
+                    <span>Vitamin & Khoáng chất</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_suc_khoe_tim_mach.png" alt="Sức khỏe tim mạch">
+                    <span>Sức khỏe tim mạch</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_tang_cuong_de_khang.png" alt="Tăng cường đề kháng">
+                    <span>Tăng cường đề kháng</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_ho_tro_tieu_hoa.png" alt="Hỗ trợ tiêu hóa">
+                    <span>Hỗ trợ tiêu hóa</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_noi_tiet_sinh_ly.png" alt="Nội tiết - Sinh lý">
+                    <span>Nội tiết - Sinh lý</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_dinh_duong.png" alt="Dinh dưỡng">
+                    <span>Dinh dưỡng</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_ho_tro_dieu_tri.png" alt="Hỗ trợ điều trị">
+                    <span>Hỗ trợ điều trị</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_giai_phap_cho_lan_da.png" alt="Giải pháp cho làn da">
+                    <span>Giải pháp cho làn da</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_cham_soc_da_mat.png" alt="Chăm sóc da mặt">
+                    <span>Chăm sóc da mặt</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_ho_tro_lam_dep.png" alt="Hỗ trợ làm đẹp">
+                    <span>Hỗ trợ làm đẹp</span>
+                </a>
+                <a href="#" class="category-item">
+                    <img src="../assets/images/icon_category_ho_tro_sinh_duc.png" alt="Hỗ trợ sinh dục">
+                    <span>Hỗ trợ sinh dục</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Tìm Kiếm Hàng Đầu Section -->
+        <section class="top-searches-section container" data-home-section="top-searches">
+            <h2 class="top-searches-title">Tìm kiếm hàng đầu</h2>
+            <div class="tags-container" data-home-top-searches>
+                <span class="catalog-widget-loading">Đang tải tìm kiếm hàng đầu...</span>
+            </div>
+        </section>
+
+        <!-- San Pham Đang Thu Hut Section -->
+        <section class="product-section container bg-white-container" data-home-section="trending"
+            style="padding: 20px;">
+            <div class="pd-section-header">
+                <h2 class="pd-section-title">SẢN PHẨM ĐANG THU HÚT</h2>
+                <div class="carousel-nav">
+                    <button class="carousel-btn" id="btnPrevTrending" disabled><i
+                            class="fa-solid fa-arrow-left"></i></button>
+                    <button class="carousel-btn" id="btnNextTrending"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="carousel-container">
+                <div class="carousel-track" id="pdTrendingProducts" data-home-products="trending">
+                    <!-- Nạp bằng JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pre-Footer Promises -->
+    <div mg-include="../components/promises.html"></div>
+
+    <!-- Newsletter -->
+    <div mg-include="../components/newsletter.html"></div>
+
+    <!-- Main Footer -->
+    <div mg-include="../components/main_footer.html"></div>
+
+    <script>
+        let sliderImages = document.getElementById('heroSliderImages');
+        let dots = document.querySelectorAll('.slider-dots .dot');
+        let currentSlideIndex = 0;
+        let totalSlides = dots.length;
+
+        function updateSlider() {
+            if (!sliderImages) return;
+            sliderImages.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlideIndex);
+            });
+        }
+
+        function moveSlide(direction) {
+            if (totalSlides <= 0) return;
+            currentSlideIndex += direction;
+            if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex < 0) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            updateSlider();
+        }
+
+        function currentSlide(index) {
+            currentSlideIndex = index;
+            updateSlider();
+        }
+
+        function initSlider() {
+            sliderImages = document.getElementById('heroSliderImages');
+            dots = document.querySelectorAll('.slider-dots .dot');
+            totalSlides = dots.length;
+            currentSlideIndex = 0;
+            updateSlider();
+        }
+        window.initSlider = initSlider;
+
+        // Auto slider initialization
+        let sliderInterval = setInterval(() => {
+            moveSlide(1);
+        }, 5000);
+
+        // Pause on hover
+        const sliderContainer = document.querySelector('.hero-slider');
+        if (sliderContainer) {
+            sliderContainer.addEventListener('mouseenter', () => clearInterval(sliderInterval));
+            sliderContainer.addEventListener('mouseleave', () => {
+                sliderInterval = setInterval(() => {
+                    moveSlide(1);
+                }, 5000);
+            });
+        }
+    </script>
+    <script src="../assets/js/client-api.js"></script>
+    <script>
+        const GATEWAY = ((window.MGClientApi && window.MGClientApi.gatewayOrigin) || window.MG_API_GATEWAY_ORIGIN || 'http://localhost:8000').replace(/\/+$/, '');
+        const API_BASE = GATEWAY + '/api/identity';
+
+        // Auto refresh token khi accessToken hết hạn (call lại API kèm refreshToken)
+        async function tryRefreshToken() {
+            try {
+                const authRaw = localStorage.getItem('MG_CLIENT_AUTH');
+                if (!authRaw) return;
+                const auth = JSON.parse(authRaw);
+                if (!auth.refreshToken) return;
+
+                const res = await fetch(API_BASE + '/auth/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken: auth.refreshToken }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    auth.accessToken = data.data.accessToken;
+                    localStorage.setItem('MG_CLIENT_AUTH', JSON.stringify(auth));
+                } else {
+                    localStorage.removeItem('MG_CLIENT_AUTH');
+                }
+            } catch (e) { /* ignore */ }
+        }
+
+        // Kiểm tra token khi load trang — nếu sắp hết hạn thì refresh
+        (function checkToken() {
+            try {
+                const authRaw = localStorage.getItem('MG_CLIENT_AUTH');
+                if (!authRaw) return;
+                const auth = JSON.parse(authRaw);
+                if (!auth.accessToken) return;
+                const payload = JSON.parse(atob(auth.accessToken.split('.')[1]));
+                const expiresIn = payload.exp * 1000 - Date.now();
+                if (expiresIn < 30 * 60 * 1000) {
+                    tryRefreshToken();
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
+    <script src="../assets/js/dropdown-handler.js"></script>
+    <script src="../assets/js/mega-menu-loader.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/index-loader.js"></script>
+</body>
+
+</html>
